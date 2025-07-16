@@ -2,12 +2,16 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Subconscious Platform Docs",
+  "font": {
+    "family": "Manrope",
+    "url": "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+  },
   "colors": {
     "primary": "#FF5C28",
     "light": "#FF5C28",
     "dark": "#FF5C28"
   },
-  "favicon": "/logo/icon-orange.svg",
+  "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
       {
@@ -55,9 +59,9 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Platform",
-          "href": "https://www.subconscious.dev/platform",
-          "icon": "laptop"
+          "anchor": "Research",
+          "href": "https://www.subconscious.dev/research",
+          "icon": "microscope"
         },
         {
           "anchor": "Blog",
@@ -74,8 +78,8 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:jack@subconscious.dev"
+        "label": "Talk to an Engineer",
+        "href": "https://calendly.com/jack-subconscious/15min"
       }
     ],
     "primary": {

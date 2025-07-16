@@ -21,8 +21,8 @@
   "paths": {
     "/chat/completions": {
       "post": {
-        "summary": "Create chat completion",
-        "description": "Creates a model response for the given chat conversation",
+        "summary": "Kick off a agent with our OpenAI-compatible API",
+        "description": "Calls the TIM inference engine to generate a response. The user must state their goals in the prompt, and plug in valid tools for the agent to use.",
         "operationId": "createChatCompletion",
         "requestBody": {
           "description": "Chat completion request",
@@ -130,7 +130,11 @@
         "properties": {
           "model": {
             "type": "string",
-            "description": "ID of the model to use"
+            "enum": [
+              "tim-small",
+              "tim-large"
+            ],
+            "description": "API ID of the model to use"
           },
           "messages": {
             "type": "array",
@@ -390,7 +394,7 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "description": "Bearer token authentication using your Subconscious API key"
+        "description": "Bearer token authentication using your API key generated on the Subconscious platform"
       }
     }
   }
