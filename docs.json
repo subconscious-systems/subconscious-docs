@@ -36,6 +36,14 @@
               "platform/pricing",
               "platform/learn-more"
             ]
+          },
+          {
+            "group": "Offerings",
+            "pages": [
+              "offerings/usage",
+              "offerings/dedicated",
+              "offerings/on-prem"
+            ]
           }
         ]
       },
@@ -56,21 +64,7 @@
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Research",
-          "href": "https://www.subconscious.dev/research",
-          "icon": "microscope"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://www.subconscious.dev/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/logo/full-logo.svg",
