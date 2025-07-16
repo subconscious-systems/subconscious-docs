@@ -1,13 +1,13 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Subconscious Platform Docs",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#FF5C28",
+    "light": "#FF5C28",
+    "dark": "#FF5C28"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/logo/icon-orange.svg",
   "navigation": {
     "tabs": [
       {
@@ -46,10 +46,7 @@
           {
             "group": "Endpoint Examples",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "api-reference/endpoint/post"
             ]
           }
         ]
@@ -61,11 +58,6 @@
           "anchor": "Platform",
           "href": "https://www.subconscious.dev/platform",
           "icon": "laptop"
-        },
-        {
-          "anchor": "Community",
-          "href": "https://www.subconscious.dev/community",
-          "icon": "slack"
         },
         {
           "anchor": "Blog",
