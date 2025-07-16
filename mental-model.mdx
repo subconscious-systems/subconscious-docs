@@ -1,0 +1,46 @@
+---
+title: 'Mental Model'
+description: 'How to think about building with Subconscious'
+---
+
+## The Subconscious Approach
+
+Our approach to building agents is unique, and we think the right way of doing things.
+
+Subconscious is a platform for building agents that's innovating at the model and runtime layer. Backed by MIT research, we've developed an inference engine that allows for long horizon reasoning and sustained accuracy across tool use and virtually unlimited context. It's excellent core technology, and it enables a never before possible developer experience.
+
+Other platforms for agents (like LangGraph, Crew AI, etc.) have innovated at the software orchestration layer on top of existing LLM calls. Those systems can be extremely useful, but our way of doing things enables more efficiency, flexibility, and capability for the system, allowing for long duration deployments at scale. 
+
+### Bring Your Goals and Tools
+
+With Subconscious, you bring goals and tools, and our engine accomplishes the task. You shouldn't waste your focus on multi-agent negotiations, orchestration, or context window limits.
+
+This fundamental shift changes how you think about agent development.
+
+## How to Think Through Your Task
+
+Before building an agent, you should approach the problem like a human expert would:
+
+- **Think through your task**: If a human were to complete this task, what would they do? What tools would they use? What does complete look like? What pitfalls would an experienced person tell them to avoid?
+
+- **Identify the tools needed**: What are the core tools required to accomplish this task? What are tools you might need in weird edge cases?
+
+- **Build missing tools**: If those tools don't exist, you may have to build them before proceeding.
+
+- **Create your goals**: Finally, create your goals for the agent, listing the tools, when to use them, and what pitfalls to avoid.
+
+## Development Process
+
+The development process for working on an agent with Subconscious looks like this:
+
+1. **Develop your tools** - Build the specific tools your agent will need (we're working on ways to make this easier).
+2. **Create your prompt with your goals** - Define what you want the agent to accomplish.
+3. **Run your agent with an API call** - Let Subconscious handle the execution.
+4. **Iterate** - Refine based on results.
+
+## Focus on What Matters
+
+Your time should be spent on software engineering unique tools for your business and prioritizing the instructions for the world you know better than anyone. It should not be **NOT** wrestling with new frameworks, orchestration, context limits, and GPUs.
+
+You focus on the domain expertise. We do the agents infrastructure.
+
