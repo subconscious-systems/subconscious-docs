@@ -22,18 +22,19 @@
             "pages": [
               "index",
               "quickstart",
-              "mental-model"
+              "mental-model",
+              "long-horizon-reasoning"
             ]
           },
           {
-            "group": "Essentials",
+            "group": "Platform",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
+              "platform/using-subconscious",
+              "platform/tools",
+              "platform/logs",
+              "platform/privacy",
+              "platform/pricing",
+              "platform/learn-more"
             ]
           }
         ]

@@ -1,0 +1,346 @@
+---
+title: 'Using Subconscious'
+description: 'More details on using Subconscious'
+---
+
+import ResearchPreview from '/snippets/research-preview.mdx';
+
+<ResearchPreview />
+
+Getting started with Subconscious is straightforward: **set your goals, make your tools, and call the Subconscious API**. The platform handles the complex reasoning and tool orchestration for you.
+
+## Basic Workflow
+
+1. **Define your prompt** - Describe what you want the agent to accomplish
+2. **Create your tools** - Define the functions your agent can use (optional)
+3. **Call the API** - Send your request and get intelligent results
+
+## Code Examples
+
+### Example 1: Calling an Agent with No Tools
+
+The simplest use case - just send a prompt and get a response.
+
+<CodeGroup>
+
+```python Python
+from openai import OpenAI
+
+# Initialize the client with Subconscious endpoint
+client = OpenAI(
+    base_url="https://api.subconscious.dev/v1",
+    api_key="YOUR_API_KEY"
+)
+
+# Make a simple request without tools
+response = client.chat.completions.create(
+    model="tim-small",
+    messages=[
+        {
+            "role": "user",
+            "content": "Find the derivative of f(x) = x^3 * sin(x)"
+        }
+    ]
+)
+
+print(response.choices[0].message.content)
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+// Initialize the client with Subconscious endpoint
+const client = new OpenAI({
+  baseURL: 'https://api.subconscious.dev/v1',
+  apiKey: 'YOUR_API_KEY'
+});
+
+// Make a simple request without tools
+const response = await client.chat.completions.create({
+  model: 'tim-small',
+  messages: [
+    {
+      role: 'user',
+      content: 'Analyze the current market trends for electric vehicles and provide a summary.'
+    }
+  ]
+});
+
+console.log(response.choices[0].message.content);
+```
+
+</CodeGroup>
+
+### Example 2: Calling an Agent with One Tool
+
+Add a single tool to extend your agent's capabilities.
+
+<CodeGroup>
+
+```python Python
+from openai import OpenAI
+
+# Initialize the client with Subconscious endpoint
+client = OpenAI(
+    base_url="https://api.subconscious.dev/v1",
+    api_key="YOUR_API_KEY"
+)
+
+# Define a tool for web search
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "web_search",
+            "description": "Search the web for current information",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The search query"
+                    }
+                },
+                "required": ["query"]
+            }
+        }
+    }
+]
+
+# Make request with one tool
+response = client.chat.completions.create(
+    model="tim-small",
+    messages=[
+        {
+            "role": "user",
+            "content": "Find the latest news about Tesla's stock performance this week."
+        }
+    ],
+    tools=tools,
+    tool_choice="auto"
+)
+
+print(response.choices[0].message.content)
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+// Initialize the client with Subconscious endpoint
+const client = new OpenAI({
+  baseURL: 'https://api.subconscious.dev/v1',
+  apiKey: 'YOUR_API_KEY'
+});
+
+// Define a tool for web search
+const tools = [
+  {
+    type: 'function',
+    function: {
+      name: 'web_search',
+      description: 'Search the web for current information',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: {
+            type: 'string',
+            description: 'The search query'
+          }
+        },
+        required: ['query']
+      }
+    }
+  }
+];
+
+// Make request with one tool
+const response = await client.chat.completions.create({
+  model: 'tim-small',
+  messages: [
+    {
+      role: 'user',
+      content: 'Find the latest news about Tesla\'s stock performance this week.'
+    }
+  ],
+  tools: tools,
+  tool_choice: 'auto'
+});
+
+console.log(response.choices[0].message.content);
+```
+
+</CodeGroup>
+
+### Example 3: Calling an Agent with Multiple Tools
+
+Combine multiple tools for more sophisticated agent behavior.
+
+<CodeGroup>
+
+```python Python
+from openai import OpenAI
+
+# Initialize the client with Subconscious endpoint
+client = OpenAI(
+    base_url="https://api.subconscious.dev/v1",
+    api_key="YOUR_API_KEY"
+)
+
+# Define multiple tools
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "web_search",
+            "description": "Search the web for current information",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "The search query"}
+                },
+                "required": ["query"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "calculate",
+            "description": "Perform mathematical calculations",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "expression": {"type": "string", "description": "Mathematical expression to evaluate"}
+                },
+                "required": ["expression"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "send_email",
+            "description": "Send an email notification",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "recipient": {"type": "string", "description": "Email recipient"},
+                    "subject": {"type": "string", "description": "Email subject"},
+                    "body": {"type": "string", "description": "Email body"}
+                },
+                "required": ["recipient", "subject", "body"]
+            }
+        }
+    }
+]
+
+# Make request with multiple tools
+response = client.chat.completions.create(
+    model="tim-small",
+    messages=[
+        {
+            "role": "user",
+            "content": "Research the current Bitcoin price, calculate the percentage change from last week, and email me a summary report."
+        }
+    ],
+    tools=tools,
+    tool_choice="auto"
+)
+
+print(response.choices[0].message.content)
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+
+// Initialize the client with Subconscious endpoint
+const client = new OpenAI({
+  baseURL: 'https://api.subconscious.dev/v1',
+  apiKey: 'YOUR_API_KEY'
+});
+
+// Define multiple tools
+const tools = [
+  {
+    type: 'function',
+    function: {
+      name: 'web_search',
+      description: 'Search the web for current information',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: 'The search query' }
+        },
+        required: ['query']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'calculate',
+      description: 'Perform mathematical calculations',
+      parameters: {
+        type: 'object',
+        properties: {
+          expression: { type: 'string', description: 'Mathematical expression to evaluate' }
+        },
+        required: ['expression']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'send_email',
+      description: 'Send an email notification',
+      parameters: {
+        type: 'object',
+        properties: {
+          recipient: { type: 'string', description: 'Email recipient' },
+          subject: { type: 'string', description: 'Email subject' },
+          body: { type: 'string', description: 'Email body' }
+        },
+        required: ['recipient', 'subject', 'body']
+      }
+    }
+  }
+];
+
+// Make request with multiple tools
+const response = await client.chat.completions.create({
+  model: 'tim-small',
+  messages: [
+    {
+      role: 'user',
+      content: 'Research the current Bitcoin price, calculate the percentage change from last week, and email me a summary report.'
+    }
+  ],
+  tools: tools,
+  tool_choice: 'auto'
+});
+
+console.log(response.choices[0].message.content);
+```
+
+</CodeGroup>
+
+## Interpreting Results
+
+When you call the Subconscious API, you'll receive a structured response that includes the agent's final answer along with details about the reasoning process and tool usage.
+
+<Note>
+Paste your JSON example here and we'll break down how to interpret the response structure.
+</Note>
+
+### Key Response Fields
+
+The response typically includes:
+
+- **`choices[0].message.content`** - The agent's final answer to your prompt
+- **`choices[0].message.tool_calls`** - Details about which tools were used and their results
+- **`usage`** - Token usage information for the request
+- **`model`** - The model that was used for the completion
+
+Understanding these fields helps you debug your prompts and optimize your tool configurations for better results.
+
