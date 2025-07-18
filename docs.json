@@ -11,7 +11,7 @@
     "light": "#FF5C28",
     "dark": "#FF5C28"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.png",
   "navigation": {
     "tabs": [
       {
@@ -86,7 +86,7 @@
   "footer": {
     "socials": {
       "x": "https://x.com/subsysdev",
-      "github": "https://github.com/subconscious-systems",
+      "github": "https://github.com/subconscious-systems/subconscious-docs",
       "linkedin": "https://linkedin.com/company/subsysdev"
     }
   }
