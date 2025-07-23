@@ -1,14 +1,17 @@
 ---
 title: 'Tools'
-description: 'Learn how to effectively configure and optimize tools for your AI agents'
+description: 'Configure and optimize external APIs for agent use.'
 ---
 
-Agents take in two primary inputs: goals and tools. A tool is a 
-hosted API to accomplish some task that you manage and give our system access to.
+Agents rely on two key inputs: goals and tools. Tools are APIs you expose to the system to accomplish specific tasks, anything from querying a database to triggering a workflow. You host and manage the tool, and give our system permission to call it.
+
+Our runtime handles the rest. It routes tool calls intelligently during agent execution, manages inputs and outputs, and ensures the agent learns how and when to use each tool effectively. You just define the interface, we take care of integrating it into the agent’s reasoning process.
+
+Use these docs to make sure you're setting your tools up correctly.
 
 ## Tool Definition
 
-All tools in Subconscious follow a consistent structure defined by these TypeScript types:
+All tools in Subconscious follow a consistent structure defined by these types:
 
 ```typescript
 export type Tool = {
@@ -41,7 +44,11 @@ export type Parameters = {
 
 ## Three Ways to Use Tools with Subconscious
 
-Subconscious provides three flexible approaches to integrate tools with your AI agents, each designed for different use cases and complexity levels.
+Subconscious provides three flexible approaches to integrate tools with your AI agents.
+
+- **Schema Defined Tools**: Sent complete tool schema during an API request
+- **Saved Tools**: Save tool schemas in the platform tools dashboard for simpler API calls
+- **Hosted Tools**: Two tools from Subconscious to get you started
 
 ### 1. Schema Defined Tools
 
