@@ -327,20 +327,92 @@ console.log(response.choices[0].message.content);
 
 ## Interpreting Results
 
-When you call the Subconscious API, you'll receive a structured response that includes the agent's final answer along with details about the reasoning process and tool usage.
+Because Subconscious uses an OpenAI-compatible API, the response structure follows the standard OpenAI format. **All of the agent's reasoning and final answer is contained within the `choices[0].message.content` field as a JSON object**. This field is not a simple string - it's always a structured JSON that provides detailed insights into the agent's reasoning process and tool usage.
 
-<Note>
-Paste your JSON example here and we'll break down how to interpret the response structure.
-</Note>
+### Response Structure
 
-### Key Response Fields
+The `choices[0].message.content` field contains JSON that follows this TypeScript interface:
 
-The response typically includes:
+```typescript
+export interface ModelResponse {
+  reasoning: Task[];
+  answer: string;
+}
 
-- **`choices[0].message.content`** - The agent's final answer to your prompt
-- **`choices[0].message.tool_calls`** - Details about which tools were used and their results
+export interface Task {
+  thought?: string;
+  title?: string;
+  tooluse?: ToolCall;
+  subtasks?: Task[];
+  conclusion?: string;
+}
+
+export interface ToolCall {
+  parameters: any;
+  tool_name: string;
+  tool_result: any;
+}
+```
+
+### Response Fields Explained
+
+- **`reasoning`**: An array of `Task` objects that show the agent's step-by-step reasoning process
+- **`answer`**: The final, human-readable answer to your original prompt
+
+### Task Structure
+
+Each task in the reasoning array can contain:
+
+- **`thought`**: The agent's internal reasoning about what to do next
+- **`title`**: A descriptive title for this reasoning step
+- **`tooluse`**: Details about a tool call, including:
+  - `parameters`: The input parameters sent to the tool
+  - `tool_name`: The name of the tool that was called
+  - `tool_result`: The result returned by the tool
+- **`subtasks`**: Nested tasks showing more detailed reasoning steps
+- **`conclusion`**: The agent's conclusion after completing this reasoning step
+
+### Example Response
+
+The `choices[0].message.content` field will contain JSON like this:
+
+```json
+{
+  "reasoning": [
+    {
+      "title": "Analyzing the request",
+      "thought": "I need to search for information about Tesla's stock performance",
+      "tooluse": {
+        "tool_name": "web_search",
+        "parameters": {
+          "query": "Tesla stock performance this week"
+        },
+        "tool_result": {
+          "results": [
+            {
+              "title": "Tesla Stock Analysis",
+              "snippet": "Tesla's stock has shown..."
+            }
+          ]
+        }
+      },
+      "conclusion": "Found relevant information about Tesla's stock performance"
+    }
+  ],
+  "answer": "Based on my search, Tesla's stock performance this week shows..."
+}
+```
+
+### Other Response Fields
+
+The complete API response also includes:
+
 - **`usage`** - Token usage information for the request
 - **`model`** - The model that was used for the completion
 
-Understanding these fields helps you debug your prompts and optimize your tool configurations for better results.
+This structured response format allows you to:
+- **Understand** how your agent arrives at its final answer
+- **Debug** your agent's reasoning process
+- **Monitor** tool usage and results
+- **Optimize** your tool configurations
 

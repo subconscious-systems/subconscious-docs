@@ -44,8 +44,9 @@ client = OpenAI(
 response = client.chat.completions.create(
     model="tim-small",
     messages=[
-        {"role": "user", "content": "Tell me a poem about happy news from today"}
+        {"role": "user", "content": "What's the derivative of 3x^2 * sin(x)?"}
     ]
+    ## Example with no tools
 )
 
 print(response.choices[0].message.content)
@@ -64,8 +65,10 @@ const openai = new OpenAI({
 const response = await openai.chat.completions.create({
     model: 'tim-small',
     messages: [
-        { role: 'user', content: 'Tell me a poem about happy news from today' }
+        { role: 'user', content: 'What's the derivative of 3x^2 * sin(x)' }
     ]
+    // Example with no tools
+
 });
 
 console.log(response.choices[0].message.content);
@@ -82,7 +85,7 @@ curl https://api.subconscious.dev/v1/chat/completions \
     "messages": [
       {
         "role": "user",
-        "content": "Tell me a poem about happy news from today"
+        "content": "What's the derivative of 3x^2 * sin(x)"
       }
     ]
   }'
