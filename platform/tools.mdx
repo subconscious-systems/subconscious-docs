@@ -3,38 +3,131 @@ title: 'Tools'
 description: 'Learn how to effectively configure and optimize tools for your AI agents'
 ---
 
-Getting tools to work effectively with your AI agents requires a systematic approach. Here's how to ensure your tools are properly configured and performing optimally:
+Agents take in two primary inputs: goals and tools. A tool is a 
+hosted API to accomplish some task that you manage and give our system access to.
 
-## Setup and Configuration
+## Tool Definition
 
-### 1. Technical Foundation
-Start by ensuring your tools work from a software perspective:
-- **Access Control**: Verify you have the necessary permissions and API keys
-- **Data Integration**: Confirm the tool can access and retrieve the required data
-- **Security Boundaries**: Set appropriate limits and safeguards for agent interactions
-- **Error Handling**: Implement proper fallback mechanisms for failed tool calls
+All tools in Subconscious follow a consistent structure defined by these TypeScript types:
 
-### 2. Description and Prompting
-Once the technical setup is complete, focus on how your agent understands the tool:
-- **Clear Descriptions**: Write detailed, unambiguous tool descriptions that explain what the tool does and when to use it
-- **Parameter Guidance**: Provide examples of proper input formats and expected outputs
-- **Context Awareness**: Help the agent understand the tool's role in broader workflows
+```typescript
+export type Tool = {
+  type: 'function' | 'mcp';
+  name: string;
+  description: string;
+  url: string;
+  method: 'POST' | 'GET';
+  timeout: number;
+  parameters: Parameters;
+};
 
-### 3. Iterative Optimization
-Fine-tune your tools based on real-world performance:
-- **Monitor Usage Patterns**: Track how and when tools are being called
-- **Analyze Failures**: Identify common failure modes and edge cases
-- **Refine Prompts**: Adjust descriptions and examples based on observed behavior
-- **Test Systematically**: Use consistent test cases to measure improvement
+export type Parameters = {
+  type: 'object';
+  properties: Record<string, any>;
+  required: string[];
+  additionalProperties: boolean;
+};
+```
 
-## Custom Tool Optimization
+### Tool Properties
 
-Need more advanced help? We've worked with customers to post-train their custom tools for better performance, especially for tools with unique inputs and outputs that don't follow standard patterns.
+- **type**: Either `'function'` for custom tools or `'mcp'` for Model Context Protocol tools
+- **name**: Unique identifier for the tool
+- **description**: Human-readable description of what the tool does
+- **url**: Endpoint URL where the tool is hosted
+- **method**: HTTP method used to call the tool (`'POST'` or `'GET'`)
+- **timeout**: Maximum time in milliseconds to wait for tool execution
+- **parameters**: JSON Schema definition of the tool's input parameters
 
-Our optimization services include:
-- **Custom Training**: Fine-tuning models specifically for your tool interfaces
-- **Performance Analysis**: Deep analysis of tool usage patterns and optimization opportunities
-- **Integration Support**: Hands-on assistance with complex tool configurations
+## Three Ways to Use Tools with Subconscious
 
-[Contact us](mailto:support@example.com) if you're interested in custom tool optimization services.
+Subconscious provides three flexible approaches to integrate tools with your AI agents, each designed for different use cases and complexity levels.
 
+### 1. Schema Defined Tools
+
+Pass tool schemas directly to the API for every interaction. This approach gives you complete control but requires you to self-host these tools.
+
+**Best for:** Custom tools, one-off integrations, or when you need full control over tool implementation.
+
+```javascript
+tools: [
+  {
+    type: "function",
+    name: "MyTool",
+    description: "A custom tool for specific functionality",
+    parameters: {
+      type: "object",
+      properties: {
+        query: {
+          type: "string",
+          description: "The input query"
+        }
+      },
+      required: ["query"]
+    }
+  }
+]
+```
+
+### 2. Saved Tools
+
+Save your tool specifications to simplify API calls. Once saved, you can reference tools by name in your requests.
+
+**Best for:** Frequently used tools, team collaboration, or when you want to reduce API payload size.
+
+```javascript
+// First, save your tool specification
+// Then use it in subsequent calls
+tools: [
+  {
+    type: "your_tool_name"
+  }
+]
+```
+
+### 3. Subconscious Hosted Tools
+
+We host these tools for you and they're available to use freely with your models.
+
+| Tool Name | API Name | Description |
+|-----------|----------|-------------|
+| Web Search | `web_search` | Search the web for information. |
+| Webpage Understanding | `webpage_understanding` | Summarizes key information on web pages and suggests how to use in further searches (use with Web Search). |
+
+**Best for:** Common use cases, rapid prototyping, or when you don't want to manage tool infrastructure.
+
+```javascript
+// Web search tool
+tools: [
+  {
+    type: "web_search"
+  }
+]
+
+// Webpage understanding tool
+tools: [
+  {
+    type: "webpage_understanding"
+  }
+]
+
+// Use both tools together for comprehensive web research
+tools: [
+  {
+    type: "web_search"
+  },
+  {
+    type: "webpage_understanding"
+  }
+]
+```
+
+## Getting Started
+
+Choose the approach that best fits your needs:
+
+- **Schema Defined Tools**: For complete customization and control
+- **Saved Tools**: For simplified, reusable tool management
+- **Subconscious Hosted Tools**: For quick setup with common functionality
+
+Each approach integrates seamlessly with Subconscious's AI agents, providing the tools your agents need to perform complex tasks and access external data sources.
