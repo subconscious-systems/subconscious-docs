@@ -1,28 +1,21 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: "Introduction"
+description: "Welcome to the Subconscious AI API documentation"
 ---
-
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
 
 ## Welcome
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+Our API is designed with simplicity in mind. We currently support one primary endpoint that's fully OpenAI-compatible, making it incredibly easy to start experimenting with our TIM inference engines immediately. Simply swap out your OpenAI API key and endpoint, and you're ready to go.
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+## Current Offerings
+
+Right now, we focus on doing one thing exceptionally well: **chat completions**. Our `/chat/completions` endpoint is fully compatible with OpenAI's API format, so you can integrate our TIM engines into your existing workflows without any code changes.
+
+We're adding a lot more functionality in the near future, but we wanted to release something as quickly as possible to get your feedback.
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+All API endpoints are authenticated using Bearer tokens. Simply include your API key in the Authorization header:
 
 ```json
 "security": [
@@ -31,3 +24,5 @@ All API endpoints are authenticated using Bearer tokens and picked up from the s
   }
 ]
 ```
+
+Get started by generating your API key on the [Subconscious platform](https://app.subconscious.dev) and making your first request to experience the power of TIM engines.

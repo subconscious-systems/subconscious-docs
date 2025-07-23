@@ -131,7 +131,7 @@
           "model": {
             "type": "string",
             "enum": [
-              "tim-small",
+              "tim-small-preview",
               "tim-large"
             ],
             "description": "API ID of the model to use"
