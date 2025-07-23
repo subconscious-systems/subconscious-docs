@@ -57,20 +57,25 @@ Pass tool schemas directly to the API for every interaction. This approach gives
 **Best for:** Custom tools, one-off integrations, or when you need full control over tool implementation.
 
 ```javascript
+
 tools: [
   {
-    type: "function",
-    name: "MyTool",
-    description: "A custom tool for specific functionality",
-    parameters: {
-      type: "object",
-      properties: {
-        query: {
-          type: "string",
-          description: "The input query"
+    "type": "function",
+    "name": "MyTool",
+    "description": "A custom tool for specific functionality",
+    "url": "http://your-host/call_tool",
+    "method": "POST",
+    "timeout": 10,
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "The input query"
         }
       },
-      required: ["query"]
+      "required": ["query"],
+      "additionalProperties": false
     }
   }
 ]
