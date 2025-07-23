@@ -29,10 +29,11 @@
             "group": "Platform",
             "pages": [
               "platform/using-subconscious",
+              "platform/models",
               "platform/tools",
+              "platform/pricing",
               "platform/logs",
               "platform/privacy",
-              "platform/pricing",
               "platform/learn-more"
             ]
           },
