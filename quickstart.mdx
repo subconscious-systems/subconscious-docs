@@ -42,7 +42,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="tim-small",
+    model="tim-small-preview",
     messages=[
         {"role": "user", "content": "What's the derivative of 3x^2 * sin(x)?"}
     ]
@@ -63,7 +63,7 @@ const openai = new OpenAI({
 });
 
 const response = await openai.chat.completions.create({
-    model: 'tim-small',
+    model: 'tim-small-preview',
     messages: [
         { role: 'user', content: 'What's the derivative of 3x^2 * sin(x)' }
     ]
@@ -81,7 +81,7 @@ curl https://api.subconscious.dev/v1/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{
-    "model": "tim-small",
+    "model": "tim-small-preview",
     "messages": [
       {
         "role": "user",
