@@ -259,6 +259,9 @@ const tools = [
     type: 'function',
       name: 'web_search',
       description: 'Search the web for current information',
+      url : SEARCH_TOOL_URL,
+      method: GET OR POST,
+      timeout: 10,
       parameters: {
         type: 'object',
         properties: {
