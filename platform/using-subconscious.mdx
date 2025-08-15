@@ -92,9 +92,9 @@ tools = [
         "type": "function",
         "name": "web_search",
         "description": "Search the web for current information",
-        "url": [TOOL_SERVER_URL],
-        "method": [GET or POST],
-        "timeout": [SECONDS_TO_TIMEOUT],
+        "url": "TOOL_SERVER_URL",
+        "method": "GET" or "POST",
+        "timeout": SECONDS_TO_TIMEOUT,
         "parameters": {
             "type": "object",
             "properties": {
@@ -139,9 +139,9 @@ const tools = [
     type: 'function',
     name: 'web_search',
     description: 'Search the web for current information',
-    url: [TOOL_SERVER_URL],
-    method: [GET or POST],
-    timeout: [SECONDS_TO_TIMEOUT],
+    url: TOOL_SERVER_URL,
+    method: "GET" or "POST",
+    timeout: SECONDS_TO_TIMEOUT,
     parameters: {
         type: 'object',
         properties: {
@@ -194,9 +194,9 @@ tools = [
         "type": "function",
         "name": "web_search",
         "description": "Search the web for current information",
-        "url": [TOOL_SERVER_URL],
-        "method": [GET or POST],
-        "timeout": [SECONDS_TO_TIMEOUT],
+        "url": "TOOL_SERVER_URL",
+        "method": "GET" or "POST",
+        "timeout": SECONDS_TO_TIMEOUT,
         "parameters": {
             "type": "object",
             "properties": {
@@ -210,9 +210,9 @@ tools = [
         "type": "function",
         "name": "calculate",
         "description": "Perform mathematical calculations",
-        "url": [TOOL_SERVER_URL],
-        "method": [GET or POST],
-        "timeout": [SECONDS_TO_TIMEOUT],
+        "url": "TOOL_SERVER_URL",
+        "method": "GET" or "POST",
+        "timeout": SECONDS_TO_TIMEOUT,
         "parameters": {
             "type": "object",
             "properties": {
@@ -226,9 +226,9 @@ tools = [
         "type": "function",
         "name": "send_email",
         "description": "Send an email notification",
-        "url": [TOOL_SERVER_URL],
-        "method": [GET or POST],
-        "timeout": [SECONDS_TO_TIMEOUT],
+        "url": "TOOL_SERVER_URL",
+        "method": "GET" or "POST",
+        "timeout": SECONDS_TO_TIMEOUT,
         "parameters": {
             "type": "object",
             "properties": {
@@ -271,9 +271,9 @@ const tools = [
     type: 'function',
       name: 'web_search',
       description: 'Search the web for current information',
-      url : SEARCH_TOOL_URL,
-      method: GET OR POST,
-      timeout: 10,
+      url: TOOL_SERVER_URL,
+      method: "GET" or "POST",
+      timeout: SECONDS_TO_TIMEOUT,
       parameters: {
         type: 'object',
         properties: {
@@ -286,9 +286,9 @@ const tools = [
     type: 'function',
     name: 'calculate',
     description: 'Perform mathematical calculations',
-    url: [TOOL_SERVER_URL],
-    method: [GET or POST],
-    timeout: [SECONDS_TO_TIMEOUT],
+    url: TOOL_SERVER_URL,
+    method: "GET" or "POST",
+    timeout: SECONDS_TO_TIMEOUT,
     parameters: {
       type: 'object',
       properties: {
@@ -301,9 +301,9 @@ const tools = [
     type: 'function',
     name: 'send_email',
     description: 'Send an email notification',
-    url: [TOOL_SERVER_URL],
-    method: [GET or POST],
-    timeout: [SECONDS_TO_TIMEOUT],
+    url: TOOL_SERVER_URL,
+    method: "GET" or "POST",
+    timeout: SECONDS_TO_TIMEOUT,
     parameters: {
       type: 'object',
       properties: {
