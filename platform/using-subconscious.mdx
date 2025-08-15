@@ -34,7 +34,7 @@ client = OpenAI(
 
 # Make a simple request without tools
 response = client.chat.completions.create(
-    model="tim-small-preview",
+    model="tim-large",
     messages=[
         {
             "role": "user",
@@ -57,7 +57,7 @@ const client = new OpenAI({
 
 // Make a simple request without tools
 const response = await client.chat.completions.create({
-  model: 'tim-small-preview',
+  model: 'tim-large',
   messages: [
     {
       role: 'user',
@@ -92,6 +92,9 @@ tools = [
         "type": "function",
         "name": "web_search",
         "description": "Search the web for current information",
+        "url": [TOOL_SERVER_URL],
+        "method": [GET or POST],
+        "timeout": [SECONDS_TO_TIMEOUT],
         "parameters": {
             "type": "object",
             "properties": {
@@ -108,7 +111,7 @@ tools = [
 
 # Make request with one tool
 response = client.chat.completions.create(
-    model="tim-small-preview",
+    model="tim-large",
     messages=[
         {
             "role": "user",
@@ -116,7 +119,6 @@ response = client.chat.completions.create(
         }
     ],
     tools=tools,
-    tool_choice="auto"
 )
 
 print(response.choices[0].message.content)
@@ -137,6 +139,9 @@ const tools = [
     type: 'function',
     name: 'web_search',
     description: 'Search the web for current information',
+    url: [TOOL_SERVER_URL],
+    method: [GET or POST],
+    timeout: [SECONDS_TO_TIMEOUT],
     parameters: {
         type: 'object',
         properties: {
@@ -153,7 +158,7 @@ const tools = [
 
 // Make request with one tool
 const response = await client.chat.completions.create({
-  model: 'tim-small-preview',
+  model: 'tim-large',
   messages: [
     {
       role: 'user',
@@ -161,7 +166,6 @@ const response = await client.chat.completions.create({
     }
   ],
   tools: tools,
-  tool_choice: 'auto'
 });
 
 console.log(response.choices[0].message.content);
@@ -190,6 +194,9 @@ tools = [
         "type": "function",
         "name": "web_search",
         "description": "Search the web for current information",
+        "url": [TOOL_SERVER_URL],
+        "method": [GET or POST],
+        "timeout": [SECONDS_TO_TIMEOUT],
         "parameters": {
             "type": "object",
             "properties": {
@@ -203,6 +210,9 @@ tools = [
         "type": "function",
         "name": "calculate",
         "description": "Perform mathematical calculations",
+        "url": [TOOL_SERVER_URL],
+        "method": [GET or POST],
+        "timeout": [SECONDS_TO_TIMEOUT],
         "parameters": {
             "type": "object",
             "properties": {
@@ -216,6 +226,9 @@ tools = [
         "type": "function",
         "name": "send_email",
         "description": "Send an email notification",
+        "url": [TOOL_SERVER_URL],
+        "method": [GET or POST],
+        "timeout": [SECONDS_TO_TIMEOUT],
         "parameters": {
             "type": "object",
             "properties": {
@@ -230,7 +243,7 @@ tools = [
 
 # Make request with multiple tools
 response = client.chat.completions.create(
-    model="tim-small-preview",
+    model="tim-large",
     messages=[
         {
             "role": "user",
@@ -238,7 +251,6 @@ response = client.chat.completions.create(
         }
     ],
     tools=tools,
-    tool_choice="auto"
 )
 
 print(response.choices[0].message.content)
@@ -274,6 +286,9 @@ const tools = [
     type: 'function',
     name: 'calculate',
     description: 'Perform mathematical calculations',
+    url: [TOOL_SERVER_URL],
+    method: [GET or POST],
+    timeout: [SECONDS_TO_TIMEOUT],
     parameters: {
       type: 'object',
       properties: {
@@ -286,6 +301,9 @@ const tools = [
     type: 'function',
     name: 'send_email',
     description: 'Send an email notification',
+    url: [TOOL_SERVER_URL],
+    method: [GET or POST],
+    timeout: [SECONDS_TO_TIMEOUT],
     parameters: {
       type: 'object',
       properties: {
@@ -300,7 +318,7 @@ const tools = [
 
 // Make request with multiple tools
 const response = await client.chat.completions.create({
-  model: 'tim-small-preview',
+  model: 'tim-large',
   messages: [
     {
       role: 'user',
@@ -308,7 +326,6 @@ const response = await client.chat.completions.create({
     }
   ],
   tools: tools,
-  tool_choice: 'auto'
 });
 
 console.log(response.choices[0].message.content);
