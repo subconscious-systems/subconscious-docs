@@ -29,7 +29,30 @@ First, create an API key from your dashboard. **Important**: API keys are only s
 
 ### Using the Subconscious API
 
-Our API is compatible with the OpenAI format in fits easily into a developer experience . Simply replace the base URL and add your API key.
+Our API is compatible with the OpenAI format and fits easily into a typical developer workflow. Simply replace the base URL and add your API key.
+
+### Async usage (high level)
+
+If you expect calls to take a while, or you want stronger durability guarantees, you can use our async API. The flow is:
+
+1. Call `POST /v1/chat/completions/async` to enqueue a job.
+2. Use `GET /v1/requests/{requestId}/status` to poll for status and results.
+
+Minimal curl example:
+
+```bash
+curl -sS https://api.subconscious.dev/v1/chat/completions/async \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "model": "tim-large",
+    "messages": [
+      { "role": "user", "content": "Run this as an async job" }
+    ]
+  }'
+```
+
+The response includes a `requestId` you can pass to the status endpoint. For a deeper dive (including webhooks), see the “Async jobs and webhooks” guide in the Platform section.
 
 ### Python Example
 

@@ -1,0 +1,36 @@
+```bash
+# Enqueue an async job with a one-off callbackUrl
+curl -sS https://api.subconscious.dev/v1/chat/completions/async \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "model": "tim-large",
+    "messages": [
+      { "role": "user", "content": "Run this as an async job and webhook me when done." }
+    ],
+    "callbackUrl": "https://your-app.example.com/webhooks/subconscious"
+  }'
+```
+
+```javascript
+// Minimal Express handler to receive webhooks
+import express from 'express';
+
+const app = express();
+app.use(express.json());
+
+app.post('/webhooks/subconscious', (req, res) => {
+  const { jobId, status, result, error } = req.body;
+
+  // TODO: store status, trigger follow-up actions, etc.
+  console.log('Received webhook', { jobId, status, result, error });
+
+  // Always reply 2xx quickly so we don't block retries or timeouts.
+  res.sendStatus(200);
+});
+
+app.listen(3000, () => {
+  console.log('Listening for Subconscious webhooks on :3000/webhooks/subconscious');
+});
+```
+
