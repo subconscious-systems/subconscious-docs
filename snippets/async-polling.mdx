@@ -1,0 +1,74 @@
+<CodeGroup>
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://api.subconscious.dev/v1",
+    api_key="YOUR_API_KEY",
+)
+
+# 1) Enqueue an async job
+submit = client.chat.completions.create(
+    model="tim-large",
+    messages=[{"role": "user", "content": "Run this as an async job"}],
+    # important: use the async endpoint path
+    extra_body={"async": True},  # or call the /chat/completions/async path directly
+)
+
+request_id = submit.request_id  # or submit["requestId"] in raw JSON
+
+# 2) Poll for status
+import time, requests
+
+while True:
+    status_res = requests.get(
+        f"https://api.subconscious.dev/v1/requests/{request_id}/status",
+        headers={"Authorization": f"Bearer YOUR_API_KEY"},
+    )
+    status = status_res.json()
+    if status["status"] in ["completed", "failed"]:
+        print(status)
+        break
+    time.sleep(2)
+```
+
+```javascript JavaScript
+import OpenAI from 'openai';
+import fetch from 'node-fetch';
+
+const client = new OpenAI({
+  baseURL: 'https://api.subconscious.dev/v1',
+  apiKey: 'YOUR_API_KEY',
+});
+
+// 1) Enqueue an async job
+const submit = await client.chat.completions.create({
+  model: 'tim-large',
+  messages: [{ role: 'user', content: 'Run this as an async job' }],
+  // or use the /chat/completions/async path directly when available in your client
+});
+
+const requestId = submit.requestId;
+
+// 2) Poll for status
+async function pollStatus() {
+  while (true) {
+    const res = await fetch(
+      `https://api.subconscious.dev/v1/requests/${requestId}/status`,
+      { headers: { Authorization: `Bearer YOUR_API_KEY` } },
+    );
+    const status = await res.json();
+    if (status.status === 'completed' || status.status === 'failed') {
+      console.log(status);
+      break;
+    }
+    await new Promise((r) => setTimeout(r, 2000));
+  }
+}
+
+await pollStatus();
+```
+
+</CodeGroup>
+

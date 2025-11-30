@@ -1,0 +1,117 @@
+---
+title: 'Async jobs and webhooks'
+description: 'Run long‑running agent work reliably and get notified on completion'
+---
+import ResearchPreview from '/snippets/research-preview.mdx';
+import AsyncPolling from '/snippets/async-polling.mdx';
+import AsyncWebhook from '/snippets/async-webhook.mdx';
+
+<ResearchPreview />
+
+## Why async?
+
+Streaming responses are great when you want a human in the loop, but some workloads:
+
+- Run for a long time (many tool calls, large searches, multi‑step plans).
+- Must be durable (you care that they finish, not that you watched every token).
+- Need to fan out results to other systems (pipelines, CRMs, warehouses, etc.).
+
+For those cases we expose an async pipeline with:
+
+- **Async jobs** – you submit work, we enqueue and process it in the background.
+- **Polling** – you can check the status and result at any time.
+- **Webhooks** – we can call back into your system when the job finishes.
+
+You get the same agent behavior as the sync API, but with better durability and control.
+
+## High‑level architecture
+
+At a high level, the async path looks like this:
+
+1. You call `POST /v1/chat/completions/async` with your usual model + messages.
+2. We create an async job and enqueue it into an internal SQS queue.
+3. A dedicated worker service pulls jobs from the queue and runs them against the engine.
+4. On completion we:
+   - update the job status, and
+   - optionally enqueue one or more webhook deliveries.
+5. You:
+   - poll the status endpoint, or
+   - receive a webhook at your configured callback URL.
+
+You never talk to the queue or workers directly; you only use the HTTP API.
+
+## Async jobs & polling
+
+The core entrypoint is:
+
+- `POST /v1/chat/completions/async`
+
+You send the same shape you would send to the sync API, but instead of waiting for the model to finish we:
+
+- return quickly with:
+  - a `requestId`,
+  - `status: "pending"`, and
+  - an estimated completion time.
+- do the work in the background.
+
+To check on the job later, you use:
+
+- `GET /v1/requests/{requestId}/status`
+
+The status payload contains:
+
+- `status`: `pending | processing | completed | failed | cancelled`
+- `jobId`: internal job identifier
+- `model` / `engine`
+- `result` (when completed)
+- `error` (when failed)
+- timestamps (`createdAt`, `updatedAt`, `startedAt`, `completedAt`)
+
+This polling contract is the “source of truth” for async job state.
+
+<AsyncPolling />
+
+## Webhooks
+
+Polling is ideal when you have a single client watching a single job. For automation and integrations, it’s more natural for us to notify you when jobs finish.
+
+You have two options:
+
+1. **Ephemeral webhooks** – you pass a `callbackUrl` on the async request, and we call that URL once when the job finishes.
+2. **Persistent subscriptions** – you register webhook subscriptions for events like `job.completed` or `job.failed`, and we fan out to all matching subscribers.
+
+In both cases, webhook deliveries:
+
+- are queued and retried with exponential backoff,
+- use timeouts to avoid hanging on bad receivers,
+- eventually land in a DLQ if they cannot be delivered,
+- are stored in our database so you can inspect their status.
+
+<AsyncWebhook />
+
+## When to use what
+
+Use **sync + streaming** when:
+
+- a human is watching the response,
+- you care more about interactivity than durability.
+
+Use **async + polling** when:
+
+- the job may take a while,
+- you have a client that can easily poll (dashboard, CLI, cron job),
+- you want a simple way to check status and surface errors.
+
+Use **async + webhooks** when:
+
+- you want to plug agents into other systems (HubSpot, Salesforce, workflow engines),
+- you need a reliable, push‑based notification that work finished,
+- you want a clear audit trail of deliveries and retries.
+
+You can mix these patterns: for example, submit async jobs from a backend, poll in a dashboard, and use webhooks to trigger follow‑up automations.
+
+## Related docs
+
+- **Quickstart** – see the async polling example for a minimal curl flow.
+- **API Reference** – `POST /v1/chat/completions/async`, `GET /v1/requests/{requestId}/status`, and the `/v1/webhooks/*` endpoints.
+- **Logs** – how to inspect worker logs, queue age, and delivery errors.

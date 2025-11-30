@@ -5,11 +5,18 @@ description: "Welcome to the Subconscious AI API documentation"
 
 ## Welcome
 
-Our API is designed with simplicity in mind. We currently support one primary endpoint that's fully OpenAI-compatible, making it incredibly easy to start experimenting with our TIM inference engines immediately. Simply swap out your OpenAI API key and endpoint, and you're ready to go.
+Our API is designed with simplicity in mind. The core surface is OpenAI-compatible chat completions, making it easy to start experimenting with our TIM inference engines immediately. Simply swap out your OpenAI API key and endpoint, and you're ready to go.
 
 ## Current Offerings
 
 Right now, we focus on doing one thing exceptionally well: **chat completions**. Our `/chat/completions` endpoint is fully compatible with OpenAI's API format, so you can integrate our TIM engines into your existing workflows without any code changes.
+
+On top of the sync (blocking) chat completion API, we also expose an async flow for long‑running or durable work:
+
+- `POST /v1/chat/completions/async` – enqueue a job.
+- `GET /v1/requests/{requestId}/status` – poll job status and results.
+
+The async API uses the same request shape as the sync endpoint; the main difference is that you get back a `requestId` immediately and fetch the result later.
 
 We're adding a lot more functionality in the near future, but we wanted to release something as quickly as possible to get your feedback.
 
