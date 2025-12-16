@@ -56,6 +56,8 @@ The response includes a `requestId` you can pass to the status endpoint. For a d
 
 ### Python Example
 
+**Note:** TIM models currently require `stream=True` for **synchronous** chat completions when using the OpenAI-compatible API.
+
 ```python
 from openai import OpenAI
 
@@ -68,14 +70,19 @@ response = client.chat.completions.create(
     model="tim-small-preview",
     messages=[
         {"role": "user", "content": "What's the derivative of 3x^2 * sin(x)?"}
-    ]
+    ],
+    stream=True
     ## Example with no tools
 )
 
-print(response.choices[0].message.content)
+# Stream and print the response
+for chunk in response:
+    print(chunk.choices[0].delta.content or "", end="")
 ```
 
 ### JavaScript Example
+
+**Note:** TIM models currently require `stream: true` for **synchronous** chat completions when using the OpenAI-compatible API.
 
 ```javascript
 import OpenAI from 'openai';
@@ -89,15 +96,21 @@ const response = await openai.chat.completions.create({
     model: 'tim-small-preview',
     messages: [
         { role: 'user', content: 'What's the derivative of 3x^2 * sin(x)' }
-    ]
+    ],
+    stream: true
     // Example with no tools
 
 });
 
-console.log(response.choices[0].message.content);
+// Stream and print the response
+for await (const chunk of response) {
+  process.stdout.write(chunk.choices[0]?.delta?.content || "");
+}
 ```
 
 ### cURL Example
+
+**Note:** TIM models currently require `stream: true` for **synchronous** chat completions when using the OpenAI-compatible API.
 
 ```bash
 curl https://api.subconscious.dev/v1/chat/completions \
@@ -110,7 +123,8 @@ curl https://api.subconscious.dev/v1/chat/completions \
         "role": "user",
         "content": "What's the derivative of 3x^2 * sin(x)"
       }
-    ]
+    ],
+    stream: true
   }'
 ```
 
