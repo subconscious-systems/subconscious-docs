@@ -5,31 +5,121 @@ description: "Welcome to the Subconscious AI API documentation"
 
 ## Welcome
 
-Our API is designed with simplicity in mind. The core surface is OpenAI-compatible chat completions, making it easy to start experimenting with our TIM inference engines immediately. Simply swap out your OpenAI API key and endpoint, and you're ready to go.
+The Subconscious API enables you to build powerful AI agents that can reason, use tools, and complete complex tasks. Our API is designed around **Runs** - discrete agent executions that process your instructions and return structured results.
 
-## Current Offerings
+## Core Concepts
 
-Right now, we focus on doing one thing exceptionally well: **chat completions**. Our `/chat/completions` endpoint is fully compatible with OpenAI's API format, so you can integrate our TIM engines into your existing workflows without any code changes.
+### Runs
 
-On top of the sync (blocking) chat completion API, we also expose an async flow for long‑running or durable work:
+A **Run** represents a single agent execution. You provide instructions and optionally tools, and the agent works to complete the task. Runs can be:
 
-- `POST /v1/chat/completions/async` – enqueue a job.
-- `GET /v1/requests/{requestId}/status` – poll job status and results.
+- **Async** (`POST /v1/runs`) - Queue a run and poll for results or receive webhooks
+- **Streaming** (`POST /v1/runs/stream`) - Stream execution events in real-time via SSE
 
-The async API uses the same request shape as the sync endpoint; the main difference is that you get back a `requestId` immediately and fetch the result later.
+### Engines
 
-We're adding a lot more functionality in the near future, but we wanted to release something as quickly as possible to get your feedback.
+Choose from multiple inference engines optimized for different use cases:
+
+| Engine | Description |
+|--------|-------------|
+| `tim-large` | Our flagship compound AI system with advanced reasoning and tool use |
+| `tim-small-preview` | Fast, efficient model for simpler tasks |
+
+### Tools
+
+Agents can use tools to interact with external systems:
+
+- **Platform tools** - Built-in capabilities like web search
+- **Function tools** - Your custom HTTP endpoints
+- **MCP tools** - Model Context Protocol servers
+
+### Structured Output
+
+Request structured responses using JSON Schema via `answerFormat` and `reasoningFormat` fields.
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens. Simply include your API key in the Authorization header:
+All API endpoints require Bearer token authentication:
 
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+```bash
+curl https://api.subconscious.dev/v1/runs \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"engine": "tim-large", "input": {"instructions": "..."}}'
 ```
 
-Get started by generating your API key on the [Subconscious platform](https://app.subconscious.dev) and making your first request to experience the power of TIM engines.
+Get your API key from the [Subconscious platform](https://app.subconscious.dev).
+
+## Quick Example
+
+### Create an async run
+
+```bash
+curl -X POST https://api.subconscious.dev/v1/runs \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "engine": "tim-large",
+    "input": {
+      "instructions": "Research the latest developments in quantum computing"
+    }
+  }'
+```
+
+Response:
+
+```json
+{
+  "runId": "run_abc123...",
+  "status": "queued"
+}
+```
+
+### Poll for results
+
+```bash
+curl https://api.subconscious.dev/v1/runs/run_abc123 \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Response (when complete):
+
+```json
+{
+  "runId": "run_abc123...",
+  "status": "succeeded",
+  "result": {
+    "answer": "Recent developments in quantum computing include...",
+    "reasoning": null
+  },
+  "usage": {
+    "inputTokens": 1234,
+    "outputTokens": 567,
+    "durationMs": 45000
+  }
+}
+```
+
+## Webhooks
+
+Instead of polling, configure webhooks to receive notifications when runs complete:
+
+```bash
+curl -X POST https://api.subconscious.dev/v1/webhooks/subscriptions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "callbackUrl": "https://your-app.com/webhooks",
+    "eventTypes": ["job.succeeded", "job.failed"]
+  }'
+```
+
+Or attach a one-off callback URL to a specific run:
+
+```json
+{
+  "engine": "tim-large",
+  "input": {"instructions": "..."},
+  "output": {"callbackUrl": "https://your-app.com/webhooks"}
+}
+```

@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Subconscious AI API",
-    "description": "OpenAI-compatible API for chat completions and AI interactions",
+    "description": "API for creating and managing AI agent runs and webhook subscriptions",
     "license": {
       "name": "MIT"
     },
@@ -19,29 +19,29 @@
     }
   ],
   "paths": {
-    "/chat/completions": {
+    "/runs": {
       "post": {
-        "summary": "Kick off a agent with our OpenAI-compatible API",
-        "description": "Calls the TIM inference engine to generate a response. The user must state their goals in the prompt, and plug in valid tools for the agent to use.",
-        "operationId": "createChatCompletion",
+        "summary": "Create a new agent run",
+        "description": "Creates a new agent run. The run is processed asynchronously. Use the returned runId to poll for status or set up webhooks to receive notifications.",
+        "operationId": "createRun",
         "requestBody": {
-          "description": "Chat completion request",
+          "description": "Run creation request",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ChatCompletionRequest"
+                "$ref": "#/components/schemas/CreateRunRequest"
               }
             }
           },
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "Chat completion response",
+          "202": {
+            "description": "Run created successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ChatCompletionResponse"
+                  "$ref": "#/components/schemas/CreateRunResponse"
                 }
               }
             }
@@ -66,8 +66,68 @@
               }
             }
           },
-          "429": {
-            "description": "Rate limit exceeded",
+          "409": {
+            "description": "Idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List runs",
+        "description": "List all runs for the authenticated organization",
+        "operationId": "listRuns",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of runs to return (default: 50, max: 100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "Pagination cursor from previous response",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of runs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListRunsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -89,24 +149,446 @@
         }
       }
     },
-    "/models": {
-      "get": {
-        "summary": "List models",
-        "description": "Lists the currently available models",
-        "operationId": "listModels",
+    "/runs/stream": {
+      "post": {
+        "summary": "Create and stream a run",
+        "description": "Creates a run and streams execution events via Server-Sent Events (SSE). Uses OpenAI-compatible SSE format.",
+        "operationId": "streamRun",
+        "requestBody": {
+          "description": "Run creation request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRunRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
-            "description": "List of models",
+            "description": "Stream of run events",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string",
+                  "description": "Server-Sent Events stream"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListModelsResponse"
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
           },
           "401": {
             "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs/{runId}": {
+      "get": {
+        "summary": "Get a run",
+        "description": "Retrieve the status and results of a specific run",
+        "operationId": "getRun",
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "description": "The ID of the run to retrieve",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Run details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetRunResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Run not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/runs/{runId}/cancel": {
+      "post": {
+        "summary": "Cancel a run",
+        "description": "Cancel a running or queued run. Returns the updated run with status 'canceled'. No-op if run is already terminal.",
+        "operationId": "cancelRun",
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "description": "The ID of the run to cancel",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Run canceled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancelRunResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Run not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webhooks/subscriptions": {
+      "post": {
+        "summary": "Create a webhook subscription",
+        "description": "Create a new webhook subscription to receive notifications when runs complete",
+        "operationId": "createWebhookSubscription",
+        "requestBody": {
+          "description": "Webhook subscription request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWebhookSubscriptionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Webhook subscription created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookSubscription"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List webhook subscriptions",
+        "description": "List all webhook subscriptions for the authenticated organization",
+        "operationId": "listWebhookSubscriptions",
+        "responses": {
+          "200": {
+            "description": "List of webhook subscriptions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListWebhookSubscriptionsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webhooks/subscriptions/{id}": {
+      "delete": {
+        "summary": "Delete a webhook subscription",
+        "description": "Delete a webhook subscription by ID",
+        "operationId": "deleteWebhookSubscription",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the webhook subscription to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Webhook subscription deleted successfully"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook subscription not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webhooks/canary": {
+      "post": {
+        "summary": "Test webhook delivery",
+        "description": "Send a test webhook to verify your webhook endpoint is working correctly",
+        "operationId": "webhookCanary",
+        "requestBody": {
+          "description": "Canary webhook request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WebhookCanaryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Canary webhook queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookCanaryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
             "content": {
               "application/json": {
                 "schema": {
@@ -121,271 +603,748 @@
   },
   "components": {
     "schemas": {
-      "ChatCompletionRequest": {
+      "CreateRunRequest": {
         "type": "object",
-        "required": [
-          "model",
-          "messages"
-        ],
+        "required": ["engine", "input"],
         "properties": {
-          "model": {
+          "engine": {
             "type": "string",
-            "enum": [
-              "tim-small-preview",
-              "tim-large"
-            ],
-            "description": "API ID of the model to use"
+            "enum": ["tim-small-preview", "tim-large", "tim-test"],
+            "description": "The engine to use for this run"
           },
-          "messages": {
-            "type": "array",
-            "description": "A list of messages comprising the conversation so far",
-            "items": {
-              "$ref": "#/components/schemas/ChatMessage"
-            }
+          "input": {
+            "$ref": "#/components/schemas/RunInput"
           },
-          "max_tokens": {
-            "type": "integer",
-            "description": "The maximum number of tokens to generate in the chat completion",
-            "minimum": 1
+          "output": {
+            "$ref": "#/components/schemas/RunOutput"
           },
-          "temperature": {
-            "type": "number",
-            "description": "What sampling temperature to use, between 0 and 2",
-            "minimum": 0,
-            "maximum": 2,
-            "default": 1
-          },
-          "top_p": {
-            "type": "number",
-            "description": "An alternative to sampling with temperature",
-            "minimum": 0,
-            "maximum": 1,
-            "default": 1
-          },
-          "stream": {
-            "type": "boolean",
-            "description": "If set, partial message deltas will be sent",
-            "default": false
-          },
-          "stop": {
-            "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            ],
-            "description": "Up to 4 sequences where the API will stop generating further tokens"
-          },
-          "presence_penalty": {
-            "type": "number",
-            "description": "Number between -2.0 and 2.0",
-            "minimum": -2,
-            "maximum": 2,
-            "default": 0
-          },
-          "frequency_penalty": {
-            "type": "number",
-            "description": "Number between -2.0 and 2.0",
-            "minimum": -2,
-            "maximum": 2,
-            "default": 0
+          "options": {
+            "$ref": "#/components/schemas/RunOptions"
           }
         }
       },
-      "ChatMessage": {
+      "RunInput": {
         "type": "object",
-        "required": [
-          "role",
-          "content"
-        ],
+        "required": ["instructions"],
         "properties": {
-          "role": {
+          "instructions": {
             "type": "string",
-            "enum": [
-              "system",
-              "user",
-              "assistant"
-            ],
-            "description": "The role of the messages author"
+            "minLength": 1,
+            "description": "The instructions for the agent to execute"
           },
-          "content": {
+          "tools": {
+            "type": "array",
+            "description": "Array of tools the agent can use",
+            "items": {
+              "$ref": "#/components/schemas/Tool"
+            }
+          },
+          "answerFormat": {
+            "$ref": "#/components/schemas/JSONSchemaObject"
+          },
+          "reasoningFormat": {
+            "$ref": "#/components/schemas/JSONSchemaObject"
+          }
+        }
+      },
+      "RunOutput": {
+        "type": "object",
+        "properties": {
+          "callbackUrl": {
             "type": "string",
-            "description": "The contents of the message"
+            "format": "uri",
+            "description": "Optional callback URL to receive webhook notifications when the run completes"
+          }
+        }
+      },
+      "RunOptions": {
+        "type": "object",
+        "properties": {
+          "timeout": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3600,
+            "description": "Timeout in seconds (max 1 hour)"
+          }
+        }
+      },
+      "Tool": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PlatformTool"
+          },
+          {
+            "$ref": "#/components/schemas/FunctionTool"
+          },
+          {
+            "$ref": "#/components/schemas/McpTool"
+          }
+        ]
+      },
+      "PlatformTool": {
+        "type": "object",
+        "required": ["type", "id"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["platform"],
+            "description": "Tool type"
+          },
+          "id": {
+            "type": "string",
+            "description": "Platform tool ID (e.g., 'web_search', 'calculator')"
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Optional tool-specific options"
+          }
+        }
+      },
+      "FunctionTool": {
+        "type": "object",
+        "required": ["type", "name", "description", "url", "method", "parameters"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["function"],
+            "description": "Tool type"
           },
           "name": {
             "type": "string",
-            "description": "An optional name for the participant"
+            "description": "Function name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Function description"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "HTTP endpoint URL"
+          },
+          "method": {
+            "type": "string",
+            "enum": ["POST", "GET"],
+            "description": "HTTP method"
+          },
+          "timeout": {
+            "type": "integer",
+            "description": "Timeout in seconds (default: 30)"
+          },
+          "parameters": {
+            "$ref": "#/components/schemas/ToolParameters"
           }
         }
       },
-      "ChatCompletionResponse": {
+      "McpTool": {
         "type": "object",
-        "required": [
-          "id",
-          "object",
-          "created",
-          "model",
-          "choices"
-        ],
+        "required": ["type", "server"],
         "properties": {
-          "id": {
+          "type": {
             "type": "string",
-            "description": "A unique identifier for the chat completion"
+            "enum": ["mcp"],
+            "description": "Tool type"
           },
-          "object": {
+          "server": {
             "type": "string",
-            "description": "The object type, which is always 'chat.completion'"
+            "description": "MCP server URI or identifier"
           },
-          "created": {
-            "type": "integer",
-            "description": "The Unix timestamp (in seconds) of when the chat completion was created"
-          },
-          "model": {
+          "name": {
             "type": "string",
-            "description": "The model used for the chat completion"
+            "description": "Optional: specific tool name, if omitted uses all tools from server"
           },
-          "choices": {
+          "auth": {
+            "$ref": "#/components/schemas/McpAuth"
+          }
+        }
+      },
+      "McpAuth": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["bearer", "api_key"],
+            "description": "Authentication type"
+          },
+          "token": {
+            "type": "string",
+            "description": "Authentication token"
+          },
+          "header": {
+            "type": "string",
+            "description": "For api_key auth, the header name"
+          }
+        }
+      },
+      "ToolParameters": {
+        "type": "object",
+        "required": ["type", "properties"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["object"],
+            "description": "Parameter type"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Parameter properties (JSON Schema format)"
+          },
+          "required": {
             "type": "array",
-            "description": "A list of chat completion choices",
             "items": {
-              "$ref": "#/components/schemas/ChatCompletionChoice"
-            }
+              "type": "string"
+            },
+            "description": "Required parameter names"
+          },
+          "additionalProperties": {
+            "type": "boolean",
+            "description": "Whether additional properties are allowed"
+          }
+        }
+      },
+      "JSONSchemaObject": {
+        "type": "object",
+        "required": ["type", "properties", "required", "title"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["object"],
+            "description": "Schema type"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JSONSchemaProperty"
+            },
+            "description": "Object properties"
+          },
+          "required": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Required property names"
+          },
+          "title": {
+            "type": "string",
+            "description": "Schema title"
+          },
+          "additionalProperties": {
+            "type": "boolean",
+            "enum": [false],
+            "description": "Must be false for structured output"
+          },
+          "$defs": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Schema definitions"
+          }
+        }
+      },
+      "JSONSchemaProperty": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/JSONSchemaString"
+          },
+          {
+            "$ref": "#/components/schemas/JSONSchemaNumber"
+          },
+          {
+            "$ref": "#/components/schemas/JSONSchemaBoolean"
+          },
+          {
+            "$ref": "#/components/schemas/JSONSchemaArray"
+          },
+          {
+            "$ref": "#/components/schemas/JSONSchemaObject"
+          },
+          {
+            "$ref": "#/components/schemas/JSONSchemaEnum"
+          },
+          {
+            "$ref": "#/components/schemas/JSONSchemaAnyOf"
+          }
+        ]
+      },
+      "JSONSchemaString": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["string"],
+            "description": "Property type"
+          },
+          "description": {
+            "type": "string",
+            "description": "Property description"
+          },
+          "format": {
+            "type": "string",
+            "enum": ["date", "date-time", "email", "uuid"],
+            "description": "String format"
+          },
+          "pattern": {
+            "type": "string",
+            "description": "Regex pattern"
+          }
+        }
+      },
+      "JSONSchemaNumber": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["number", "integer"],
+            "description": "Property type"
+          },
+          "description": {
+            "type": "string",
+            "description": "Property description"
+          }
+        }
+      },
+      "JSONSchemaBoolean": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["boolean"],
+            "description": "Property type"
+          },
+          "description": {
+            "type": "string",
+            "description": "Property description"
+          }
+        }
+      },
+      "JSONSchemaArray": {
+        "type": "object",
+        "required": ["type", "items"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["array"],
+            "description": "Property type"
+          },
+          "items": {
+            "$ref": "#/components/schemas/JSONSchemaProperty",
+            "description": "Array item schema"
+          },
+          "description": {
+            "type": "string",
+            "description": "Property description"
+          }
+        }
+      },
+      "JSONSchemaEnum": {
+        "type": "object",
+        "required": ["type", "enum"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["string"],
+            "description": "Property type"
+          },
+          "enum": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Enum values"
+          },
+          "description": {
+            "type": "string",
+            "description": "Property description"
+          }
+        }
+      },
+      "JSONSchemaAnyOf": {
+        "type": "object",
+        "required": ["anyOf"],
+        "properties": {
+          "anyOf": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JSONSchemaProperty"
+            },
+            "description": "AnyOf schemas"
+          },
+          "description": {
+            "type": "string",
+            "description": "Property description"
+          }
+        }
+      },
+      "CreateRunResponse": {
+        "type": "object",
+        "required": ["runId", "status"],
+        "properties": {
+          "runId": {
+            "type": "string",
+            "description": "Unique identifier for the run"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["queued"],
+            "description": "Initial status of the run"
+          }
+        }
+      },
+      "GetRunResponse": {
+        "type": "object",
+        "required": ["runId", "status"],
+        "properties": {
+          "runId": {
+            "type": "string",
+            "description": "Unique identifier for the run"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["queued", "running", "succeeded", "failed", "canceled", "timed_out"],
+            "description": "Current status of the run"
+          },
+          "result": {
+            "$ref": "#/components/schemas/RunResult",
+            "description": "Run result (only present for terminal states)"
           },
           "usage": {
-            "$ref": "#/components/schemas/Usage"
+            "$ref": "#/components/schemas/RunUsage",
+            "description": "Token usage and timing (only present for terminal states)"
+          },
+          "error": {
+            "$ref": "#/components/schemas/RunError",
+            "description": "Error details (only present for failed runs)"
           }
         }
       },
-      "ChatCompletionChoice": {
+      "RunResult": {
         "type": "object",
-        "required": [
-          "index",
-          "message",
-          "finish_reason"
-        ],
+        "required": ["answer"],
         "properties": {
-          "index": {
-            "type": "integer",
-            "description": "The index of the choice in the list of choices"
-          },
-          "message": {
-            "$ref": "#/components/schemas/ChatMessage"
-          },
-          "finish_reason": {
+          "answer": {
             "type": "string",
-            "enum": [
-              "stop",
-              "length",
-              "content_filter"
-            ],
-            "description": "The reason the model stopped generating tokens"
+            "description": "The agent's answer"
+          },
+          "reasoning": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "The agent's reasoning (if available)"
           }
         }
       },
-      "Usage": {
+      "RunUsage": {
         "type": "object",
-        "required": [
-          "prompt_tokens",
-          "completion_tokens",
-          "total_tokens"
-        ],
+        "required": ["inputTokens", "outputTokens"],
         "properties": {
-          "prompt_tokens": {
+          "inputTokens": {
             "type": "integer",
-            "description": "Number of tokens in the prompt"
+            "description": "Number of input tokens used"
           },
-          "completion_tokens": {
+          "outputTokens": {
             "type": "integer",
-            "description": "Number of tokens in the generated completion"
+            "description": "Number of output tokens generated"
           },
-          "total_tokens": {
+          "toolCalls": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "description": "Number of tool calls per tool"
+          },
+          "durationMs": {
             "type": "integer",
-            "description": "Total number of tokens used in the request (prompt + completion)"
+            "description": "Duration of the run in milliseconds"
           }
         }
       },
-      "ListModelsResponse": {
-        "type": "object",
-        "required": [
-          "object",
-          "data"
-        ],
-        "properties": {
-          "object": {
-            "type": "string",
-            "description": "The object type, which is always 'list'"
-          },
-          "data": {
-            "type": "array",
-            "description": "List of model objects",
-            "items": {
-              "$ref": "#/components/schemas/Model"
+      "RunError": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["code", "message"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message"
+              },
+              "details": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Additional error details"
+              }
             }
+          },
+          {
+            "type": "string",
+            "description": "Error message as string"
+          }
+        ]
+      },
+      "CancelRunResponse": {
+        "type": "object",
+        "required": ["runId", "status"],
+        "properties": {
+          "runId": {
+            "type": "string",
+            "description": "Unique identifier for the run"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["canceled"],
+            "description": "Status after cancellation"
           }
         }
       },
-      "Model": {
+      "ListRunsResponse": {
         "type": "object",
-        "required": [
-          "id",
-          "object",
-          "created",
-          "owned_by"
-        ],
+        "required": ["runs", "nextCursor"],
+        "properties": {
+          "runs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RunListItem"
+            },
+            "description": "List of runs"
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true,
+            "description": "Pagination cursor for next page (null if no more pages)"
+          }
+        }
+      },
+      "RunListItem": {
+        "type": "object",
+        "required": ["runId", "status", "engine", "createdAt", "updatedAt"],
+        "properties": {
+          "runId": {
+            "type": "string",
+            "description": "Unique identifier for the run"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["queued", "running", "succeeded", "failed", "canceled", "timed_out"],
+            "description": "Current status of the run"
+          },
+          "engine": {
+            "type": "string",
+            "enum": ["tim-small-preview", "tim-large", "tim-test"],
+            "description": "Engine used for this run"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp when the run was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp when the run was last updated"
+          }
+        }
+      },
+      "CreateWebhookSubscriptionRequest": {
+        "type": "object",
+        "required": ["callbackUrl", "eventTypes"],
+        "properties": {
+          "callbackUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to receive webhook notifications"
+          },
+          "eventTypes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["job.succeeded", "job.failed"]
+            },
+            "minItems": 1,
+            "description": "Event types to subscribe to"
+          },
+          "secret": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 256,
+            "nullable": true,
+            "description": "Optional secret for webhook signature verification"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 512,
+            "nullable": true,
+            "description": "Optional description for this subscription"
+          }
+        }
+      },
+      "WebhookSubscription": {
+        "type": "object",
+        "required": ["id", "orgId", "callbackUrl", "eventTypes", "createdAt", "updatedAt"],
         "properties": {
           "id": {
             "type": "string",
-            "description": "The model identifier"
+            "format": "uuid",
+            "description": "Unique identifier for the subscription"
           },
-          "object": {
+          "orgId": {
             "type": "string",
-            "description": "The object type, which is always 'model'"
+            "description": "Organization ID that owns this subscription"
           },
-          "created": {
-            "type": "integer",
-            "description": "The Unix timestamp (in seconds) when the model was created"
-          },
-          "owned_by": {
+          "callbackUrl": {
             "type": "string",
-            "description": "The organization that owns the model"
+            "format": "uri",
+            "description": "URL to receive webhook notifications"
+          },
+          "eventTypes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["job.succeeded", "job.failed"]
+            },
+            "description": "Event types subscribed to"
+          },
+          "secret": {
+            "type": "string",
+            "nullable": true,
+            "description": "Secret for webhook signature verification (if set)"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Description for this subscription"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp when the subscription was created"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO 8601 timestamp when the subscription was last updated"
+          }
+        }
+      },
+      "ListWebhookSubscriptionsResponse": {
+        "type": "object",
+        "required": ["subscriptions"],
+        "properties": {
+          "subscriptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WebhookSubscription"
+            },
+            "description": "List of webhook subscriptions"
+          }
+        }
+      },
+      "WebhookCanaryRequest": {
+        "type": "object",
+        "required": ["callbackUrl"],
+        "properties": {
+          "callbackUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to send the test webhook to"
+          }
+        }
+      },
+      "WebhookCanaryResponse": {
+        "type": "object",
+        "required": ["deliveryId", "callbackUrl", "status", "payload"],
+        "properties": {
+          "deliveryId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for this delivery"
+          },
+          "callbackUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL the webhook was sent to"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["queued"],
+            "description": "Delivery status"
+          },
+          "payload": {
+            "type": "object",
+            "required": ["kind", "ts", "orgId"],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["canary"],
+                "description": "Payload kind"
+              },
+              "ts": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Timestamp"
+              },
+              "orgId": {
+                "type": "string",
+                "description": "Organization ID"
+              }
+            }
           }
         }
       },
       "Error": {
         "type": "object",
-        "required": [
-          "error"
-        ],
+        "required": ["error"],
         "properties": {
           "error": {
-            "type": "object",
-            "required": [
-              "message",
-              "type"
-            ],
-            "properties": {
-              "message": {
+            "oneOf": [
+              {
                 "type": "string",
-                "description": "A human-readable error message"
+                "description": "Error message"
               },
-              "type": {
-                "type": "string",
-                "description": "The type of error"
-              },
-              "param": {
-                "type": "string",
-                "description": "The parameter that caused the error, if applicable"
-              },
-              "code": {
-                "type": "string",
-                "description": "An error code identifying the error type"
+              {
+                "type": "object",
+                "required": ["message"],
+                "properties": {
+                  "message": {
+                    "type": "string",
+                    "description": "A human-readable error message"
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "The type of error"
+                  },
+                  "param": {
+                    "type": "string",
+                    "description": "The parameter that caused the error, if applicable"
+                  },
+                  "code": {
+                    "type": "string",
+                    "description": "An error code identifying the error type"
+                  }
+                }
               }
-            }
+            ]
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Additional error details (for validation errors)"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "Request ID for debugging"
+          },
+          "runId": {
+            "type": "string",
+            "description": "Run ID (if applicable)"
           }
         }
       }

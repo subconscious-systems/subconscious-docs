@@ -12,6 +12,7 @@
     "dark": "#FF5C28"
   },
   "favicon": "/favicon.png",
+  "openapi": "/api-reference/openapi.json",
   "navigation": {
     "tabs": [
       {
@@ -52,17 +53,28 @@
         "tab": "API Reference",
         "groups": [
           {
-            "group": "API Documentation",
+            "group": "Overview",
             "pages": [
               "api-reference/introduction"
             ]
           },
           {
-            "group": "Endpoint Examples",
+            "group": "Runs",
             "pages": [
-              "api-reference/endpoint/post",
-              "api-reference/endpoint/async",
-              "api-reference/endpoint/webhooks"
+              "POST /runs",
+              "POST /runs/stream",
+              "GET /runs/{runId}",
+              "POST /runs/{runId}/cancel",
+              "GET /runs"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "POST /webhooks/subscriptions",
+              "GET /webhooks/subscriptions",
+              "DELETE /webhooks/subscriptions/{id}",
+              "POST /webhooks/canary"
             ]
           }
         ]
