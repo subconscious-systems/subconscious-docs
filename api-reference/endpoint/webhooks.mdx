@@ -1,0 +1,160 @@
+---
+title: 'Webhooks'
+description: 'Configure and verify webhooks for async jobs'
+---
+
+Webhooks let Subconscious notify your system when async jobs complete or fail. This page covers:
+
+- Managing persistent webhook subscriptions.
+- Using ephemeral `callbackUrl` values on individual async requests.
+- The canary endpoint for end‑to‑end verification.
+
+> All webhook endpoints use Bearer token authentication; you must include your API key in the `Authorization` header.
+
+## Create a webhook subscription
+
+**Endpoint**
+
+```text
+POST /v1/webhooks/subscriptions
+```
+
+**Request body**
+
+```json
+{
+  "callbackUrl": "https://your-app.example.com/webhooks/subconscious",
+  "eventTypes": ["job.succeeded", "job.failed"],
+  "secret": "optional-shared-secret",
+  "description": "My async job webhooks"
+}
+```
+
+- `callbackUrl` (string, required): where we should send events.
+- `eventTypes` (array, required): which events you want to receive. Currently:
+  - `job.succeeded`
+  - `job.failed`
+- `secret` (string, optional): shared secret used to sign webhook payloads.
+- `description` (string, optional): your own label for the subscription.
+
+**Example**
+
+```bash
+curl -sS https://api.subconscious.dev/v1/webhooks/subscriptions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "callbackUrl": "https://your-app.example.com/webhooks/subconscious",
+    "eventTypes": ["job.succeeded", "job.failed"],
+    "secret": "replace-with-a-strong-secret",
+    "description": "Async job notifications"
+  }'
+```
+
+The response includes the created subscription, including its `id`.
+
+## List webhook subscriptions
+
+**Endpoint**
+
+```text
+GET /v1/webhooks/subscriptions
+```
+
+Returns all subscriptions owned by the authenticated organization:
+
+```json
+{
+  "subscriptions": [
+    {
+      "id": "sub_...",
+      "orgId": "org_...",
+      "callbackUrl": "https://your-app.example.com/webhooks/subconscious",
+      "eventTypes": ["job.succeeded", "job.failed"],
+      "secret": "…",
+      "description": "Async job notifications",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+**Example**
+
+```bash
+curl -sS https://api.subconscious.dev/v1/webhooks/subscriptions \
+  -H "Authorization: Bearer YOUR_API_KEY" | jq
+```
+
+## Delete a webhook subscription
+
+**Endpoint**
+
+```text
+DELETE /v1/webhooks/subscriptions/{id}
+```
+
+Deletes a subscription you own. Returns `204 No Content` on success.
+
+**Example**
+
+```bash
+curl -sS -X DELETE \
+  https://api.subconscious.dev/v1/webhooks/subscriptions/sub_123 \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -i
+```
+
+If the subscription does not exist, you’ll get `404`. If it belongs to another org, you’ll get `403`.
+
+## Ephemeral callbackUrl on async requests
+
+In addition to persistent subscriptions, you can attach a one‑off `callbackUrl` to an individual async job:
+
+```bash
+curl -sS https://api.subconscious.dev/v1/chat/completions/async \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "model": "tim-large",
+    "messages": [
+      { "role": "user", "content": "Run this as an async job" }
+    ],
+    "callbackUrl": "https://your-app.example.com/webhooks/subconscious"
+  }'
+```
+
+When the job finishes, we enqueue a webhook delivery for that `callbackUrl` in addition to any matching subscriptions.
+
+## Canary endpoint
+
+The canary endpoint lets you verify your webhook receiver and our delivery pipeline end‑to‑end.
+
+**Endpoint**
+
+```text
+POST /v1/webhooks/canary
+```
+
+**Request body**
+
+```json
+{
+  "callbackUrl": "https://your-app.example.com/webhooks/subconscious"
+}
+```
+
+**Example**
+
+```bash
+curl -sS https://api.subconscious.dev/v1/webhooks/canary \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "callbackUrl": "https://your-app.example.com/webhooks/subconscious"
+  }'
+```
+
+On success we respond with `202 Accepted` and a small body describing the enqueued canary delivery. You should then see a webhook arrive at your `callbackUrl` with a synthetic payload indicating that this is a canary event.
+

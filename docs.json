@@ -30,6 +30,7 @@
             "pages": [
               "platform/using-subconscious",
               "platform/engines",
+              "platform/async-jobs-and-webhooks",
               "platform/tools",
               "platform/pricing",
               "platform/logs",
@@ -59,7 +60,9 @@
           {
             "group": "Endpoint Examples",
             "pages": [
-              "api-reference/endpoint/post"
+              "api-reference/endpoint/post",
+              "api-reference/endpoint/async",
+              "api-reference/endpoint/webhooks"
             ]
           }
         ]

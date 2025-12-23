@@ -35,3 +35,28 @@ Our comprehensive logging system helps you:
 - **Monitor performance** - Track response times and success rates
 - **Understand agent behavior** - See the complete reasoning process
 - **Audit usage** - Maintain detailed records of all interactions
+
+
+## Async jobs and webhook logs
+
+For async workloads and webhooks there are a few additional places to look:
+
+- **Worker logs**
+  - Async worker: processes jobs from the queue and calls the engine.
+  - Webhook worker: delivers webhook POSTs and handles retries/backoff.
+  - Logs include:
+    - `requestId`, `jobId`, `deliveryId`, `orgId`,
+    - `durationMs`, `queueAgeMs`, `status`, `errorCode`.
+
+- **Queue health and scaling**
+  - We emit metrics and alarms around:
+    - Async queue age,
+    - Webhook queue age,
+    - Async and webhook DLQ depth.
+  - This makes it easy to spot stuck backlogs or failing deliveries.
+
+- **Local test logs**
+  - When you run our helper scripts (for example `run-all-tests.sh`), we write:
+    - `*-jest.log`, `*-tsc.log`, `*-env.log`, and queue snapshots
+      under `apps/api/test-logs/` in the monorepo.
+  - These logs help you verify that your environment is wired correctly and make regressions easy to detect.

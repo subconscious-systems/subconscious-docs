@@ -16,6 +16,7 @@ Getting started with Subconscious is straightforward: **set your goals, make you
 3. **Call the API** - Send your request and get intelligent results
 
 ## Code Examples
+**Note:** TIM models currently require streaming (`stream=True`) for **sync** chat completions when using the OpenAI-compatible API.
 
 ### Example 1: Calling an Agent with No Tools
 
@@ -40,10 +41,13 @@ response = client.chat.completions.create(
             "role": "user",
             "content": "Find the derivative of f(x) = x^3 * sin(x)"
         }
-    ]
+    ],
+    stream=True
 )
 
-print(response.choices[0].message.content)
+# Stream and print the response
+for chunk in response:
+    print(chunk.choices[0].delta.content or "", end="")
 ```
 
 ```javascript JavaScript
@@ -63,17 +67,21 @@ const response = await client.chat.completions.create({
       role: 'user',
       content: 'Analyze the current market trends for electric vehicles and provide a summary.'
     }
-  ]
+  ],
+  stream: true
 });
 
-console.log(response.choices[0].message.content);
+// Stream and print the response
+for await (const chunk of response) {
+  process.stdout.write(chunk.choices[0]?.delta?.content || "");
+}
 ```
 
 </CodeGroup>
 
 ### Example 2: Calling an Agent with One Tool
 
-Add a single tool to extend your agent's capabilities.
+This example illustrates how tools are defined and passed to the API.
 
 <CodeGroup>
 
@@ -119,9 +127,12 @@ response = client.chat.completions.create(
         }
     ],
     tools=tools,
+    stream=True
 )
 
-print(response.choices[0].message.content)
+# Stream and print the response
+for chunk in response:
+    print(chunk.choices[0].delta.content or "", end="")
 ```
 
 ```javascript JavaScript
@@ -166,16 +177,20 @@ const response = await client.chat.completions.create({
     }
   ],
   tools: tools,
+  stream: true
 });
 
-console.log(response.choices[0].message.content);
+// Stream and print the response
+for await (const chunk of response) {
+  process.stdout.write(chunk.choices[0]?.delta?.content || "");
+}
 ```
 
 </CodeGroup>
 
 ### Example 3: Calling an Agent with Multiple Tools
 
-Combine multiple tools for more sophisticated agent behavior.
+This example shows how multiple tools can be composed for more advanced agents.
 
 <CodeGroup>
 
@@ -251,9 +266,12 @@ response = client.chat.completions.create(
         }
     ],
     tools=tools,
+    stream=True
 )
 
-print(response.choices[0].message.content)
+# Stream and print the response
+for chunk in response:
+    print(chunk.choices[0].delta.content or "", end="")
 ```
 
 ```javascript JavaScript
@@ -326,20 +344,34 @@ const response = await client.chat.completions.create({
     }
   ],
   tools: tools,
+  stream: true
 });
 
-console.log(response.choices[0].message.content);
+// Stream and print the response
+for await (const chunk of response) {
+  process.stdout.write(chunk.choices[0]?.delta?.content || "");
+}
 ```
 
 </CodeGroup>
 
+## Async workflows
+
+All of the examples above use the sync (blocking) chat completion API. When you have long‑running tasks or want stronger durability guarantees, you can switch to the async flow:
+
+- Enqueue work with `POST /v1/chat/completions/async`.
+- Poll job status with `GET /v1/requests/{requestId}/status`.
+- Optionally receive callbacks via webhooks when jobs complete.
+
+See the “Async jobs and webhooks” guide in the Platform section for a deeper walkthrough of the async pipeline and how to plug it into your own systems.
+
 ## Interpreting Results
 
-Because Subconscious uses an OpenAI-compatible API, the response structure follows the standard OpenAI format. **All of the agent's reasoning and final answer is contained within the `choices[0].message.content` field as a JSON object**. This field is not a simple string - it's always a structured JSON that provides detailed insights into the agent's reasoning process and tool usage.
+Because Subconscious uses an OpenAI-compatible API, the response structure follows the standard OpenAI format. When collected into a complete response, the agent’s reasoning and final answer are contained within the `choices[0].message.content` field as a JSON object. This field is a string containing structured JSON that represents the agent’s reasoning process and final output.
 
 ### Response Structure
 
-The `choices[0].message.content` field contains JSON that always contains the engine's `reasoning` and `answer`. The object that follows this TypeScript interface:
+The object follows this TypeScript interface:
 
 ```typescript
 export interface ModelResponse {
@@ -382,7 +414,7 @@ Each task in the reasoning array can contain:
 
 ### Example Response
 
-The a simplified `choices[0].message.content` response will contain JSON like this:
+A simplified `choices[0].message.content` response will contain JSON like this:
 
 ```json
 {
@@ -423,4 +455,3 @@ This structured response format allows you to:
 - **Debug** your agent's reasoning process
 - **Monitor** tool usage and results
 - **Optimize** your tool configurations
-
