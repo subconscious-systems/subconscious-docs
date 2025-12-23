@@ -21,7 +21,7 @@
             "group": "Get Started",
             "pages": [
               "index",
-              "quickstart",
+              "intro",
               "mental-model"
             ]
           },
@@ -29,7 +29,7 @@
             "group": "Platform",
             "pages": [
               "platform/using-subconscious",
-              "platform/models",
+              "platform/engines",
               "platform/tools",
               "platform/pricing",
               "platform/logs",
