@@ -1,10 +1,11 @@
 ---
-title: 'Async jobs and webhooks'
-description: 'Run long‑running agent work reliably and get notified on completion'
+title: "Async jobs and webhooks"
+description: "Run long‑running agent work reliably and get notified on completion"
 ---
-import ResearchPreview from '/snippets/research-preview.mdx';
-import AsyncPolling from '/snippets/async-polling.mdx';
-import AsyncWebhook from '/snippets/async-webhook.mdx';
+
+import ResearchPreview from "/snippets/research-preview.mdx";
+import AsyncPolling from "/snippets/async-polling.mdx";
+import AsyncWebhook from "/snippets/async-webhook.mdx";
 
 <ResearchPreview />
 
@@ -28,57 +29,58 @@ You get the same agent behavior as the sync API, but with better durability and 
 
 At a high level, the async path looks like this:
 
-1. You call `POST /v1/chat/completions/async` with your usual model + messages.
-2. We create an async job and enqueue it into an internal SQS queue.
+1. You call `client.run()` without `await_completion` (or set it to `False`) with your usual engine + input.
+2. We create an async job and enqueue it into an internal queue.
 3. A dedicated worker service pulls jobs from the queue and runs them against the engine.
 4. On completion we:
    - update the job status, and
    - optionally enqueue one or more webhook deliveries.
 5. You:
-   - poll the status endpoint, or
+   - poll the status using `client.get()` or `client.wait()`, or
    - receive a webhook at your configured callback URL.
 
-You never talk to the queue or workers directly; you only use the HTTP API.
+You never talk to the queue or workers directly; you only use the SDK.
 
 ## Async jobs & polling
 
 The core entrypoint is:
 
-- `POST /v1/chat/completions/async`
+- `client.run()` with `await_completion: False`
 
-You send the same shape you would send to the sync API, but instead of waiting for the model to finish we:
+You send the same input you would send to the sync API, but instead of waiting for the model to finish we:
 
 - return quickly with:
-  - a `requestId`,
-  - `status: "pending"`, and
-  - an estimated completion time.
+  - a `run_id`,
+  - `status: "queued"`, and
+  - the run object.
 - do the work in the background.
 
 To check on the job later, you use:
 
-- `GET /v1/requests/{requestId}/status`
+- `client.get(run_id)` to check status
+- `client.wait(run_id, options)` to poll until completion
 
 The status payload contains:
 
-- `status`: `pending | processing | completed | failed | cancelled`
-- `jobId`: internal job identifier
-- `model` / `engine`
+- `status`: `queued | running | succeeded | failed | canceled | timed_out`
+- `run_id`: run identifier
+- `engine`
 - `result` (when completed)
 - `error` (when failed)
-- timestamps (`createdAt`, `updatedAt`, `startedAt`, `completedAt`)
+- timestamps
 
-This polling contract is the “source of truth” for async job state.
+This polling contract is the "source of truth" for async job state.
 
 <AsyncPolling />
 
 ## Webhooks
 
-Polling is ideal when you have a single client watching a single job. For automation and integrations, it’s more natural for us to notify you when jobs finish.
+Polling is ideal when you have a single client watching a single job. For automation and integrations, it's more natural for us to notify you when jobs finish.
 
 You have two options:
 
-1. **Ephemeral webhooks** – you pass a `callbackUrl` on the async request, and we call that URL once when the job finishes.
-2. **Persistent subscriptions** – you register webhook subscriptions for events like `job.completed` or `job.failed`, and we fan out to all matching subscribers.
+1. **Ephemeral webhooks** – you pass a `callbackUrl` in the run options, and we call that URL once when the job finishes.
+2. **Persistent subscriptions** – you register webhook subscriptions for events like `run.completed` or `run.failed`, and we fan out to all matching subscribers.
 
 In both cases, webhook deliveries:
 
@@ -112,6 +114,6 @@ You can mix these patterns: for example, submit async jobs from a backend, poll 
 
 ## Related docs
 
-- **Quickstart** – see the async polling example for a minimal curl flow.
-- **API Reference** – `POST /v1/chat/completions/async`, `GET /v1/requests/{requestId}/status`, and the `/v1/webhooks/*` endpoints.
+- **Quickstart** – see the async polling examples in the SDK documentation.
+- **SDK Reference** – `client.run()`, `client.get()`, `client.wait()`, `client.cancel()`, and webhook configuration.
 - **Logs** – how to inspect worker logs, queue age, and delivery errors.

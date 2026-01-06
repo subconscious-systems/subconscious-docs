@@ -31,7 +31,6 @@
             "pages": [
               "platform/using-subconscious",
               "platform/engines",
-              "platform/async-jobs-and-webhooks",
               "platform/tools",
               "platform/pricing",
               "platform/logs",
@@ -51,12 +50,11 @@
       },
       {
         "tab": "API Reference",
+        "openapi": "/api-reference/openapi.json",
         "groups": [
           {
             "group": "Overview",
-            "pages": [
-              "api-reference/introduction"
-            ]
+            "pages": ["api-reference/introduction"]
           },
           {
             "group": "Runs",
@@ -67,18 +65,10 @@
               "POST /runs/{runId}/cancel",
               "GET /runs"
             ]
-          },
-          {
-            "group": "Webhooks",
-            "pages": [
-              "POST /webhooks/subscriptions",
-              "GET /webhooks/subscriptions",
-              "DELETE /webhooks/subscriptions/{id}",
-              "POST /webhooks/canary"
-            ]
           }
         ]
       }
+      
     ]
   },
   "logo": {

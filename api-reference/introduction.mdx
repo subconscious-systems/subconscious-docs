@@ -20,10 +20,10 @@ A **Run** represents a single agent execution. You provide instructions and opti
 
 Choose from multiple inference engines optimized for different use cases:
 
-| Engine | Description |
-|--------|-------------|
-| `tim-large` | Our flagship compound AI system with advanced reasoning and tool use |
-| `tim-small-preview` | Fast, efficient model for simpler tasks |
+| Engine              | Description                                                          |
+| ------------------- | -------------------------------------------------------------------- |
+| `tim-large`         | Our flagship compound AI system with advanced reasoning and tool use |
+| `tim-small-preview` | Fast, efficient model for simpler tasks                              |
 
 ### Tools
 
@@ -119,7 +119,7 @@ Or attach a one-off callback URL to a specific run:
 ```json
 {
   "engine": "tim-large",
-  "input": {"instructions": "..."},
-  "output": {"callbackUrl": "https://your-app.com/webhooks"}
+  "input": { "instructions": "..." },
+  "output": { "callbackUrl": "https://your-app.com/webhooks" }
 }
 ```

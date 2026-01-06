@@ -1,0 +1,45 @@
+<CodeGroup>
+
+```python Python
+from subconscious import Subconscious
+
+# Initialize the client
+client = Subconscious(api_key="YOUR_API_KEY")
+
+# Make a simple request without tools
+run = client.run(
+    engine="tim-large",
+    input={
+        "instructions": "Find the derivative of f(x) = x^3 * sin(x)"
+    },
+    options={"await_completion": True}
+)
+
+# Print the answer
+print(run.result.answer)
+```
+
+```javascript JavaScript
+import { Subconscious } from "subconscious";
+
+// Initialize the client
+const client = new Subconscious({
+  apiKey: "YOUR_API_KEY",
+});
+
+// Make a simple request without tools
+const run = await client.run({
+  engine: "tim-large",
+  input: {
+    instructions:
+      "Analyze the current market trends for electric vehicles and provide a summary.",
+  },
+  options: { awaitCompletion: true },
+});
+
+// Print the answer
+console.log(run.result?.answer);
+```
+
+</CodeGroup>
+
