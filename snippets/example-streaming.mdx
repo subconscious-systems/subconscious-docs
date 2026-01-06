@@ -1,0 +1,52 @@
+<CodeGroup>
+
+```python Python
+from subconscious import Subconscious
+
+client = Subconscious(api_key="YOUR_API_KEY")
+
+# Stream the response
+for event in client.stream(
+    engine="tim-large",
+    input={
+        "instructions": "Write a short essay about space exploration",
+        "tools": [{"type": "platform", "id": "parallel_search"}],
+    },
+):
+    if event.type == "delta":
+        print(event.content, end="", flush=True)
+    elif event.type == "done":
+        print(f"\n\nRun completed: {event.run_id}")
+    elif event.type == "error":
+        print(f"Error: {event.message}")
+```
+
+```javascript JavaScript
+import { Subconscious } from "subconscious";
+
+const client = new Subconscious({
+  apiKey: "YOUR_API_KEY",
+});
+
+// Stream the response
+const stream = client.stream({
+  engine: "tim-large",
+  input: {
+    instructions: "Write a short essay about space exploration",
+    tools: [{ type: "platform", id: "parallel_search", options: {} }],
+  },
+});
+
+for await (const event of stream) {
+  if (event.type === "delta") {
+    process.stdout.write(event.content);
+  } else if (event.type === "done") {
+    console.log(`\n\nRun completed: ${event.runId}`);
+  } else if (event.type === "error") {
+    console.error(`Error: ${event.message}`);
+  }
+}
+```
+
+</CodeGroup>
+

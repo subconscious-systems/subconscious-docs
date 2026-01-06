@@ -4,6 +4,10 @@ description: "More details on using Subconscious"
 ---
 
 import ResearchPreview from "/snippets/research-preview.mdx";
+import ExampleNoTools from "/snippets/example-no-tools.mdx";
+import ExampleOneTool from "/snippets/example-one-tool.mdx";
+import ExampleMultipleTools from "/snippets/example-multiple-tools.mdx";
+import ExampleStreaming from "/snippets/example-streaming.mdx";
 
 <ResearchPreview />
 
@@ -21,310 +25,35 @@ Getting started with Subconscious is straightforward: **set your goals, make you
 
 The simplest use case - just send a prompt and get a response.
 
-<CodeGroup>
-
-```python Python
-from subconscious import Subconscious
-
-# Initialize the client
-client = Subconscious(api_key="YOUR_API_KEY")
-
-# Make a simple request without tools
-run = client.run(
-    engine="tim-large",
-    input={
-        "instructions": "Find the derivative of f(x) = x^3 * sin(x)"
-    },
-    options={"await_completion": True}
-)
-
-# Print the answer
-print(run.result.answer)
-```
-
-```javascript JavaScript
-import { Subconscious } from "subconscious";
-
-// Initialize the client
-const client = new Subconscious({
-  apiKey: "YOUR_API_KEY",
-});
-
-// Make a simple request without tools
-const run = await client.run({
-  engine: "tim-large",
-  input: {
-    instructions:
-      "Analyze the current market trends for electric vehicles and provide a summary.",
-  },
-  options: { awaitCompletion: true },
-});
-
-// Print the answer
-console.log(run.result?.answer);
-```
-
-</CodeGroup>
+<ExampleNoTools />
 
 ### Example 2: Calling an Agent with One Tool
 
 This example illustrates how tools are defined and passed to the API.
 
-<CodeGroup>
-
-```python Python
-from subconscious import Subconscious
-
-# Initialize the client
-client = Subconscious(api_key="YOUR_API_KEY")
-
-# Make request with one tool
-run = client.run(
-    engine="tim-large",
-    input={
-        "instructions": "Find the latest news about Tesla's stock performance this week.",
-        "tools": [
-            {
-                "type": "function",
-                "name": "web_search",
-                "description": "Search the web for current information",
-                "url": "TOOL_SERVER_URL",
-                "method": "GET",
-                "timeout": 30,
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "The search query"
-                        }
-                    },
-                    "required": ["query"],
-                    "additionalProperties": False
-                }
-            }
-        ]
-    },
-    options={"await_completion": True}
-)
-
-# Print the answer
-print(run.result.answer)
-```
-
-```javascript JavaScript
-import { Subconscious } from "subconscious";
-
-// Initialize the client
-const client = new Subconscious({
-  apiKey: "YOUR_API_KEY",
-});
-
-// Make request with one tool
-const run = await client.run({
-  engine: "tim-large",
-  input: {
-    instructions:
-      "Find the latest news about Tesla's stock performance this week.",
-    tools: [
-      {
-        type: "function",
-        function: {
-          name: "web_search",
-          description: "Search the web for current information",
-          parameters: {
-            type: "object",
-            properties: {
-              query: {
-                type: "string",
-                description: "The search query",
-              },
-            },
-            required: ["query"],
-          },
-          url: "TOOL_SERVER_URL",
-          method: "GET",
-          timeout: 30,
-        },
-      },
-    ],
-  },
-  options: { awaitCompletion: true },
-});
-
-// Print the answer
-console.log(run.result?.answer);
-```
-
-</CodeGroup>
+<ExampleOneTool />
 
 ### Example 3: Calling an Agent with Multiple Tools
 
 This example shows how multiple tools can be composed for more advanced agents.
 
-<CodeGroup>
+<ExampleMultipleTools />
 
-```python Python
-from subconscious import Subconscious
+## Streaming
 
-# Initialize the client
-client = Subconscious(api_key="YOUR_API_KEY")
+All of the examples above use the sync API with `await_completion: True`. When you want to see responses in real-time as they're generated, you can use streaming:
 
-# Make request with multiple tools
-run = client.run(
-    engine="tim-large",
-    input={
-        "instructions": "Research the current Bitcoin price, calculate the percentage change from last week, and email me a summary report.",
-        "tools": [
-            {
-                "type": "function",
-                "name": "web_search",
-                "description": "Search the web for current information",
-                "url": "TOOL_SERVER_URL",
-                "method": "GET",
-                "timeout": 30,
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "query": {"type": "string", "description": "The search query"}
-                    },
-                    "required": ["query"],
-                    "additionalProperties": False
-                }
-            },
-            {
-                "type": "function",
-                "name": "calculate",
-                "description": "Perform mathematical calculations",
-                "url": "TOOL_SERVER_URL",
-                "method": "POST",
-                "timeout": 30,
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "expression": {"type": "string", "description": "Mathematical expression to evaluate"}
-                    },
-                    "required": ["expression"],
-                    "additionalProperties": False
-                }
-            },
-            {
-                "type": "function",
-                "name": "send_email",
-                "description": "Send an email notification",
-                "url": "TOOL_SERVER_URL",
-                "method": "POST",
-                "timeout": 30,
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "recipient": {"type": "string", "description": "Email recipient"},
-                        "subject": {"type": "string", "description": "Email subject"},
-                        "body": {"type": "string", "description": "Email body"}
-                    },
-                    "required": ["recipient", "subject", "body"]
-                }
-            }
-        ]
-    },
-    options={"await_completion": True}
-)
-
-# Print the answer
-print(run.result.answer)
-```
-
-```javascript JavaScript
-import { Subconscious } from "subconscious";
-
-// Initialize the client
-const client = new Subconscious({
-  apiKey: "YOUR_API_KEY",
-});
-
-// Make request with multiple tools
-const run = await client.run({
-  engine: "tim-large",
-  input: {
-    instructions:
-      "Research the current Bitcoin price, calculate the percentage change from last week, and email me a summary report.",
-    tools: [
-      {
-        type: "function",
-        function: {
-          name: "web_search",
-          description: "Search the web for current information",
-          parameters: {
-            type: "object",
-            properties: {
-              query: { type: "string", description: "The search query" },
-            },
-            required: ["query"],
-          },
-          url: "TOOL_SERVER_URL",
-          method: "GET",
-          timeout: 30,
-        },
-      },
-      {
-        type: "function",
-        function: {
-          name: "calculate",
-          description: "Perform mathematical calculations",
-          parameters: {
-            type: "object",
-            properties: {
-              expression: {
-                type: "string",
-                description: "Mathematical expression to evaluate",
-              },
-            },
-            required: ["expression"],
-          },
-          url: "TOOL_SERVER_URL",
-          method: "POST",
-          timeout: 30,
-        },
-      },
-      {
-        type: "function",
-        function: {
-          name: "send_email",
-          description: "Send an email notification",
-          parameters: {
-            type: "object",
-            properties: {
-              recipient: { type: "string", description: "Email recipient" },
-              subject: { type: "string", description: "Email subject" },
-              body: { type: "string", description: "Email body" },
-            },
-            required: ["recipient", "subject", "body"],
-          },
-          url: "TOOL_SERVER_URL",
-          method: "POST",
-          timeout: 30,
-        },
-      },
-    ],
-  },
-  options: { awaitCompletion: true },
-});
-
-// Print the answer
-console.log(run.result?.answer);
-```
-
-</CodeGroup>
+<ExampleStreaming />
 
 ## Async workflows
 
-All of the examples above use the sync (blocking) chat completion API. When you have long‑running tasks or want stronger durability guarantees, you can switch to the async flow:
+For long‑running tasks or when you need stronger durability guarantees, you can use async workflows with polling and webhooks. See the [Async jobs and webhooks](/platform/async-jobs-and-webhooks) guide for detailed examples of:
 
-- Enqueue work with `POST /v1/chat/completions/async`.
-- Poll job status with `GET /v1/requests/{requestId}/status`.
-- Optionally receive callbacks via webhooks when jobs complete.
-
-See the “Async jobs and webhooks” guide in the Platform section for a deeper walkthrough of the async pipeline and how to plug it into your own systems.
+- Fire and forget patterns
+- Polling with custom options
+- Webhook subscriptions
+- Cancellation
+- Error handling
 
 ## Interpreting Results
 

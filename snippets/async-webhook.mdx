@@ -1,36 +1,67 @@
-```bash
-# Enqueue an async job with a one-off callbackUrl
-curl -sS https://api.subconscious.dev/v1/chat/completions/async \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '{
-    "model": "tim-large",
-    "messages": [
-      { "role": "user", "content": "Run this as an async job and webhook me when done." }
-    ],
-    "callbackUrl": "https://your-app.example.com/webhooks/subconscious"
-  }'
+<CodeGroup>
+
+```python Python
+from subconscious import Subconscious
+
+client = Subconscious(api_key="YOUR_API_KEY")
+
+# Start a run with a callback URL
+run = client.run(
+    engine="tim-large",
+    input={
+        "instructions": "Run this as an async job and webhook me when done.",
+    },
+    options={
+        "callback_url": "https://your-app.example.com/webhooks/subconscious",
+    },
+)
+
+print(f"Run started: {run.run_id}")
 ```
+
+```javascript JavaScript
+import { Subconscious } from "subconscious";
+
+const client = new Subconscious({
+  apiKey: "YOUR_API_KEY",
+});
+
+// Start a run with a callback URL
+const run = await client.run({
+  engine: "tim-large",
+  input: {
+    instructions: "Run this as an async job and webhook me when done.",
+  },
+  options: {
+    callbackUrl: "https://your-app.example.com/webhooks/subconscious",
+  },
+});
+
+console.log(`Run started: ${run.runId}`);
+```
+
+</CodeGroup>
 
 ```javascript
 // Minimal Express handler to receive webhooks
-import express from 'express';
+import express from "express";
 
 const app = express();
 app.use(express.json());
 
-app.post('/webhooks/subconscious', (req, res) => {
-  const { jobId, status, result, error } = req.body;
+app.post("/webhooks/subconscious", (req, res) => {
+  const { runId, status, result, error } = req.body;
 
   // TODO: store status, trigger follow-up actions, etc.
-  console.log('Received webhook', { jobId, status, result, error });
+  console.log("Received webhook", { runId, status, result, error });
 
   // Always reply 2xx quickly so we don't block retries or timeouts.
   res.sendStatus(200);
 });
 
 app.listen(3000, () => {
-  console.log('Listening for Subconscious webhooks on :3000/webhooks/subconscious');
+  console.log(
+    "Listening for Subconscious webhooks on :3000/webhooks/subconscious"
+  );
 });
 ```
-

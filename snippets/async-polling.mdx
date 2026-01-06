@@ -1,65 +1,53 @@
 <CodeGroup>
 
 ```python Python
-from openai import OpenAI
+from subconscious import Subconscious
 
-client = OpenAI(
-    base_url="https://api.subconscious.dev/v1",
-    api_key="YOUR_API_KEY",
+client = Subconscious(api_key="YOUR_API_KEY")
+
+# 1) Start a run without waiting
+run = client.run(
+    engine="tim-large",
+    input={
+        "instructions": "Run this as an async job",
+    },
 )
 
-# 1) Enqueue an async job
-submit = client.chat.completions.create(
-    model="tim-large",
-    messages=[{"role": "user", "content": "Run this as an async job"}],
-    # important: use the async endpoint path
-    extra_body={"async": True},  # or call the /chat/completions/async path directly
+run_id = run.run_id
+
+# Use client.wait() for automatic polling
+result = client.wait(
+    run_id,
+    options={
+        "interval_ms": 2000,  # Poll every 2 seconds
+        "max_attempts": 60,   # Give up after 60 attempts
+    },
 )
-
-request_id = submit.request_id  # or submit["requestId"] in raw JSON
-
-# 2) Poll for status
-import time, requests
-
-while True:
-    status_res = requests.get(
-        f"https://api.subconscious.dev/v1/requests/{request_id}/status",
-        headers={"Authorization": f"Bearer YOUR_API_KEY"},
-    )
-    status = status_res.json()
-    if status["status"] in ["completed", "failed"]:
-        print(status)
-        break
-    time.sleep(2)
+print(result.result.answer)
 ```
 
 ```javascript JavaScript
-import OpenAI from 'openai';
-import fetch from 'node-fetch';
+import { Subconscious } from "subconscious";
 
-const client = new OpenAI({
-  baseURL: 'https://api.subconscious.dev/v1',
-  apiKey: 'YOUR_API_KEY',
+const client = new Subconscious({
+  apiKey: "YOUR_API_KEY",
 });
 
-// 1) Enqueue an async job
-const submit = await client.chat.completions.create({
-  model: 'tim-large',
-  messages: [{ role: 'user', content: 'Run this as an async job' }],
-  // or use the /chat/completions/async path directly when available in your client
+// 1) Start a run without waiting
+const run = await client.run({
+  engine: "tim-large",
+  input: {
+    instructions: "Run this as an async job",
+  },
 });
 
-const requestId = submit.requestId;
+const runId = run.runId;
 
-// 2) Poll for status
+// 2) Poll for status (manual)
 async function pollStatus() {
   while (true) {
-    const res = await fetch(
-      `https://api.subconscious.dev/v1/requests/${requestId}/status`,
-      { headers: { Authorization: `Bearer YOUR_API_KEY` } },
-    );
-    const status = await res.json();
-    if (status.status === 'completed' || status.status === 'failed') {
+    const status = await client.get(runId);
+    if (status.status === "succeeded" || status.status === "failed") {
       console.log(status);
       break;
     }
@@ -68,7 +56,13 @@ async function pollStatus() {
 }
 
 await pollStatus();
+
+// Or use client.wait() for automatic polling
+const result = await client.wait(runId, {
+  intervalMs: 2000, // Poll every 2 seconds
+  maxAttempts: 60, // Give up after 60 attempts
+});
+console.log(result.result?.answer);
 ```
 
 </CodeGroup>
-

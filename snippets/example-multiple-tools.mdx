@@ -1,0 +1,154 @@
+<CodeGroup>
+
+```python Python
+from subconscious import Subconscious
+
+# Initialize the client
+client = Subconscious(api_key="YOUR_API_KEY")
+
+# Make request with multiple tools
+run = client.run(
+    engine="tim-large",
+    input={
+        "instructions": "Research the current Bitcoin price, calculate the percentage change from last week, and email me a summary report.",
+        "tools": [
+            {
+                "type": "function",
+                "name": "web_search",
+                "description": "Search the web for current information",
+                "url": "TOOL_SERVER_URL",
+                "method": "GET",
+                "timeout": 30,
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "The search query"}
+                    },
+                    "required": ["query"],
+                    "additionalProperties": False
+                }
+            },
+            {
+                "type": "function",
+                "name": "calculate",
+                "description": "Perform mathematical calculations",
+                "url": "TOOL_SERVER_URL",
+                "method": "POST",
+                "timeout": 30,
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "expression": {"type": "string", "description": "Mathematical expression to evaluate"}
+                    },
+                    "required": ["expression"],
+                    "additionalProperties": False
+                }
+            },
+            {
+                "type": "function",
+                "name": "send_email",
+                "description": "Send an email notification",
+                "url": "TOOL_SERVER_URL",
+                "method": "POST",
+                "timeout": 30,
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "recipient": {"type": "string", "description": "Email recipient"},
+                        "subject": {"type": "string", "description": "Email subject"},
+                        "body": {"type": "string", "description": "Email body"}
+                    },
+                    "required": ["recipient", "subject", "body"]
+                }
+            }
+        ]
+    },
+    options={"await_completion": True}
+)
+
+# Print the answer
+print(run.result.answer)
+```
+
+```javascript JavaScript
+import { Subconscious } from "subconscious";
+
+// Initialize the client
+const client = new Subconscious({
+  apiKey: "YOUR_API_KEY",
+});
+
+// Make request with multiple tools
+const run = await client.run({
+  engine: "tim-large",
+  input: {
+    instructions:
+      "Research the current Bitcoin price, calculate the percentage change from last week, and email me a summary report.",
+    tools: [
+      {
+        type: "function",
+        function: {
+          name: "web_search",
+          description: "Search the web for current information",
+          parameters: {
+            type: "object",
+            properties: {
+              query: { type: "string", description: "The search query" },
+            },
+            required: ["query"],
+          },
+          url: "TOOL_SERVER_URL",
+          method: "GET",
+          timeout: 30,
+        },
+      },
+      {
+        type: "function",
+        function: {
+          name: "calculate",
+          description: "Perform mathematical calculations",
+          parameters: {
+            type: "object",
+            properties: {
+              expression: {
+                type: "string",
+                description: "Mathematical expression to evaluate",
+              },
+            },
+            required: ["expression"],
+          },
+          url: "TOOL_SERVER_URL",
+          method: "POST",
+          timeout: 30,
+        },
+      },
+      {
+        type: "function",
+        function: {
+          name: "send_email",
+          description: "Send an email notification",
+          parameters: {
+            type: "object",
+            properties: {
+              recipient: { type: "string", description: "Email recipient" },
+              subject: { type: "string", description: "Email subject" },
+              body: { type: "string", description: "Email body" },
+            },
+            required: ["recipient", "subject", "body"],
+          },
+          url: "TOOL_SERVER_URL",
+          method: "POST",
+          timeout: 30,
+        },
+      },
+    ],
+  },
+  options: { awaitCompletion: true },
+});
+
+// Print the answer
+console.log(run.result?.answer);
+```
+
+</CodeGroup>
+
