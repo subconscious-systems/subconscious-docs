@@ -1,82 +1,65 @@
 ---
-title: 'Quickstart'
-description: 'Get started with Subconscious in under 5 minutes'
+title: "Quickstart"
+description: "Get started with Subconscious in under 5 minutes"
+icon: "rocket"
 ---
 
-import ResearchPreview from '/snippets/research-preview.mdx';
+## 1. Create an Account
 
-<ResearchPreview />
+[Sign up for the platform](https://subconscious.dev/platform) and create your account. Then generate an API key from your dashboard.
 
-## Get Started
+<Warning>
+  API keys are only shown once. If you've lost your key, create a new one from
+  the "API Keys" tab.
+</Warning>
 
-To get started, [sign up for our platform](https://subconscious.dev/platform) and create your account. You'll need platform access and an API key to continue.
+## 2. Try the Playground
 
-## Try the Playground
+Before writing code, try the [Playground](https://www.subconscious.dev/playground) to test prompts and see agents in action.
 
-For an immediate taste of our platforms's capabilities, try the playground. The playground provides a user-friendly interface where you can test prompts and tools with our inference engine and see results without writing any code.
-
-<Frame caption="The Subconscious Playground: A quick easy way to get started!"> 
-<img
-  src="/images/playground.png"
-  alt="Hero Playground"
-/>
+<Frame caption="The Subconscious Playground">
+  <img src="/images/playground.png" alt="Subconscious Playground" />
 </Frame>
-## Official SDKs
 
-We provide official SDKs for seamless integration:
+## 3. Install the SDK
 
-<CardGroup cols={2}>
-  <Card
-    title="Node.js SDK"
-    icon="node-js"
-    href="https://www.npmjs.com/package/subconscious"
-  >
-    ```bash
-    npm install subconscious
-    ```
-  </Card>
-  <Card
-    title="Python SDK"
-    icon="python"
-    href="https://pypi.org/project/subconscious-sdk/"
-  >
-    ```bash
-    pip install subconscious-sdk
-    ```
-  </Card>
-</CardGroup>
+<CodeGroup>
 
-## Create Your API Key
+```bash Node.js
+npm install subconscious
+```
 
-First, create an API key from your dashboard. **Important**: API keys are only shown once for security reasons. If you've lost your API key, simply create a new one from the "API Keys" tab.
+```bash Python
+pip install subconscious-sdk
+```
 
-## Using the SDKs
+</CodeGroup>
 
-Our SDKs provide the simplest way to interact with Subconscious. Create a run, wait for completion, and get your results.
+## 4. Run Your First Agent
 
-<Tabs>
-  <Tab title="Node.js">
-```typescript
-import { Subconscious } from 'subconscious';
+<CodeGroup>
+
+```typescript Node.js
+import { Subconscious } from "subconscious";
 
 const client = new Subconscious({
   apiKey: process.env.SUBCONSCIOUS_API_KEY!,
 });
 
 const run = await client.run({
-  engine: 'tim-large',
+  engine: "tim-large",
   input: {
-    instructions: 'Search for the latest AI news and summarize the top 3 stories',
-    tools: [{ type: 'platform', id: 'parallel_search', options: {} }],
+    instructions:
+      "Search for the latest AI news and summarize the top 3 stories",
+    tools: [{ type: "platform", id: "web_search" }],
   },
   options: { awaitCompletion: true },
 });
 
 console.log(run.result?.answer);
 ```
-  </Tab>
-  <Tab title="Python">
-```python
+
+```python Python
 from subconscious import Subconscious
 
 client = Subconscious(api_key="your-api-key")
@@ -85,167 +68,44 @@ run = client.run(
     engine="tim-large",
     input={
         "instructions": "Search for the latest AI news and summarize the top 3 stories",
-        "tools": [{"type": "platform", "id": "parallel_search"}],
+        "tools": [{"type": "platform", "id": "web_search"}],
     },
     options={"await_completion": True},
 )
 
 print(run.result.answer)
 ```
-  </Tab>
-</Tabs>
 
-### Streaming
-
-Stream text as it's generated for real-time output:
-
-<Tabs>
-  <Tab title="Node.js">
-```typescript
-const stream = client.stream({
-  engine: 'tim-large',
-  input: {
-    instructions: 'Write a short essay about space exploration',
-    tools: [{ type: 'platform', id: 'parallel_search' }],
-  },
-});
-
-for await (const event of stream) {
-  if (event.type === 'delta') {
-    process.stdout.write(event.content);
-  } else if (event.type === 'done') {
-    console.log('\n\nRun completed:', event.runId);
-  }
-}
-```
-  </Tab>
-  <Tab title="Python">
-```python
-for event in client.stream(
-    engine="tim-large",
-    input={
-        "instructions": "Write a short essay about space exploration",
-        "tools": [{"type": "platform", "id": "parallel_search"}],
-    },
-):
-    if event.type == "delta":
-        print(event.content, end="", flush=True)
-    elif event.type == "done":
-        print(f"\n\nRun completed: {event.run_id}")
-```
-  </Tab>
-</Tabs>
-
-### Fire and Forget
-
-Start a run without waiting, then check status later:
-
-<Tabs>
-  <Tab title="Node.js">
-```typescript
-const run = await client.run({
-  engine: 'tim-large',
-  input: {
-    instructions: 'Generate a comprehensive report',
-    tools: [],
-  },
-});
-
-console.log(`Run started: ${run.runId}`);
-
-// Check status later
-const status = await client.get(run.runId);
-console.log(status.status); // 'queued' | 'running' | 'succeeded' | 'failed'
-```
-  </Tab>
-  <Tab title="Python">
-```python
-run = client.run(
-    engine="tim-large",
-    input={
-        "instructions": "Generate a comprehensive report",
-        "tools": [],
-    },
-)
-
-print(f"Run started: {run.run_id}")
-
-# Check status later
-status = client.get(run.run_id)
-print(status.status)  # 'queued' | 'running' | 'succeeded' | 'failed'
-```
-  </Tab>
-</Tabs>
-
-## OpenAI-Compatible API
-
-Our API is also compatible with the OpenAI format, so you can use existing OpenAI libraries.
-
-<Tabs>
-  <Tab title="Python">
-```python
-from openai import OpenAI
-
-client = OpenAI(
-    base_url="https://api.subconscious.dev/v1",
-    api_key="YOUR_API_KEY"
-)
-
-response = client.chat.completions.create(
-    model="tim-small-preview",
-    messages=[
-        {"role": "user", "content": "What's the derivative of 3x^2 * sin(x)?"}
-    ],
-    stream=True
-)
-
-for chunk in response:
-    print(chunk.choices[0].delta.content or "", end="")
-```
-  </Tab>
-  <Tab title="JavaScript">
-```javascript
-import OpenAI from 'openai';
-
-const openai = new OpenAI({
-    baseURL: 'https://api.subconscious.dev/v1',
-    apiKey: 'YOUR_API_KEY'
-});
-
-const response = await openai.chat.completions.create({
-    model: 'tim-small-preview',
-    messages: [
-        { role: 'user', content: "What's the derivative of 3x^2 * sin(x)" }
-    ],
-    stream: true
-});
-
-for await (const chunk of response) {
-  process.stdout.write(chunk.choices[0]?.delta?.content || "");
-}
-```
-  </Tab>
-  <Tab title="cURL">
-```bash
-curl https://api.subconscious.dev/v1/chat/completions \
+```bash cURL
+curl https://api.subconscious.dev/v1/runs \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{
-    "model": "tim-small-preview",
-    "stream": true,
-    "messages": [
-      {
-        "role": "user",
-        "content": "What is the derivative of 3x^2 * sin(x)"
-      }
-    ]
+    "engine": "tim-large",
+    "input": {
+      "instructions": "Search for the latest AI news and summarize the top 3 stories",
+      "tools": [{"type": "platform", "id": "web_search"}]
+    }
   }'
 ```
-  </Tab>
-</Tabs>
 
-<Note>
-TIM models currently require `stream=True` for synchronous chat completions when using the OpenAI-compatible API.
-</Note>
+</CodeGroup>
 
-That's it! You're now ready to start building with Subconscious.
+That's it! You've just run your first agent.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Core Concepts" icon="book" href="/core-concepts/runs">
+    Learn about Runs, Tools, Streaming, and more
+  </Card>
+  <Card title="Engines" icon="engine" href="/engines">
+    Explore available models and their capabilities
+  </Card>
+  <Card title="Streaming" icon="wave-pulse" href="/core-concepts/streaming">
+    Stream responses in real-time
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Full API documentation
+  </Card>
+</CardGroup>

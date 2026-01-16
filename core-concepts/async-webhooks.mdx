@@ -1,0 +1,182 @@
+---
+title: "Webhooks"
+sidebarTitle: "Webhooks"
+description: "Get notified when runs complete"
+icon: "webhook"
+---
+
+Webhooks push results to your server when a run finishes—no polling required. You provide a URL, we POST the result when it's ready.
+
+<Note>
+  For async basics (fire-and-forget, polling with `client.wait()`), see
+  [Runs](/core-concepts/runs).
+</Note>
+
+## 1. Add a Callback URL
+
+Pass `callbackUrl` in the `output` field when creating a run:
+
+```bash
+curl -X POST https://api.subconscious.dev/v1/runs \
+  -H "Authorization: Bearer $SUBCONSCIOUS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "engine": "tim-large",
+    "input": {
+      "instructions": "Generate a detailed report"
+    },
+    "output": {
+      "callbackUrl": "https://your-server.com/webhooks/subconscious"
+    }
+  }'
+```
+
+This returns immediately with a `runId`. When the run completes, we'll POST the result to your callback URL.
+
+## 2. Build a Webhook Handler
+
+Create an endpoint to receive the webhook POST:
+
+<CodeGroup>
+
+```python Python (FastAPI)
+from fastapi import FastAPI, Request
+import json
+
+app = FastAPI()
+
+@app.post("/webhooks/subconscious")
+async def handle_webhook(request: Request):
+    payload = await request.json()
+
+    run_id = payload.get("runId")
+    status = payload.get("status")
+
+    if status == "succeeded":
+        # Extract the answer from the result
+        content = payload["result"]["choices"][0]["message"]["content"]
+        parsed = json.loads(content)
+        answer = parsed.get("answer", "")
+        print(f"Run {run_id} completed: {answer[:100]}...")
+        # Save to database, trigger next step, etc.
+    elif status == "failed":
+        print(f"Run {run_id} failed: {payload.get('error')}")
+
+    return {"received": True}
+
+# Run with: uvicorn server:app --host 0.0.0.0 --port 8000
+```
+
+```typescript Node.js (Express)
+import express from "express";
+
+const app = express();
+app.use(express.json());
+
+app.post("/webhooks/subconscious", (req, res) => {
+  const { runId, status, result, error } = req.body;
+
+  if (status === "succeeded") {
+    // Extract the answer from the result
+    const content = result.choices[0].message.content;
+    const parsed = JSON.parse(content);
+    console.log(`Run ${runId} completed:`, parsed.answer?.slice(0, 100));
+    // Save to database, trigger next step, etc.
+  } else if (status === "failed") {
+    console.error(`Run ${runId} failed:`, error);
+  }
+
+  // Always respond quickly with 2xx
+  res.status(200).json({ received: true });
+});
+
+app.listen(8000, () => console.log("Webhook server running on :8000"));
+```
+
+</CodeGroup>
+
+<Note>
+  Your endpoint must be publicly accessible. For local development, use
+  [ngrok](https://ngrok.com) or similar.
+</Note>
+
+## 3. Webhook Payload
+
+When a run finishes, we POST this JSON to your URL:
+
+```json
+{
+  "jobId": "9bb85845-9b20-4bb0-96dc-686a0aa3dcfe",
+  "runId": "1a45adf1-ad50-4452-a2c7-150b5bcd215c",
+  "orgId": "6d3c89bf-2665-45f8-87aa-c925979151c9",
+  "status": "succeeded",
+  "model": "tim-large",
+  "engine": "tim-large",
+  "result": {
+    "choices": [
+      {
+        "message": {
+          "role": "assistant",
+          "content": "{\"reasoning\": [...], \"answer\": \"2 + 2 = 4.\"}"
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1678,
+      "completion_tokens": 83
+    }
+  },
+  "error": null,
+  "tokens": {
+    "inputTokens": 1678,
+    "outputTokens": 83,
+    "costCents": 0
+  },
+  "createdAt": "2026-01-16T20:54:09.090Z",
+  "startedAt": "2026-01-16T20:54:09.190Z",
+  "completedAt": "2026-01-16T20:54:11.779Z"
+}
+```
+
+| Field         | Description                                                   |
+| ------------- | ------------------------------------------------------------- |
+| `runId`       | The run's unique ID                                           |
+| `jobId`       | Internal job ID                                               |
+| `status`      | Final status (`succeeded`, `failed`, `timed_out`, `canceled`) |
+| `result`      | The completion result with `choices` array                    |
+| `error`       | Error details (when failed, otherwise `null`)                 |
+| `tokens`      | Token counts (`inputTokens`, `outputTokens`, `costCents`)     |
+| `createdAt`   | When the run was created                                      |
+| `startedAt`   | When processing began                                         |
+| `completedAt` | When the run finished                                         |
+
+## Delivery Guarantees
+
+Webhooks are delivered with:
+
+- **Retries** — Failed deliveries retry with exponential backoff
+- **Timeouts** — We wait up to 30 seconds for your 2xx response
+- **Dead-letter queue** — Exhausted retries are stored for inspection
+- **Idempotency** — Include a unique ID in your handler to prevent duplicates
+
+## Best Practices
+
+- **Respond quickly** — Return 2xx within 30 seconds, process async if needed
+- **Be idempotent** — You may receive the same webhook twice
+- **Log payloads** — Store raw payloads for debugging
+- **Validate origin** — Check request headers (signature verification coming soon)
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Runs" icon="play" href="/core-concepts/runs">
+    Async patterns and polling
+  </Card>
+  <Card
+    title="Error Handling"
+    icon="triangle-exclamation"
+    href="/guides/error-handling"
+  >
+    Handle failed runs
+  </Card>
+</CardGroup>

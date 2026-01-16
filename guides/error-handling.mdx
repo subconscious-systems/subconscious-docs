@@ -1,0 +1,219 @@
+---
+title: "Error Handling"
+description: "Handle API errors and implement retries"
+icon: "triangle-exclamation"
+---
+
+## Error Response Format
+
+```json
+{
+  "error": {
+    "code": "invalid_request",
+    "message": "The 'engine' field is required"
+  }
+}
+```
+
+## HTTP Status Codes
+
+| Status | Meaning             | What to do               |
+| ------ | ------------------- | ------------------------ |
+| `400`  | Bad Request         | Fix request parameters   |
+| `401`  | Unauthorized        | Check API key            |
+| `402`  | Payment Required    | Add credits              |
+| `403`  | Forbidden           | Check permissions        |
+| `404`  | Not Found           | Verify run ID            |
+| `409`  | Conflict            | Idempotency collision    |
+| `500`  | Server Error        | Retry with backoff       |
+| `502`  | Bad Gateway         | Upstream failed, retry   |
+| `503`  | Service Unavailable | Engine down, retry later |
+
+## SDK Exceptions
+
+Both SDKs throw typed exceptions you can catch:
+
+<CodeGroup>
+
+```python Python
+from subconscious import Subconscious
+from subconscious.errors import (
+    SubconsciousError,    # Base class
+    AuthenticationError,  # 401
+    ValidationError,      # 400
+    NotFoundError,        # 404
+)
+import os
+
+client = Subconscious(api_key=os.environ.get("SUBCONSCIOUS_API_KEY"))
+
+try:
+    run = client.run(
+        engine="tim-large",
+        input={"instructions": "Hello"},
+        options={"await_completion": True},
+    )
+except AuthenticationError:
+    print("Invalid API key")
+except ValidationError as e:
+    print(f"Bad request: {e.message}")
+except SubconsciousError as e:
+    print(f"Error {e.status}: {e.code} - {e.message}")
+```
+
+```typescript Node.js
+import {
+  Subconscious,
+  SubconsciousError, // Base class
+  AuthenticationError, // 401
+  ValidationError, // 400
+  NotFoundError, // 404
+} from "subconscious";
+
+const client = new Subconscious({
+  apiKey: process.env.SUBCONSCIOUS_API_KEY!,
+});
+
+try {
+  const run = await client.run({
+    engine: "tim-large",
+    input: { instructions: "Hello" },
+    options: { awaitCompletion: true },
+  });
+} catch (e) {
+  if (e instanceof AuthenticationError) {
+    console.error("Invalid API key");
+  } else if (e instanceof ValidationError) {
+    console.error(`Bad request: ${e.message}`);
+  } else if (e instanceof SubconsciousError) {
+    console.error(`Error ${e.status}: ${e.code} - ${e.message}`);
+  }
+}
+```
+
+</CodeGroup>
+
+Exception properties:
+
+- `code` — Error type (`"invalid_request"`, `"authentication_failed"`, etc.)
+- `status` — HTTP status code
+- `message` — Human-readable message
+- `details` — Additional context (validation errors)
+
+## Retry Logic
+
+Retry on 5xx errors with exponential backoff:
+
+<CodeGroup>
+
+```python Python
+import time
+import os
+from subconscious import Subconscious
+from subconscious.errors import SubconsciousError
+
+client = Subconscious(api_key=os.environ.get("SUBCONSCIOUS_API_KEY"))
+
+def run_with_retry(instructions, max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            return client.run(
+                engine="tim-large",
+                input={"instructions": instructions},
+                options={"await_completion": True},
+            )
+        except SubconsciousError as e:
+            if e.status < 500 or attempt == max_retries - 1:
+                raise
+            time.sleep(2 ** attempt)
+
+run = run_with_retry("Summarize the news")
+```
+
+```typescript Node.js
+import { Subconscious, SubconsciousError } from "subconscious";
+
+const client = new Subconscious({
+  apiKey: process.env.SUBCONSCIOUS_API_KEY!,
+});
+
+async function runWithRetry(instructions: string, maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await client.run({
+        engine: "tim-large",
+        input: { instructions },
+        options: { awaitCompletion: true },
+      });
+    } catch (e) {
+      if (!(e instanceof SubconsciousError) || e.status < 500) throw e;
+      if (attempt === maxRetries - 1) throw e;
+      await new Promise((r) => setTimeout(r, Math.pow(2, attempt) * 1000));
+    }
+  }
+}
+
+const run = await runWithRetry("Summarize the news");
+```
+
+</CodeGroup>
+
+## Run-Level Errors
+
+Runs can fail after being accepted. Check the `status` field:
+
+<CodeGroup>
+
+```python Python
+run = client.run(
+    engine="tim-large",
+    input={"instructions": "Your task"},
+    options={"await_completion": True},
+)
+
+match run.status:
+    case "succeeded":
+        print(run.result.answer)
+    case "failed":
+        print(f"Failed: {run.error.message}")
+    case "timed_out":
+        print("Timed out")
+    case "canceled":
+        print("Canceled")
+```
+
+```typescript Node.js
+const run = await client.run({
+  engine: "tim-large",
+  input: { instructions: "Your task" },
+  options: { awaitCompletion: true },
+});
+
+switch (run.status) {
+  case "succeeded":
+    console.log(run.result?.answer);
+    break;
+  case "failed":
+    console.error("Failed:", run.error);
+    break;
+  case "timed_out":
+    console.error("Timed out");
+    break;
+  case "canceled":
+    console.log("Canceled");
+    break;
+}
+```
+
+</CodeGroup>
+
+## Quick Reference
+
+| Error           | Code  | Fix                                       |
+| --------------- | ----- | ----------------------------------------- |
+| Missing API key | `401` | Add `Authorization: Bearer sk-...` header |
+| Invalid API key | `401` | Check key is active in dashboard          |
+| No credits      | `402` | Add credits at subconscious.dev           |
+| Run not found   | `404` | Verify run ID exists                      |
+| Bad request     | `400` | Check required fields and types           |
+| Engine down     | `503` | Retry in a few minutes                    |
