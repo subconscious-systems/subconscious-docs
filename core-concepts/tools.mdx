@@ -1,0 +1,278 @@
+---
+title: "Tools"
+description: "Give agents access to APIs, search, and external services"
+icon: "wrench"
+---
+
+Tools let agents take actions—search the web, call APIs, or query databases. You control which tools are available; the agent decides when to use them.
+
+## Quick Start
+
+Add tools to any run:
+
+<CodeGroup>
+
+```python Python
+from subconscious import Subconscious
+import os
+
+client = Subconscious(api_key=os.environ.get("SUBCONSCIOUS_API_KEY"))
+
+run = client.run(
+    engine="tim-large",
+    input={
+        "instructions": "Find the latest news about SpaceX",
+        "tools": [
+            {"type": "platform", "id": "web_search"}
+        ]
+    },
+    options={"await_completion": True},
+)
+```
+
+```typescript Node.js
+import { Subconscious } from "subconscious";
+
+const client = new Subconscious({
+  apiKey: process.env.SUBCONSCIOUS_API_KEY!,
+});
+
+const run = await client.run({
+  engine: "tim-large",
+  input: {
+    instructions: "Find the latest news about SpaceX",
+    tools: [{ type: "platform", id: "web_search" }],
+  },
+  options: { awaitCompletion: true },
+});
+```
+
+</CodeGroup>
+
+---
+
+## Platform Tools
+
+Built-in tools hosted by Subconscious. No setup required.
+
+| ID                      | Name             | Description                                           |
+| ----------------------- | ---------------- | ----------------------------------------------------- |
+| `web_search`            | Google Search    | Search the web for information                        |
+| `webpage_understanding` | Jina Reader      | Extract and summarize webpage content                 |
+| `parallel_search`       | Parallel Search  | Precision search for facts from authoritative sources |
+| `parallel_extract`      | Parallel Extract | Extract specific content from a webpage               |
+| `exa_search`            | Exa Search       | Semantic search for high-quality content              |
+| `exa_crawl`             | Exa Crawl        | Retrieve full webpage content                         |
+| `exa_find_similar`      | Exa Similar      | Find pages similar to a given URL                     |
+
+## Custom Function Tools
+
+Call your own HTTP endpoints. You host the tool; Subconscious calls it during agent execution.
+
+### Tool Schema
+
+```typescript
+type FunctionTool = {
+  type: "function";
+  name: string;
+  description: string;
+  url: string;
+  method: "POST" | "GET";
+  timeout?: number; // seconds, default 30
+  parameters: {
+    type: "object";
+    properties: Record<string, any>;
+    required?: string[];
+  };
+};
+```
+
+### Building a Tool Server
+
+Your tool endpoint receives POST requests with parameters as JSON and returns JSON results.
+
+<CodeGroup>
+
+```python Python (FastAPI)
+# server.py
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class WeatherRequest(BaseModel):
+    city: str
+    units: str = "celsius"
+
+@app.post("/weather")
+async def get_weather(req: WeatherRequest):
+    # Your logic here - call weather API, database, etc.
+    return {
+        "city": req.city,
+        "temperature": 22,
+        "units": req.units,
+        "condition": "sunny"
+    }
+
+# Run with: uvicorn server:app --host 0.0.0.0 --port 8000
+```
+
+```typescript Node.js (Express)
+// server.ts
+import express from "express";
+
+const app = express();
+app.use(express.json());
+
+app.post("/weather", (req, res) => {
+  const { city, units = "celsius" } = req.body;
+
+  // Your logic here - call weather API, database, etc.
+  res.json({
+    city,
+    temperature: 22,
+    units,
+    condition: "sunny",
+  });
+});
+
+app.listen(8000, () => console.log("Tool server running on :8000"));
+```
+
+</CodeGroup>
+
+### Registering with Subconscious
+
+Once your server is running, register the tool in your run:
+
+```javascript
+tools: [
+  {
+    type: "function",
+    name: "get_weather",
+    description: "Get current weather for a city",
+    url: "https://your-server.com/weather",
+    method: "POST",
+    timeout: 10,
+    parameters: {
+      type: "object",
+      properties: {
+        city: { type: "string", description: "City name" },
+        units: { type: "string", enum: ["celsius", "fahrenheit"] },
+      },
+      required: ["city"],
+    },
+  },
+];
+```
+
+<Note>
+  Your endpoint must be publicly accessible. For local development, use a tunnel
+  like [ngrok](https://ngrok.com) or [Cloudflare
+  Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/).
+</Note>
+
+---
+
+## MCP Tools
+
+Connect to [Model Context Protocol](https://modelcontextprotocol.io/) servers to use their tools.
+
+```typescript
+type McpTool = {
+  type: "mcp";
+  server: string; // MCP server URL
+  name?: string; // Specific tool (omit to use all tools from server)
+  auth?: {
+    type: "bearer" | "api_key";
+    token?: string;
+    header?: string; // Header name for api_key auth
+  };
+};
+```
+
+**Example:**
+
+```javascript
+tools: [
+  // Use all tools from an MCP server
+  { type: "mcp", server: "https://mcp.example.com" },
+
+  // Use a specific tool with auth
+  {
+    type: "mcp",
+    server: "https://mcp.example.com",
+    name: "query_database",
+    auth: { type: "bearer", token: "your-token" },
+  },
+];
+```
+
+---
+
+## Saved Tools
+
+Don't want to pass the full tool schema every time? Save tool configurations in the dashboard and reference them by name.
+
+<Steps>
+  <Step title="Create the tool">
+    Go to [subconscious.dev/platform/tools](https://www.subconscious.dev/platform/tools) and create a new tool with your endpoint URL, parameters, and description.
+  </Step>
+  <Step title="Reference by ID">
+    Use your saved tool's API name in requests:
+    ```javascript
+    tools: [
+      { type: "platform", id: "my_custom_tool" }
+    ]
+    ```
+  </Step>
+</Steps>
+
+Saved tools are useful when:
+
+- You use the same tool across multiple agents
+- You want to update configuration without changing code
+- You're sharing tools with your team
+
+---
+
+## Combining Tools
+
+Agents can use multiple tools together. Give them what they need:
+
+```javascript
+tools: [
+  // Platform tools for web research
+  { type: "platform", id: "web_search" },
+  { type: "platform", id: "webpage_understanding" },
+
+  // Your custom API
+  {
+    type: "function",
+    name: "save_to_database",
+    description: "Save research findings to our database",
+    url: "https://api.example.com/save",
+    method: "POST",
+    parameters: {
+      type: "object",
+      properties: {
+        title: { type: "string" },
+        content: { type: "string" },
+        tags: { type: "array", items: { type: "string" } },
+      },
+      required: ["title", "content"],
+    },
+  },
+];
+```
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Runs" icon="play" href="/core-concepts/runs">
+    See how tools are executed in runs
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Build your first agent with tools
+  </Card>
+</CardGroup>

@@ -24,29 +24,43 @@
           {
             "group": "Get Started",
             "pages": [
+              "overview",
               "quickstart",
-              "intro",
-              "mental-model"
+              "engines",
+              "pricing",
+              "libraries"
             ]
           },
           {
-            "group": "Platform",
+            "group": "Core Concepts",
             "pages": [
-              "platform/using-subconscious",
-              "platform/engines",
-              "platform/tools",
-              "platform/pricing",
-              "platform/logs",
-              "platform/privacy",
-              "platform/learn-more"
+              "core-concepts/runs",
+              "core-concepts/tools",
+              "core-concepts/streaming",
+              "core-concepts/async-webhooks",
+              "core-concepts/structured-output"
             ]
           },
           {
-            "group": "Offerings",
+            "group": "Guides",
             "pages": [
-              "offerings/usage",
-              "offerings/dedicated",
-              "offerings/on-prem"
+              "guides/response-handling",
+              "guides/error-handling"
+            ]
+          },
+          {
+            "group": "Enterprise",
+            "pages": [
+              "enterprise/dedicated",
+              "enterprise/on-prem",
+              "enterprise/privacy"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "resources/logs",
+              "resources/learn-more"
             ]
           }
         ]
@@ -71,7 +85,6 @@
           }
         ]
       }
-      
     ]
   },
   "logo": {
@@ -101,7 +114,59 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "/quickstart"
+      "destination": "/overview"
+    },
+    {
+      "source": "/intro",
+      "destination": "/overview"
+    },
+    {
+      "source": "/mental-model",
+      "destination": "/overview"
+    },
+    {
+      "source": "/platform/using-subconscious",
+      "destination": "/core-concepts/runs"
+    },
+    {
+      "source": "/platform/engines",
+      "destination": "/engines"
+    },
+    {
+      "source": "/platform/pricing",
+      "destination": "/pricing"
+    },
+    {
+      "source": "/platform/tools",
+      "destination": "/core-concepts/tools"
+    },
+    {
+      "source": "/platform/async-jobs-and-webhooks",
+      "destination": "/core-concepts/async-webhooks"
+    },
+    {
+      "source": "/platform/logs",
+      "destination": "/resources/logs"
+    },
+    {
+      "source": "/platform/privacy",
+      "destination": "/enterprise/privacy"
+    },
+    {
+      "source": "/platform/learn-more",
+      "destination": "/resources/learn-more"
+    },
+    {
+      "source": "/offerings/dedicated",
+      "destination": "/enterprise/dedicated"
+    },
+    {
+      "source": "/offerings/on-prem",
+      "destination": "/enterprise/on-prem"
+    },
+    {
+      "source": "/offerings/usage",
+      "destination": "/pricing"
     }
   ]
 }

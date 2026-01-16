@@ -4,46 +4,38 @@ description: "Get started with Subconscious in under 5 minutes"
 icon: "rocket"
 ---
 
-## Get Started
+## 1. Create an Account
 
-To get started, [sign up for our platform](https://subconscious.dev/platform) and create your account. You'll need platform access and an API key to continue. Create an API key from your dashboard.
+[Sign up for the platform](https://subconscious.dev/platform) and create your account. Then generate an API key from your dashboard.
 
 <Warning>
-  API keys are only shown once for security reasons. If you've lost your API
-  key, simply create a new one from the "API Keys" tab.
+  API keys are only shown once. If you've lost your key, create a new one from
+  the "API Keys" tab.
 </Warning>
 
-## Try the Playground
+## 2. Try the Playground
 
-For an immediate taste of our platforms's capabilities, try the playground. The playground provides a user-friendly interface where you can test prompts and tools with our inference engine and see results without writing any code.
+Before writing code, try the [Playground](https://www.subconscious.dev/playground) to test prompts and see agents in action.
 
-<Frame caption="The Subconscious Playground: A quick easy way to get started!">
-  <img src="/images/playground.png" alt="Hero Playground" />
+<Frame caption="The Subconscious Playground">
+  <img src="/images/playground.png" alt="Subconscious Playground" />
 </Frame>
-## Official SDKs
 
-We provide official SDKs for seamless integration:
+## 3. Install the SDK
 
-<CardGroup cols={2}>
-  <Card
-    title="Node.js SDK"
-    icon="node-js"
-    href="https://www.npmjs.com/package/subconscious"
-  >
-    `npm install subconscious`
-  </Card>
-  <Card
-    title="Python SDK"
-    icon="python"
-    href="https://pypi.org/project/subconscious-sdk/"
-  >
-    `pip install subconscious-sdk`
-  </Card>
-</CardGroup>
+<CodeGroup>
 
-## Using the SDKs
+```bash Node.js
+npm install subconscious
+```
 
-Our SDKs provide the simplest way to interact with Subconscious. Create a run, wait for completion, and get your results.
+```bash Python
+pip install subconscious-sdk
+```
+
+</CodeGroup>
+
+## 4. Run Your First Agent
 
 <CodeGroup>
 
@@ -59,7 +51,7 @@ const run = await client.run({
   input: {
     instructions:
       "Search for the latest AI news and summarize the top 3 stories",
-    tools: [{ type: "platform", id: "parallel_search", options: {} }],
+    tools: [{ type: "platform", id: "web_search" }],
   },
   options: { awaitCompletion: true },
 });
@@ -76,7 +68,7 @@ run = client.run(
     engine="tim-large",
     input={
         "instructions": "Search for the latest AI news and summarize the top 3 stories",
-        "tools": [{"type": "platform", "id": "parallel_search"}],
+        "tools": [{"type": "platform", "id": "web_search"}],
     },
     options={"await_completion": True},
 )
@@ -92,208 +84,28 @@ curl https://api.subconscious.dev/v1/runs \
     "engine": "tim-large",
     "input": {
       "instructions": "Search for the latest AI news and summarize the top 3 stories",
-      "tools": [{"type": "platform", "id": "parallel_search"}]
+      "tools": [{"type": "platform", "id": "web_search"}]
     }
   }'
 ```
 
 </CodeGroup>
 
-### Streaming
+That's it! You've just run your first agent.
 
-Stream text as it's generated for real-time output:
+## Next Steps
 
-<CodeGroup>
-
-```typescript Node.js
-import { Subconscious } from "subconscious";
-
-const client = new Subconscious({
-  apiKey: process.env.SUBCONSCIOUS_API_KEY!,
-});
-
-const stream = client.stream({
-  engine: "tim-large",
-  input: {
-    instructions: "Write a short essay about space exploration",
-    tools: [{ type: "platform", id: "parallel_search" }],
-  },
-});
-
-for await (const event of stream) {
-  if (event.type === "delta") {
-    process.stdout.write(event.content);
-  } else if (event.type === "done") {
-    console.log("\n\nRun completed:", event.runId);
-  }
-}
-```
-
-```python Python
-from subconscious import Subconscious
-
-client = Subconscious(api_key="your-api-key")
-
-for event in client.stream(
-    engine="tim-large",
-    input={
-        "instructions": "Write a short essay about space exploration",
-        "tools": [{"type": "platform", "id": "parallel_search"}],
-    },
-):
-    if event.type == "delta":
-        print(event.content, end="", flush=True)
-    elif event.type == "done":
-        print(f"\n\nRun completed: {event.run_id}")
-```
-
-```bash cURL
-curl https://api.subconscious.dev/v1/runs/stream \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -N \
-  -d '{
-    "engine": "tim-large",
-    "input": {
-      "instructions": "Write a short essay about space exploration",
-      "tools": [{"type": "platform", "id": "parallel_search"}]
-    }
-  }'
-```
-
-</CodeGroup>
-
-### Fire and Forget
-
-Start a run without waiting, then check status later:
-
-<CodeGroup>
-
-```typescript Node.js
-import { Subconscious } from "subconscious";
-
-const client = new Subconscious({
-  apiKey: process.env.SUBCONSCIOUS_API_KEY!,
-});
-
-const run = await client.run({
-  engine: "tim-large",
-  input: {
-    instructions: "Generate a comprehensive report",
-    tools: [],
-  },
-});
-
-console.log(`Run started: ${run.runId}`);
-
-// Check status later
-const status = await client.get(run.runId);
-console.log(status.status); // 'queued' | 'running' | 'succeeded' | 'failed'
-```
-
-```python Python
-from subconscious import Subconscious
-
-client = Subconscious(api_key="your-api-key")
-
-run = client.run(
-    engine="tim-large",
-    input={
-        "instructions": "Generate a comprehensive report",
-        "tools": [],
-    },
-)
-
-print(f"Run started: {run.run_id}")
-
-# Check status later
-status = client.get(run.run_id)
-print(status.status)  # 'queued' | 'running' | 'succeeded' | 'failed'
-```
-
-```bash cURL
-# Create a run
-curl https://api.subconscious.dev/v1/runs \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '{
-    "engine": "tim-large",
-    "input": {
-      "instructions": "Generate a comprehensive report",
-      "tools": []
-    }
-  }'
-
-# Check status later (replace RUN_ID with the returned runId)
-curl https://api.subconscious.dev/v1/runs/RUN_ID \
-  -H "Authorization: Bearer YOUR_API_KEY"
-```
-
-</CodeGroup>
-
-## OpenAI-Compatible API
-
-Our API is also compatible with the OpenAI format, so you can use existing OpenAI libraries.
-
-<CodeGroup>
-
-```python Python
-from openai import OpenAI
-
-client = OpenAI(
-    base_url="https://api.subconscious.dev/v1",
-    api_key="YOUR_API_KEY"
-)
-
-response = client.chat.completions.create(
-    model="tim-small-preview",
-    messages=[
-        {"role": "user", "content": "What's the derivative of 3x^2 * sin(x)?"}
-    ],
-    stream=True
-)
-
-for chunk in response:
-    if chunk.choices and len(chunk.choices) > 0:
-        delta = chunk.choices[0].delta
-        if delta and hasattr(delta, "content") and delta.content:
-            print(delta.content, end="", flush=True)
-```
-
-```javascript JavaScript
-import OpenAI from "openai";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const openai = new OpenAI({
-  baseURL: "https://api.subconscious.dev/v1",
-  apiKey: "YOUR_API_KEY",
-});
-
-const response = await openai.chat.completions.create({
-  model: "tim-small-preview",
-  messages: [
-    { role: "user", content: "What's the derivative of 3x^2 * sin(x)" },
-  ],
-  stream: true,
-});
-
-for await (const chunk of response) {
-  if (chunk.choices && chunk.choices.length > 0) {
-    const content = chunk.choices[0]?.delta?.content;
-    if (content) {
-      process.stdout.write(content);
-    }
-  }
-}
-```
-
-</CodeGroup>
-
-<Note>
-  TIM models currently require `stream=True` for synchronous chat completions
-  when using the OpenAI-compatible API.
-</Note>
-
-That's it! You're now ready to start building with Subconscious.
+<CardGroup cols={2}>
+  <Card title="Core Concepts" icon="book" href="/core-concepts/runs">
+    Learn about Runs, Tools, Streaming, and more
+  </Card>
+  <Card title="Engines" icon="engine" href="/engines">
+    Explore available models and their capabilities
+  </Card>
+  <Card title="Streaming" icon="wave-pulse" href="/core-concepts/streaming">
+    Stream responses in real-time
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Full API documentation
+  </Card>
+</CardGroup>

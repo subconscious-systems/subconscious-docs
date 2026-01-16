@@ -1,0 +1,90 @@
+---
+title: "Libraries"
+sidebarTitle: "Libraries"
+description: "Official client libraries for Node.js and Python"
+icon: "cube"
+---
+
+We provide official SDKs for seamless integration with your preferred language.
+
+## Install an official SDK
+
+<Tabs>
+  <Tab title="Node.js">
+    Install the official TypeScript/JavaScript SDK from [npm](https://www.npmjs.com/package/subconscious).
+
+    ```bash
+    npm install subconscious
+    ```
+
+    A simple API request would look like this:
+
+    ```typescript
+    import { Subconscious } from "subconscious";
+
+    const client = new Subconscious({
+      apiKey: process.env.SUBCONSCIOUS_API_KEY!,
+    });
+
+    const run = await client.run({
+      engine: "tim-large",
+      input: {
+        instructions: "Your task here",
+        tools: [],
+      },
+      options: { awaitCompletion: true },
+    });
+
+    console.log(run.result?.answer);
+    ```
+  </Tab>
+  <Tab title="Python">
+    Install the official Python SDK from [PyPI](https://pypi.org/project/subconscious-sdk/).
+
+    ```bash
+    pip install subconscious-sdk
+    ```
+
+    A simple API request would look like this:
+
+    ```python
+    from subconscious import Subconscious
+
+    client = Subconscious(api_key="your-api-key")
+
+    run = client.run(
+        engine="tim-large",
+        input={
+            "instructions": "Your task here",
+            "tools": [],
+        },
+        options={"await_completion": True},
+    )
+
+    print(run.result.answer)
+    ```
+  </Tab>
+</Tabs>
+
+## SDK Methods
+
+Both SDKs provide the same core methods:
+
+| Method                 | Description                          |
+| ---------------------- | ------------------------------------ |
+| `client.run()`         | Create and optionally wait for a run |
+| `client.stream()`      | Create a run and stream events       |
+| `client.get(runId)`    | Get the status of a run              |
+| `client.wait(runId)`   | Poll until a run completes           |
+| `client.cancel(runId)` | Cancel a running or queued run       |
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    See the SDKs in action with a complete example
+  </Card>
+  <Card title="Core Concepts" icon="book" href="/core-concepts/runs">
+    Learn about Runs, Tools, and Streaming
+  </Card>
+</CardGroup>

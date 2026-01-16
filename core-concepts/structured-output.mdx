@@ -1,0 +1,212 @@
+---
+title: "Structured Output"
+description: "Structured output allows you to define the exact shape of the agent's response using JSON Schema. This ensures you receive data in a predictable, parseable format."
+icon: "brackets-curly"
+---
+
+## When to Use Structured Output
+
+Use structured output when you need:
+
+- Responses that integrate with other systems
+- Consistent data formats for downstream processing
+- Type-safe responses in your application
+
+## Using answerFormat
+
+The `answerFormat` field accepts a JSON Schema that defines the structure of the agent's answer:
+
+<CodeGroup>
+
+```python Python
+from subconscious import Subconscious
+
+client = Subconscious(api_key="your-api-key")
+
+run = client.run(
+    engine="tim-large",
+    input={
+        "instructions": "Analyze the sentiment of this review: 'Great product, fast shipping!'",
+        "tools": [],
+        "answerFormat": {
+            "type": "object",
+            "title": "SentimentAnalysis",
+            "properties": {
+                "sentiment": {
+                    "type": "string",
+                    "enum": ["positive", "negative", "neutral"],
+                    "description": "The overall sentiment"
+                },
+                "confidence": {
+                    "type": "number",
+                    "description": "Confidence score from 0 to 1"
+                },
+                "keywords": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Key phrases that influenced the sentiment"
+                }
+            },
+            "required": ["sentiment", "confidence", "keywords"]
+        }
+    },
+    options={"await_completion": True},
+)
+
+# Response is already a dict matching your schema
+result = run.result.answer
+print(result["sentiment"])   # "positive"
+print(result["confidence"])  # 0.95
+print(result["keywords"])    # ["Great product", "fast shipping"]
+```
+
+```typescript Node.js
+import { Subconscious } from "subconscious";
+
+const client = new Subconscious({
+  apiKey: process.env.SUBCONSCIOUS_API_KEY!,
+});
+
+const run = await client.run({
+  engine: "tim-large",
+  input: {
+    instructions:
+      "Analyze the sentiment of this review: 'Great product, fast shipping!'",
+    tools: [],
+    answerFormat: {
+      type: "object",
+      title: "SentimentAnalysis",
+      properties: {
+        sentiment: {
+          type: "string",
+          enum: ["positive", "negative", "neutral"],
+          description: "The overall sentiment",
+        },
+        confidence: {
+          type: "number",
+          description: "Confidence score from 0 to 1",
+        },
+        keywords: {
+          type: "array",
+          items: { type: "string" },
+          description: "Key phrases that influenced the sentiment",
+        },
+      },
+      required: ["sentiment", "confidence", "keywords"],
+    },
+  },
+  options: { awaitCompletion: true },
+});
+
+// Response is already an object matching your schema
+const result = run.result?.answer;
+console.log(result.sentiment); // "positive"
+console.log(result.confidence); // 0.95
+console.log(result.keywords); // ["Great product", "fast shipping"]
+```
+
+</CodeGroup>
+
+<Note>
+  When using `answerFormat`, `run.result.answer` returns a **parsed object**
+  (dict in Python, object in JavaScript), not a JSON string. You can access
+  fields directly without parsing.
+</Note>
+
+## Using Pydantic Models (Python)
+
+The Python SDK automatically converts Pydantic models to JSON Schema:
+
+```python
+from subconscious import Subconscious
+from pydantic import BaseModel
+import os
+
+class SentimentAnalysis(BaseModel):
+    sentiment: str
+    confidence: float
+    keywords: list[str]
+
+client = Subconscious(api_key=os.environ.get("SUBCONSCIOUS_API_KEY"))
+
+run = client.run(
+    engine="tim-large",
+    input={
+        "instructions": "Analyze the sentiment of: 'Great product!'",
+        "answerFormat": SentimentAnalysis,  # Pass the class directly
+    },
+    options={"await_completion": True},
+)
+
+print(run.result.answer["sentiment"])
+```
+
+## Schema Requirements
+
+Your JSON Schema must include:
+
+| Field                  | Required | Description                            |
+| ---------------------- | -------- | -------------------------------------- |
+| `type`                 | Yes      | Must be `"object"`                     |
+| `title`                | Yes      | A name for the schema                  |
+| `properties`           | Yes      | The fields in your response            |
+| `required`             | Yes      | Array of required field names          |
+| `additionalProperties` | No       | Optional (must be `false` if provided) |
+
+## Supported Types
+
+The following JSON Schema types are supported:
+
+| Type      | Example                                       |
+| --------- | --------------------------------------------- |
+| `string`  | `{"type": "string"}`                          |
+| `number`  | `{"type": "number"}`                          |
+| `integer` | `{"type": "integer"}`                         |
+| `boolean` | `{"type": "boolean"}`                         |
+| `array`   | `{"type": "array", "items": {...}}`           |
+| `object`  | `{"type": "object", "properties": {...}}`     |
+| `enum`    | `{"type": "string", "enum": ["a", "b", "c"]}` |
+
+## Using reasoningFormat
+
+You can also structure the reasoning output with `reasoningFormat`:
+
+```python
+run = client.run(
+    engine="tim-large",
+    input={
+        "instructions": "Research and compare two products",
+        "tools": [{"type": "platform", "id": "web_search"}],
+        "answerFormat": {...},
+        "reasoningFormat": {
+            "type": "object",
+            "title": "ResearchSteps",
+            "properties": {
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "action": {"type": "string"},
+                            "result": {"type": "string"}
+                        }
+                    }
+                }
+            },
+            "required": ["steps"]
+        }
+    },
+    options={"await_completion": True},
+)
+```
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Runs" icon="play" href="/core-concepts/runs">
+    Understanding the run response structure
+  </Card>
+  <Card title="Response Handling" icon="code" href="/guides/response-handling">
+    Parsing and using agent responses
+  </Card>
+</CardGroup>

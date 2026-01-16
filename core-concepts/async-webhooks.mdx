@@ -1,0 +1,155 @@
+---
+title: "Webhooks"
+sidebarTitle: "Webhooks"
+description: "Get notified when runs complete"
+icon: "webhook"
+---
+
+Webhooks push results to your server when a run finishes—no polling required. You provide a URL, we POST the result when it's ready.
+
+<Note>
+  For async basics (fire-and-forget, polling with `client.wait()`), see
+  [Runs](/core-concepts/runs).
+</Note>
+
+## 1. Add a Callback URL
+
+Pass `callbackUrl` in the `output` field when creating a run:
+
+```bash
+curl -X POST https://api.subconscious.dev/v1/runs \
+  -H "Authorization: Bearer $SUBCONSCIOUS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "engine": "tim-large",
+    "input": {
+      "instructions": "Generate a detailed report"
+    },
+    "output": {
+      "callbackUrl": "https://your-server.com/webhooks/subconscious"
+    }
+  }'
+```
+
+This returns immediately with a `runId`. When the run completes, we'll POST the result to your callback URL.
+
+## 2. Build a Webhook Handler
+
+Create an endpoint to receive the webhook POST:
+
+<CodeGroup>
+
+```python Python (FastAPI)
+from fastapi import FastAPI, Request
+
+app = FastAPI()
+
+@app.post("/webhooks/subconscious")
+async def handle_webhook(request: Request):
+    payload = await request.json()
+
+    run_id = payload.get("runId")
+    status = payload.get("status")
+    result = payload.get("result")
+
+    if status == "succeeded":
+        print(f"Run {run_id} completed: {result['answer'][:100]}...")
+        # Save to database, trigger next step, etc.
+    elif status == "failed":
+        print(f"Run {run_id} failed: {payload.get('error')}")
+
+    return {"received": True}
+
+# Run with: uvicorn server:app --host 0.0.0.0 --port 8000
+```
+
+```typescript Node.js (Express)
+import express from "express";
+
+const app = express();
+app.use(express.json());
+
+app.post("/webhooks/subconscious", (req, res) => {
+  const { runId, status, result, error } = req.body;
+
+  if (status === "succeeded") {
+    console.log(`Run ${runId} completed:`, result.answer.slice(0, 100));
+    // Save to database, trigger next step, etc.
+  } else if (status === "failed") {
+    console.error(`Run ${runId} failed:`, error);
+  }
+
+  // Always respond quickly with 2xx
+  res.status(200).json({ received: true });
+});
+
+app.listen(8000, () => console.log("Webhook server running on :8000"));
+```
+
+</CodeGroup>
+
+<Note>
+  Your endpoint must be publicly accessible. For local development, use
+  [ngrok](https://ngrok.com) or similar.
+</Note>
+
+## 3. Webhook Payload
+
+When a run finishes, we POST this JSON to your URL:
+
+```json
+{
+  "event": "run.completed",
+  "runId": "run_abc123",
+  "status": "succeeded",
+  "result": {
+    "answer": "The agent's response..."
+  },
+  "usage": {
+    "inputTokens": 1500,
+    "outputTokens": 800,
+    "durationMs": 4500
+  },
+  "timestamp": "2026-01-16T12:00:00Z"
+}
+```
+
+| Field    | Description                                                   |
+| -------- | ------------------------------------------------------------- |
+| `event`  | Event type (`run.completed`, `run.failed`)                    |
+| `runId`  | The run's unique ID                                           |
+| `status` | Final status (`succeeded`, `failed`, `timed_out`, `canceled`) |
+| `result` | The agent's answer (when succeeded)                           |
+| `error`  | Error details (when failed)                                   |
+| `usage`  | Token counts and duration                                     |
+
+## Delivery Guarantees
+
+Webhooks are delivered with:
+
+- **Retries** — Failed deliveries retry with exponential backoff
+- **Timeouts** — We wait up to 30 seconds for your 2xx response
+- **Dead-letter queue** — Exhausted retries are stored for inspection
+- **Idempotency** — Include a unique ID in your handler to prevent duplicates
+
+## Best Practices
+
+- **Respond quickly** — Return 2xx within 30 seconds, process async if needed
+- **Be idempotent** — You may receive the same webhook twice
+- **Log payloads** — Store raw payloads for debugging
+- **Validate origin** — Check request headers (signature verification coming soon)
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Runs" icon="play" href="/core-concepts/runs">
+    Async patterns and polling
+  </Card>
+  <Card
+    title="Error Handling"
+    icon="triangle-exclamation"
+    href="/guides/error-handling"
+  >
+    Handle failed runs
+  </Card>
+</CardGroup>

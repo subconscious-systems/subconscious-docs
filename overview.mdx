@@ -1,0 +1,97 @@
+---
+title: "Subconscious Platform"
+sidebarTitle: "Overview"
+icon: "house"
+---
+
+<div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
+  <div style={{ flex: "1" }}>
+    <h2 style={{ marginTop: 0 }}>Developer quickstart</h2>
+    <p>Make your first API request in minutes. Learn the basics of the Subconscious platform.</p>
+    <Card title="Get started" icon="rocket" href="/quickstart">
+      Build your first agent in under 5 minutes
+    </Card>
+  </div>
+  <div style={{ flex: "1" }}>
+    <CodeGroup>
+```python Python
+from subconscious import Subconscious
+
+client = Subconscious(api_key="your-api-key")
+
+run = client.run(
+engine="tim-large",
+input={"instructions": "Summarize the latest AI news"},
+options={"await_completion": True},
+)
+
+print(run.result.answer)
+
+````
+
+```typescript Node.js
+import { Subconscious } from "subconscious";
+
+const client = new Subconscious({
+  apiKey: process.env.SUBCONSCIOUS_API_KEY!,
+});
+
+const run = await client.run({
+  engine: "tim-large",
+  input: { instructions: "Summarize the latest AI news" },
+  options: { awaitCompletion: true },
+});
+
+console.log(run.result?.answer);
+````
+
+    </CodeGroup>
+
+  </div>
+</div>
+## Engines
+<CardGroup cols={2}>
+  <Card title="TIM-large" icon="bolt" href="/engines">
+    Highly capable generalized inference engine powered by GPT-4.1
+  </Card>
+  <Card title="TIM-small-preview" icon="microchip" href="/engines">
+    Core TIM-8b model optimized for search and tool use
+  </Card>
+</CardGroup>
+
+[View all engines →](/engines)
+
+## Start building
+
+<CardGroup cols={2}>
+  <Card title="Run your first agent" icon="circle-play" href="/quickstart">
+    Get started in 5 minutes
+  </Card>
+  <Card title="Define custom tools" icon="wrench" href="/core-concepts/tools">
+    Extend agents with your APIs
+  </Card>
+  <Card
+    title="Stream responses"
+    icon="wave-pulse"
+    href="/core-concepts/streaming"
+  >
+    Real-time output for chat UIs
+  </Card>
+  <Card
+    title="Async and webhooks"
+    icon="webhook"
+    href="/core-concepts/async-webhooks"
+  >
+    Durable jobs for pipelines
+  </Card>
+  <Card
+    title="Structured output"
+    icon="braces"
+    href="/core-concepts/structured-output"
+  >
+    Get JSON responses from agents
+  </Card>
+  <Card title="API Reference" icon="book" href="/api-reference/introduction">
+    Full endpoint documentation
+  </Card>
+</CardGroup>

@@ -1,0 +1,161 @@
+---
+title: "Streaming"
+description: "Real-time responses for chat UIs and live demos"
+icon: "wave-pulse"
+---
+
+Streaming delivers the agent's response token-by-token as it's generated—ideal for chat interfaces, live demos, or anywhere a human is watching. Instead of waiting for the full response, you display output progressively for a more responsive experience.
+
+For background jobs or backend integrations, see [Runs](/core-concepts/runs) for async patterns with polling and webhooks.
+
+## Basic Usage
+
+<CodeGroup>
+
+```typescript Node.js
+import { Subconscious } from "subconscious";
+
+const client = new Subconscious({
+  apiKey: process.env.SUBCONSCIOUS_API_KEY!,
+});
+
+const stream = client.stream({
+  engine: "tim-large",
+  input: {
+    instructions: "Write a short essay about space exploration",
+    tools: [{ type: "platform", id: "web_search" }],
+  },
+});
+
+for await (const event of stream) {
+  if (event.type === "delta") {
+    process.stdout.write(event.content);
+  } else if (event.type === "done") {
+    console.log("\n\nRun completed:", event.runId);
+  }
+}
+```
+
+```python Python
+from subconscious import Subconscious
+
+client = Subconscious(api_key="your-api-key")
+
+for event in client.stream(
+    engine="tim-large",
+    input={
+        "instructions": "Write a short essay about space exploration",
+        "tools": [{"type": "platform", "id": "web_search"}],
+    },
+):
+    if event.type == "delta":
+        print(event.content, end="", flush=True)
+    elif event.type == "done":
+        print(f"\n\nRun completed: {event.run_id}")
+```
+
+```bash cURL
+curl https://api.subconscious.dev/v1/runs/stream \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -N \
+  -d '{
+    "engine": "tim-large",
+    "input": {
+      "instructions": "Write a short essay about space exploration",
+      "tools": [{"type": "platform", "id": "web_search"}]
+    }
+  }'
+```
+
+</CodeGroup>
+
+## Event Types
+
+The stream emits different event types:
+
+| Event Type | Description                  |
+| ---------- | ---------------------------- |
+| `delta`    | A chunk of generated content |
+| `done`     | The run has completed        |
+| `error`    | An error occurred            |
+
+### Delta Events
+
+Delta events contain incremental content:
+
+```typescript
+{
+  type: "delta",
+  content: "The history of space exploration..."
+}
+```
+
+### Done Events
+
+Done events signal completion and include the run ID:
+
+```typescript
+{
+  type: "done",
+  runId: "run_abc123..."
+}
+```
+
+## Server-Sent Events (SSE)
+
+The streaming endpoint uses Server-Sent Events (SSE) format, compatible with the OpenAI streaming format. Each event is sent as:
+
+```
+data: {"type": "delta", "content": "chunk of text"}
+
+data: {"type": "done", "runId": "run_abc123"}
+
+data: [DONE]
+```
+
+## Error Handling
+
+Handle errors gracefully in your stream processing:
+
+<CodeGroup>
+
+```typescript Node.js
+try {
+  for await (const event of stream) {
+    if (event.type === "delta") {
+      process.stdout.write(event.content);
+    } else if (event.type === "error") {
+      console.error("Stream error:", event.error);
+      break;
+    }
+  }
+} catch (error) {
+  console.error("Connection error:", error);
+}
+```
+
+```python Python
+try:
+    for event in client.stream(...):
+        if event.type == "delta":
+            print(event.content, end="", flush=True)
+        elif event.type == "error":
+            print(f"Stream error: {event.error}")
+            break
+except Exception as e:
+    print(f"Connection error: {e}")
+```
+
+</CodeGroup>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Runs" icon="play" href="/core-concepts/runs">
+    Sync, async, and polling patterns
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/core-concepts/async-webhooks">
+    Get notified when runs complete
+  </Card>
+</CardGroup>

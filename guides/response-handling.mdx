@@ -1,0 +1,226 @@
+---
+title: "Response Handling"
+description: "Parse and work with agent responses and reasoning traces"
+icon: "code"
+---
+
+When a run completes, the agent returns structured results that include both the final answer and the reasoning process. This guide explains how to interpret and use these responses.
+
+## Response Structure
+
+The `run.result` object contains:
+
+```typescript
+interface RunResult {
+  answer: string | object; // String without answerFormat, object with answerFormat
+  reasoning?: Task[]; // Step-by-step reasoning (when available)
+}
+```
+
+## The Answer Field
+
+The `answer` field contains the agent's final response. Depending on your use case:
+
+- **Without structured output**: A natural language string
+- **With structured output**: A parsed object matching your schema (no JSON parsing needed)
+
+### Accessing Structured Answers
+
+When using `answerFormat`, the answer is already a parsed object. See [Structured Output](/core-concepts/structured-output) for schema examples.
+
+<CodeGroup>
+
+```python Python
+from subconscious import Subconscious
+
+client = Subconscious(api_key="your-api-key")
+
+run = client.run(
+    engine="tim-large",
+    input={
+        "instructions": "Analyze sentiment",
+        "answerFormat": {...}  # Your schema
+    },
+    options={"await_completion": True},
+)
+
+# answer is already a dict - no parsing needed
+answer = run.result.answer
+print(answer["sentiment"])
+```
+
+```typescript Node.js
+import { Subconscious } from "subconscious";
+
+const client = new Subconscious({
+  apiKey: process.env.SUBCONSCIOUS_API_KEY!,
+});
+
+const run = await client.run({
+  engine: "tim-large",
+  input: {
+    instructions: "Analyze sentiment",
+    answerFormat: {...}  // Your schema
+  },
+  options: { awaitCompletion: true },
+});
+
+// answer is already an object - no parsing needed
+const answer = run.result?.answer;
+console.log(answer.sentiment);
+```
+
+</CodeGroup>
+
+## Understanding the Reasoning Field
+
+The `reasoning` field provides visibility into how the agent arrived at its answer. Each task in the array represents a step in the reasoning process.
+
+### Task Structure
+
+```typescript
+interface Task {
+  thought?: string; // Agent's internal reasoning
+  title?: string; // Step title
+  tooluse?: ToolCall; // Tool call details
+  subtasks?: Task[]; // Nested reasoning steps
+  conclusion?: string; // Step conclusion
+}
+
+interface ToolCall {
+  tool_name: string; // Name of the tool called
+  parameters: any; // Input parameters
+  tool_result: any; // Result from the tool
+}
+```
+
+### Example Reasoning Trace
+
+```json
+{
+  "reasoning": [
+    {
+      "title": "Analyzing the request",
+      "thought": "I need to search for information about Tesla's stock performance",
+      "tooluse": {
+        "tool_name": "web_search",
+        "parameters": {
+          "query": "Tesla stock performance this week"
+        },
+        "tool_result": {
+          "results": [
+            {
+              "title": "Tesla Stock Analysis",
+              "snippet": "Tesla's stock has shown..."
+            }
+          ]
+        }
+      },
+      "conclusion": "Found relevant information about Tesla's stock"
+    }
+  ],
+  "answer": "Based on my search, Tesla's stock performance this week shows..."
+}
+```
+
+## Extracting Tool Call Information
+
+Loop through the reasoning to extract tool usage:
+
+<CodeGroup>
+
+```python Python
+def extract_tool_calls(reasoning):
+    tool_calls = []
+    for task in reasoning or []:
+        if task.get("tooluse"):
+            tool_calls.append({
+                "tool": task["tooluse"]["tool_name"],
+                "params": task["tooluse"]["parameters"],
+                "result": task["tooluse"]["tool_result"]
+            })
+        # Check subtasks recursively
+        if task.get("subtasks"):
+            tool_calls.extend(extract_tool_calls(task["subtasks"]))
+    return tool_calls
+
+# Usage
+calls = extract_tool_calls(run.result.reasoning)
+for call in calls:
+    print(f"Tool: {call['tool']}")
+```
+
+```typescript Node.js
+function extractToolCalls(reasoning: Task[]): any[] {
+  const toolCalls: any[] = [];
+  for (const task of reasoning || []) {
+    if (task.tooluse) {
+      toolCalls.push({
+        tool: task.tooluse.tool_name,
+        params: task.tooluse.parameters,
+        result: task.tooluse.tool_result,
+      });
+    }
+    if (task.subtasks) {
+      toolCalls.push(...extractToolCalls(task.subtasks));
+    }
+  }
+  return toolCalls;
+}
+
+// Usage
+const calls = extractToolCalls(run.result?.reasoning || []);
+calls.forEach((call) => console.log(`Tool: ${call.tool}`));
+```
+
+</CodeGroup>
+
+## Usage Information
+
+The `usage` field provides metrics about the run:
+
+```typescript
+interface RunUsage {
+  inputTokens: number; // Tokens in the prompt
+  outputTokens: number; // Tokens generated
+  durationMs: number; // Total execution time
+  toolCalls?: {
+    // Tool usage breakdown
+    [toolName: string]: number;
+  };
+}
+```
+
+### Tracking Costs
+
+Use the usage information to track costs:
+
+```python
+usage = run.usage
+input_cost = usage.input_tokens / 1_000_000 * 2.00  # tim-large pricing
+output_cost = usage.output_tokens / 1_000_000 * 8.00
+total_cost = input_cost + output_cost
+print(f"Run cost: ${total_cost:.4f}")
+```
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Runs" icon="play" href="/core-concepts/runs">
+    Understanding run lifecycle
+  </Card>
+  <Card
+    title="Structured Output"
+    icon="braces"
+    href="/core-concepts/structured-output"
+  >
+    Define response schemas
+  </Card>
+  <Card
+    title="Error Handling"
+    icon="triangle-exclamation"
+    href="/guides/error-handling"
+  >
+    Handle errors gracefully
+  </Card>
+</CardGroup>
