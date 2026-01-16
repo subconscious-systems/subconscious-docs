@@ -41,6 +41,7 @@ Create an endpoint to receive the webhook POST:
 
 ```python Python (FastAPI)
 from fastapi import FastAPI, Request
+import json
 
 app = FastAPI()
 
@@ -50,10 +51,13 @@ async def handle_webhook(request: Request):
 
     run_id = payload.get("runId")
     status = payload.get("status")
-    result = payload.get("result")
 
     if status == "succeeded":
-        print(f"Run {run_id} completed: {result['answer'][:100]}...")
+        # Extract the answer from the result
+        content = payload["result"]["choices"][0]["message"]["content"]
+        parsed = json.loads(content)
+        answer = parsed.get("answer", "")
+        print(f"Run {run_id} completed: {answer[:100]}...")
         # Save to database, trigger next step, etc.
     elif status == "failed":
         print(f"Run {run_id} failed: {payload.get('error')}")
@@ -73,7 +77,10 @@ app.post("/webhooks/subconscious", (req, res) => {
   const { runId, status, result, error } = req.body;
 
   if (status === "succeeded") {
-    console.log(`Run ${runId} completed:`, result.answer.slice(0, 100));
+    // Extract the answer from the result
+    const content = result.choices[0].message.content;
+    const parsed = JSON.parse(content);
+    console.log(`Run ${runId} completed:`, parsed.answer?.slice(0, 100));
     // Save to database, trigger next step, etc.
   } else if (status === "failed") {
     console.error(`Run ${runId} failed:`, error);
@@ -99,29 +106,49 @@ When a run finishes, we POST this JSON to your URL:
 
 ```json
 {
-  "event": "run.completed",
-  "runId": "run_abc123",
+  "jobId": "9bb85845-9b20-4bb0-96dc-686a0aa3dcfe",
+  "runId": "1a45adf1-ad50-4452-a2c7-150b5bcd215c",
+  "orgId": "6d3c89bf-2665-45f8-87aa-c925979151c9",
   "status": "succeeded",
+  "model": "tim-large",
+  "engine": "tim-large",
   "result": {
-    "answer": "The agent's response..."
+    "choices": [
+      {
+        "message": {
+          "role": "assistant",
+          "content": "{\"reasoning\": [...], \"answer\": \"2 + 2 = 4.\"}"
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1678,
+      "completion_tokens": 83
+    }
   },
-  "usage": {
-    "inputTokens": 1500,
-    "outputTokens": 800,
-    "durationMs": 4500
+  "error": null,
+  "tokens": {
+    "inputTokens": 1678,
+    "outputTokens": 83,
+    "costCents": 0
   },
-  "timestamp": "2026-01-16T12:00:00Z"
+  "createdAt": "2026-01-16T20:54:09.090Z",
+  "startedAt": "2026-01-16T20:54:09.190Z",
+  "completedAt": "2026-01-16T20:54:11.779Z"
 }
 ```
 
-| Field    | Description                                                   |
-| -------- | ------------------------------------------------------------- |
-| `event`  | Event type (`run.completed`, `run.failed`)                    |
-| `runId`  | The run's unique ID                                           |
-| `status` | Final status (`succeeded`, `failed`, `timed_out`, `canceled`) |
-| `result` | The agent's answer (when succeeded)                           |
-| `error`  | Error details (when failed)                                   |
-| `usage`  | Token counts and duration                                     |
+| Field         | Description                                                   |
+| ------------- | ------------------------------------------------------------- |
+| `runId`       | The run's unique ID                                           |
+| `jobId`       | Internal job ID                                               |
+| `status`      | Final status (`succeeded`, `failed`, `timed_out`, `canceled`) |
+| `result`      | The completion result with `choices` array                    |
+| `error`       | Error details (when failed, otherwise `null`)                 |
+| `tokens`      | Token counts (`inputTokens`, `outputTokens`, `costCents`)     |
+| `createdAt`   | When the run was created                                      |
+| `startedAt`   | When processing began                                         |
+| `completedAt` | When the run finished                                         |
 
 ## Delivery Guarantees
 
