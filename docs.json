@@ -13,6 +13,9 @@
   },
   "favicon": "/favicon.png",
   "openapi": "/api-reference/openapi.json",
+  "feedback": {
+    "thumbsRating": true
+  },
   "navigation": {
     "tabs": [
       {
@@ -21,7 +24,7 @@
           {
             "group": "Get Started",
             "pages": [
-              "index",
+              "quickstart",
               "intro",
               "mental-model"
             ]
@@ -94,5 +97,11 @@
       "github": "https://github.com/subconscious-systems/subconscious-docs",
       "linkedin": "https://linkedin.com/company/subsysdev"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/quickstart"
+    }
+  ]
 }
