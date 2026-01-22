@@ -7,7 +7,7 @@ client = Subconscious(api_key="YOUR_API_KEY")
 
 # Stream the response
 for event in client.stream(
-    engine="tim-large",
+    engine="tim-gpt",
     input={
         "instructions": "Write a short essay about space exploration",
         "tools": [{"type": "platform", "id": "parallel_search"}],
@@ -30,7 +30,7 @@ const client = new Subconscious({
 
 // Stream the response
 const stream = client.stream({
-  engine: "tim-large",
+  engine: "tim-gpt",
   input: {
     instructions: "Write a short essay about space exploration",
     tools: [{ type: "platform", id: "parallel_search", options: {} }],

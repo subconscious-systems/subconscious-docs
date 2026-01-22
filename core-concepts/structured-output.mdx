@@ -24,7 +24,7 @@ from subconscious import Subconscious
 client = Subconscious(api_key="your-api-key")
 
 run = client.run(
-    engine="tim-large",
+    engine="tim-gpt",
     input={
         "instructions": "Analyze the sentiment of this review: 'Great product, fast shipping!'",
         "tools": [],
@@ -68,7 +68,7 @@ const client = new Subconscious({
 });
 
 const run = await client.run({
-  engine: "tim-large",
+  engine: "tim-gpt",
   input: {
     instructions:
       "Analyze the sentiment of this review: 'Great product, fast shipping!'",
@@ -130,7 +130,7 @@ class SentimentAnalysis(BaseModel):
 client = Subconscious(api_key=os.environ.get("SUBCONSCIOUS_API_KEY"))
 
 run = client.run(
-    engine="tim-large",
+    engine="tim-gpt",
     input={
         "instructions": "Analyze the sentiment of: 'Great product!'",
         "answerFormat": SentimentAnalysis,  # Pass the class directly
@@ -173,7 +173,7 @@ You can also structure the reasoning output with `reasoningFormat`:
 
 ```python
 run = client.run(
-    engine="tim-large",
+    engine="tim-gpt",
     input={
         "instructions": "Research and compare two products",
         "tools": [{"type": "platform", "id": "web_search"}],

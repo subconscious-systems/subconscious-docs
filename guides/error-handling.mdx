@@ -49,7 +49,7 @@ client = Subconscious(api_key=os.environ.get("SUBCONSCIOUS_API_KEY"))
 
 try:
     run = client.run(
-        engine="tim-large",
+        engine="tim-gpt",
         input={"instructions": "Hello"},
         options={"await_completion": True},
     )
@@ -76,7 +76,7 @@ const client = new Subconscious({
 
 try {
   const run = await client.run({
-    engine: "tim-large",
+    engine: "tim-gpt",
     input: { instructions: "Hello" },
     options: { awaitCompletion: true },
   });
@@ -118,7 +118,7 @@ def run_with_retry(instructions, max_retries=3):
     for attempt in range(max_retries):
         try:
             return client.run(
-                engine="tim-large",
+                engine="tim-gpt",
                 input={"instructions": instructions},
                 options={"await_completion": True},
             )
@@ -141,7 +141,7 @@ async function runWithRetry(instructions: string, maxRetries = 3) {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       return await client.run({
-        engine: "tim-large",
+        engine: "tim-gpt",
         input: { instructions },
         options: { awaitCompletion: true },
       });
@@ -166,7 +166,7 @@ Runs can fail after being accepted. Check the `status` field:
 
 ```python Python
 run = client.run(
-    engine="tim-large",
+    engine="tim-gpt",
     input={"instructions": "Your task"},
     options={"await_completion": True},
 )
@@ -184,7 +184,7 @@ match run.status:
 
 ```typescript Node.js
 const run = await client.run({
-  engine: "tim-large",
+  engine: "tim-gpt",
   input: { instructions: "Your task" },
   options: { awaitCompletion: true },
 });

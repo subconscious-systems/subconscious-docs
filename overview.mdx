@@ -20,7 +20,7 @@ from subconscious import Subconscious
 client = Subconscious(api_key="your-api-key")
 
 run = client.run(
-engine="tim-large",
+engine="tim-gpt",
 input={"instructions": "Summarize the latest AI news"},
 options={"await_completion": True},
 )
@@ -37,7 +37,7 @@ const client = new Subconscious({
 });
 
 const run = await client.run({
-  engine: "tim-large",
+  engine: "tim-gpt",
   input: { instructions: "Summarize the latest AI news" },
   options: { awaitCompletion: true },
 });
@@ -50,12 +50,18 @@ console.log(run.result?.answer);
   </div>
 </div>
 ## Engines
-<CardGroup cols={2}>
-  <Card title="TIM-large" icon="bolt" href="/engines">
-    Highly capable generalized inference engine powered by GPT-4.1
+
+Our agent engines combine a language model with a custom inference runtime. We offer **Unified Engines** (co-designed model and runtime) and **Compound Engines** (frontier models with smart context management).
+
+<CardGroup cols={3}>
+  <Card title="TIM-Edge" icon="bolt" href="/engines">
+    Unified engine tuned for performance with search tools
   </Card>
-  <Card title="TIM-small-preview" icon="microchip" href="/engines">
-    Core TIM-8b model optimized for search and tool use
+  <Card title="TIM-GPT" icon="microchip" href="/engines">
+    Compound engine backed by OpenAI GPT-4.1
+  </Card>
+  <Card title="TIM-GPT-Heavy" icon="brain" href="/engines">
+    Compound engine backed by OpenAI GPT-5.2
   </Card>
 </CardGroup>
 

@@ -20,10 +20,11 @@ A **Run** represents a single agent execution. You provide instructions and opti
 
 Choose from multiple inference engines optimized for different use cases:
 
-| Engine              | Description                                                          |
-| ------------------- | -------------------------------------------------------------------- |
-| `tim-large`         | Our flagship compound AI system with advanced reasoning and tool use |
-| `tim-small-preview` | Fast, efficient model for simpler tasks                              |
+| Engine           | Type     | Description                                                          |
+| ---------------- | -------- | -------------------------------------------------------------------- |
+| `tim-edge`       | Unified  | Highly efficient engine tuned for performance with search tools      |
+| `tim-gpt`        | Compound | Complex reasoning engine backed by OpenAI GPT-4.1                    |
+| `tim-gpt-heavy`  | Compound | Complex reasoning engine backed by OpenAI GPT-5.2                    |
 
 ### Tools
 
@@ -45,7 +46,7 @@ All API endpoints require Bearer token authentication:
 curl https://api.subconscious.dev/v1/runs \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"engine": "tim-large", "input": {"instructions": "..."}}'
+  -d '{"engine": "tim-gpt", "input": {"instructions": "..."}}'
 ```
 
 Get your API key from the [Subconscious platform](https://www.subconscious.dev/platform/api-keys).
@@ -59,7 +60,7 @@ curl -X POST https://api.subconscious.dev/v1/runs \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "engine": "tim-large",
+    "engine": "tim-gpt",
     "input": {
       "instructions": "Research the latest developments in quantum computing"
     }
@@ -118,7 +119,7 @@ Or attach a one-off callback URL to a specific run:
 
 ```json
 {
-  "engine": "tim-large",
+  "engine": "tim-gpt",
   "input": { "instructions": "..." },
   "output": { "callbackUrl": "https://your-app.com/webhooks" }
 }

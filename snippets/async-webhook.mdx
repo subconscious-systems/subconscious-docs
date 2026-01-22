@@ -7,7 +7,7 @@ client = Subconscious(api_key="YOUR_API_KEY")
 
 # Start a run with a callback URL
 run = client.run(
-    engine="tim-large",
+    engine="tim-gpt",
     input={
         "instructions": "Run this as an async job and webhook me when done.",
     },
@@ -28,7 +28,7 @@ const client = new Subconscious({
 
 // Start a run with a callback URL
 const run = await client.run({
-  engine: "tim-large",
+  engine: "tim-gpt",
   input: {
     instructions: "Run this as an async job and webhook me when done.",
   },

@@ -4,23 +4,38 @@ description: 'Learn about our agent engines'
 icon: 'engine'
 ---
 
-## Model Offerings
+## Browse Our Engines
 
-| Name | API Name | Description |
-|------|----------|-------------|
-| TIM-small-preview | `tim-small-preview` | Core fine-tuned TIM-8b model running on TIMRUN, optimized for long horizon reasoning and tool use with search tools |
-| TIM-large | `tim-large` | Highly capable generalized inference engine built on TIM principles, powered by OpenAI GPT-4.1 |
+Agent engines are available via serverless endpoint or dedicated endpoint.
 
-### TIM-small-preview
+## Beyond Models: Agent Engines
 
-TIM-small-preview is our core fine-tuned TIM-8b model running on TIMRUN. It enables long horizon reasoning and tool use, and is tuned specifically for tasks with search tools. This model represents our foundational approach to building intelligent agents that can reason through complex, multi-step problems while effectively utilizing available tools.
+Our agent engines combine a language model with a custom inference runtime. We offer two engine types with one identical developer experience.
 
-### TIM-large
+### Engine Types
 
-TIM-large is a highly capable generalized inference engine built on the same principles as TIM-small but backed by the power of OpenAI GPT-4.1. We talked to teams around the world building agents, and many won't deviate from using anything but the most powerful generalized models. We listened, and we built a way to experience long horizon reasoning and the agent developer experience we imagined backed by the power of models you're more familiar with.
+**Unified Engines** - Co-designed model and runtime for peak performance on efficient models.
 
-Both models can be used with either the sync or async APIs. In async mode, we enqueue work for a background worker to process and expose a simple polling + webhook story for long‑running jobs.
+**Compound Engines** - Frontier models (OpenAI, Google) chained together with smart context management.
 
-## Terminology
+## Available Engines
 
-We'll use the phrase model and inference engine interchangeably. We really have models which are transformer models, a runtime, which is, we're usually referring to Tim run, which is our custom runtime that runs with the Tim models. And an inference engine is the combination of the model and the runtime.
+| Name | API Name | Type | Description |
+|------|----------|------|-------------|
+| TIM-Edge | `tim-edge` | Unified | Highly efficient engine tuned for performance with tools |
+| TIM-GPT | `tim-gpt` | Compound | Complex reasoning engine for long-context and tool use backed by the power of OpenAI GPT-4.1 |
+| TIM-GPT-Heavy | `tim-gpt-heavy` | Compound | Complex reasoning engine for long-context and tool use backed by the power of OpenAI GPT-5.2 |
+
+### TIM-Edge
+
+TIM-Edge is our highly efficient unified engine, tuned for performance with search tools. It combines a co-designed model and runtime for peak performance, making it ideal for use cases where speed and efficiency are critical.
+
+### TIM-GPT
+
+TIM-GPT is a compound engine that provides complex reasoning capabilities for long-context and tool use, backed by the power of OpenAI GPT-4.1. This is our recommended engine for most use cases, offering a great balance of cost, performance, and reasoning ability.
+
+### TIM-GPT-Heavy
+
+TIM-GPT-Heavy is our most powerful compound engine, built for complex reasoning tasks with long-context and tool use, backed by the power of OpenAI GPT-5.2. Use this when you need maximum capability for the most challenging problems.
+
+All engines can be used with either the sync or async APIs. In async mode, we enqueue work for a background worker to process and expose a simple polling + webhook story for long‑running jobs.
