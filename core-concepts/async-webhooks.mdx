@@ -21,7 +21,7 @@ curl -X POST https://api.subconscious.dev/v1/runs \
   -H "Authorization: Bearer $SUBCONSCIOUS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "engine": "tim-large",
+    "engine": "tim-gpt",
     "input": {
       "instructions": "Generate a detailed report"
     },
@@ -110,8 +110,8 @@ When a run finishes, we POST this JSON to your URL:
   "runId": "1a45adf1-ad50-4452-a2c7-150b5bcd215c",
   "orgId": "6d3c89bf-2665-45f8-87aa-c925979151c9",
   "status": "succeeded",
-  "model": "tim-large",
-  "engine": "tim-large",
+  "model": "tim-gpt",
+  "engine": "tim-gpt",
   "result": {
     "choices": [
       {

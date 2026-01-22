@@ -20,7 +20,7 @@ const client = new Subconscious({
 });
 
 const stream = client.stream({
-  engine: "tim-large",
+  engine: "tim-gpt",
   input: {
     instructions: "Write a short essay about space exploration",
     tools: [{ type: "platform", id: "web_search" }],
@@ -42,7 +42,7 @@ from subconscious import Subconscious
 client = Subconscious(api_key="your-api-key")
 
 for event in client.stream(
-    engine="tim-large",
+    engine="tim-gpt",
     input={
         "instructions": "Write a short essay about space exploration",
         "tools": [{"type": "platform", "id": "web_search"}],
@@ -60,7 +60,7 @@ curl https://api.subconscious.dev/v1/runs/stream \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -N \
   -d '{
-    "engine": "tim-large",
+    "engine": "tim-gpt",
     "input": {
       "instructions": "Write a short essay about space exploration",
       "tools": [{"type": "platform", "id": "web_search"}]

@@ -19,7 +19,7 @@ import os
 client = Subconscious(api_key=os.environ.get("SUBCONSCIOUS_API_KEY"))
 
 run = client.run(
-    engine="tim-large",
+    engine="tim-gpt",
     input={
         "instructions": "Find the latest news about SpaceX",
         "tools": [
@@ -38,7 +38,7 @@ const client = new Subconscious({
 });
 
 const run = await client.run({
-  engine: "tim-large",
+  engine: "tim-gpt",
   input: {
     instructions: "Find the latest news about SpaceX",
     tools: [{ type: "platform", id: "web_search" }],

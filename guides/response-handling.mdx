@@ -36,7 +36,7 @@ from subconscious import Subconscious
 client = Subconscious(api_key="your-api-key")
 
 run = client.run(
-    engine="tim-large",
+    engine="tim-gpt",
     input={
         "instructions": "Analyze sentiment",
         "answerFormat": {...}  # Your schema
@@ -57,7 +57,7 @@ const client = new Subconscious({
 });
 
 const run = await client.run({
-  engine: "tim-large",
+  engine: "tim-gpt",
   input: {
     instructions: "Analyze sentiment",
     answerFormat: {...}  // Your schema
@@ -197,7 +197,7 @@ Use the usage information to track costs:
 
 ```python
 usage = run.usage
-input_cost = usage.input_tokens / 1_000_000 * 2.00  # tim-large pricing
+input_cost = usage.input_tokens / 1_000_000 * 2.00  # tim-gpt pricing
 output_cost = usage.output_tokens / 1_000_000 * 8.00
 total_cost = input_cost + output_cost
 print(f"Run cost: ${total_cost:.4f}")

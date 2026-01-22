@@ -8,7 +8,7 @@ client = Subconscious(api_key="YOUR_API_KEY")
 
 # Make request with multiple tools
 run = client.run(
-    engine="tim-large",
+    engine="tim-gpt",
     input={
         "instructions": "Research the current Bitcoin price, calculate the percentage change from last week, and email me a summary report.",
         "tools": [
@@ -80,7 +80,7 @@ const client = new Subconscious({
 
 // Make request with multiple tools
 const run = await client.run({
-  engine: "tim-large",
+  engine: "tim-gpt",
   input: {
     instructions:
       "Research the current Bitcoin price, calculate the percentage change from last week, and email me a summary report.",

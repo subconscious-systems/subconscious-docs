@@ -609,7 +609,7 @@
         "properties": {
           "engine": {
             "type": "string",
-            "enum": ["tim-small-preview", "tim-large", "tim-test"],
+            "enum": ["tim-edge", "tim-gpt", "tim-gpt-heavy"],
             "description": "The engine to use for this run"
           },
           "input": {
@@ -1138,7 +1138,7 @@
           },
           "engine": {
             "type": "string",
-            "enum": ["tim-small-preview", "tim-large", "tim-test"],
+            "enum": ["tim-edge", "tim-gpt", "tim-gpt-heavy"],
             "description": "Engine used for this run"
           },
           "createdAt": {

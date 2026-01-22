@@ -8,7 +8,7 @@ client = Subconscious(api_key="YOUR_API_KEY")
 
 # Make a simple request without tools
 run = client.run(
-    engine="tim-large",
+    engine="tim-gpt",
     input={
         "instructions": "What's the derivative of 3x^2 * sin(x)?"
     },
@@ -29,7 +29,7 @@ const client = new Subconscious({
 
 // Make a simple request without tools
 const run = await client.run({
-  engine: "tim-large",
+  engine: "tim-gpt",
   input: {
     instructions: "What's the derivative of 3x^2 * sin(x)?",
   },
@@ -45,7 +45,7 @@ curl -X POST https://api.subconscious.dev/v1/runs \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d "{
-    \"engine\": \"tim-large\",
+    \"engine\": \"tim-gpt\",
     \"input\": {
       \"instructions\": \"What's the derivative of 3x^2 * sin(x)?\"
     }

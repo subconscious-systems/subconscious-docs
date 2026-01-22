@@ -51,7 +51,7 @@ from subconscious import Subconscious
 client = Subconscious(api_key="your-api-key")
 
 run = client.run(
-    engine="tim-large",
+    engine="tim-gpt",
     input={
         "instructions": "Summarize the latest AI news",
         "tools": [{"type": "platform", "id": "web_search"}],
@@ -70,7 +70,7 @@ const client = new Subconscious({
 });
 
 const run = await client.run({
-  engine: "tim-large",
+  engine: "tim-gpt",
   input: {
     instructions: "Summarize the latest AI news",
     tools: [{ type: "platform", id: "web_search" }],
@@ -102,7 +102,7 @@ client = Subconscious(api_key="your-api-key")
 
 # Start without waiting
 run = client.run(
-    engine="tim-large",
+    engine="tim-gpt",
     input={"instructions": "Generate a report"},
 )
 
@@ -122,7 +122,7 @@ const client = new Subconscious({
 
 // Start without waiting
 const run = await client.run({
-  engine: "tim-large",
+  engine: "tim-gpt",
   input: { instructions: "Generate a report" },
 });
 
@@ -148,7 +148,7 @@ client = Subconscious(api_key="your-api-key")
 
 # Start a run
 run = client.run(
-    engine="tim-large",
+    engine="tim-gpt",
     input={"instructions": "Generate a detailed report"},
 )
 
@@ -173,7 +173,7 @@ const client = new Subconscious({
 
 // Start a run
 const run = await client.run({
-  engine: "tim-large",
+  engine: "tim-gpt",
   input: { instructions: "Generate a detailed report" },
 });
 

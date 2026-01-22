@@ -8,7 +8,7 @@ client = Subconscious(api_key="YOUR_API_KEY")
 
 # Make a simple request without tools
 run = client.run(
-    engine="tim-large",
+    engine="tim-gpt",
     input={
         "instructions": "Find the derivative of f(x) = x^3 * sin(x)"
     },
@@ -29,7 +29,7 @@ const client = new Subconscious({
 
 // Make a simple request without tools
 const run = await client.run({
-  engine: "tim-large",
+  engine: "tim-gpt",
   input: {
     instructions:
       "Analyze the current market trends for electric vehicles and provide a summary.",
