@@ -141,6 +141,57 @@ run = client.run(
 print(run.result.answer["sentiment"])
 ```
 
+## Using Zod Schemas (TypeScript)
+
+The TypeScript SDK provides a `zodToJsonSchema` helper to convert Zod schemas:
+
+```typescript
+import { Subconscious, zodToJsonSchema } from "subconscious";
+import { z } from "zod";
+
+const SentimentAnalysis = z.object({
+  sentiment: z.string().describe("The overall sentiment"),
+  confidence: z.number().describe("Confidence score from 0 to 1"),
+  keywords: z.array(z.string()).describe("Key phrases that influenced the sentiment"),
+});
+
+type SentimentAnalysis = z.infer<typeof SentimentAnalysis>;
+
+const client = new Subconscious({
+  apiKey: process.env.SUBCONSCIOUS_API_KEY!,
+});
+
+const run = await client.run({
+  engine: "tim-gpt",
+  input: {
+    instructions: "Analyze the sentiment of: 'Great product!'",
+    answerFormat: zodToJsonSchema(SentimentAnalysis, "SentimentAnalysis"),
+  },
+  options: { awaitCompletion: true },
+});
+
+const result = run.result?.answer as unknown as SentimentAnalysis;
+console.log(result.sentiment);
+```
+
+### Supported Zod Types
+
+The `zodToJsonSchema` function supports the following Zod types:
+
+| Zod Type | Converts To |
+| -------- | ----------- |
+| `z.string()` | `{ type: "string" }` |
+| `z.number()` | `{ type: "number" }` |
+| `z.boolean()` | `{ type: "boolean" }` |
+| `z.array(z.T())` | `{ type: "array", items: {...} }` |
+| `z.object({...})` | `{ type: "object", properties: {...} }` |
+| `z.enum([...])` | `{ type: "string", enum: [...] }` |
+| `z.optional(z.T())` | Omits from `required` array |
+
+<Tip>
+  Use `.describe()` on Zod fields to add descriptions that help the agent understand what each field should contain.
+</Tip>
+
 ## Schema Requirements
 
 Your JSON Schema must include:
