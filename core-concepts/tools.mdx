@@ -84,6 +84,8 @@ type FunctionTool = {
     properties: Record<string, any>;
     required?: string[];
   };
+  headers?: Record<string, string>;  // HTTP headers for this tool
+  defaults?: Record<string, any>;    // Hidden params injected at call time
 };
 ```
 
@@ -171,6 +173,63 @@ tools: [
   like [ngrok](https://ngrok.com) or [Cloudflare
   Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/).
 </Note>
+
+### Tool Headers
+
+Add custom HTTP headers that are sent when calling your tool's endpoint. Useful for authentication:
+
+```javascript
+{
+  type: "function",
+  name: "my_api",
+  description: "Call my authenticated API",
+  url: "https://api.example.com/endpoint",
+  method: "POST",
+  parameters: {
+    type: "object",
+    properties: {
+      query: { type: "string" }
+    },
+    required: ["query"]
+  },
+  // Headers sent only when THIS tool is called
+  headers: {
+    "x-api-key": "your-secret-key",
+    "x-custom-header": "custom-value"
+  }
+}
+```
+
+Each tool can have its own headers—they're only sent when that specific tool's endpoint is called.
+
+### Default Arguments
+
+Inject parameter values that are **hidden from the model** and automatically merged at call time. Perfect for session IDs, public API keys, or other values you don't want the model to see or generate:
+
+```javascript
+{
+  type: "function",
+  name: "search_database",
+  description: "Search the database",
+  url: "https://api.example.com/search",
+  method: "POST",
+  parameters: {
+    type: "object",
+    properties: {
+      query: { type: "string", description: "Search query" },
+      // Define these for validation, but they'll be hidden from the model
+      sessionId: { type: "string" },
+      apiKey: { type: "string" }
+    },
+    required: ["query"]  // Only query is required from the model
+  },
+  // Hidden from model, injected at call time
+  defaults: {
+    sessionId: "user-session-abc123",
+    apiKey: "secret-api-key"
+  }
+}
+```
 
 ---
 
