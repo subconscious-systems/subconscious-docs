@@ -4,8 +4,8 @@ sidebarTitle: "Overview"
 icon: "house"
 ---
 
-<div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
-  <div style={{ flex: "1" }}>
+<div style={{ display: "flex", gap: "1.5rem", alignItems: "flex-start" }}>
+  <div style={{ flex: "0 0 35%" }}>
     <h2 style={{ marginTop: 0 }}>Developer quickstart</h2>
     <p>Make your first API request in minutes. Learn the basics of the Subconscious platform.</p>
     <Card title="Get started" icon="rocket" href="/quickstart">
@@ -20,14 +20,13 @@ from subconscious import Subconscious
 client = Subconscious(api_key="your-api-key")
 
 run = client.run(
-engine="tim-gpt",
-input={"instructions": "Summarize the latest AI news"},
-options={"await_completion": True},
+    engine="tim-gpt",
+    input={"instructions": "Summarize the latest AI news"},
+    options={"await_completion": True},
 )
 
 print(run.result.answer)
-
-````
+```
 
 ```typescript Node.js
 import { Subconscious } from "subconscious";
@@ -43,10 +42,9 @@ const run = await client.run({
 });
 
 console.log(run.result?.answer);
-````
+```
 
     </CodeGroup>
-
   </div>
 </div>
 ## Engines
