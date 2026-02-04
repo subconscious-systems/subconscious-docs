@@ -4,16 +4,23 @@ sidebarTitle: "Overview"
 icon: "house"
 ---
 
-<div style={{ display: "flex", gap: "1.5rem", alignItems: "flex-start" }}>
-  <div style={{ flex: "0 0 35%" }}>
-    <h2 style={{ marginTop: 0 }}>Developer quickstart</h2>
-    <p>Make your first API request in minutes. Learn the basics of the Subconscious platform.</p>
-    <Card title="Get started" icon="rocket" href="/quickstart">
-      Build your first agent in under 5 minutes
-    </Card>
-  </div>
-  <div style={{ flex: "1" }}>
-    <CodeGroup>
+Subconscious is a developer-first platform for building production-ready AI agents. We provide a complete agent system that handles context management, tool orchestration, and long-horizon reasoning, so you can focus on defining what your agent should do. Our platform works with any service or tool, including MCPs, giving you everything you need to deploy sophisticated agents at scale.
+
+## Developer quickstart
+
+<CardGroup cols={2}>
+  <Card title="Get started" icon="rocket" href="/quickstart">
+    Build your first agent in under 5 minutes
+  </Card>
+  <Card title="Browse templates" icon="layer-group" href="/guides/templates">
+    Start from pre-built examples
+  </Card>
+</CardGroup>
+
+### Try it now
+
+<CodeGroup>
+
 ```python Python
 from subconscious import Subconscious
 
@@ -44,9 +51,7 @@ const run = await client.run({
 console.log(run.result?.answer);
 ```
 
-    </CodeGroup>
-  </div>
-</div>
+</CodeGroup>
 ## Engines
 
 Our agent engines combine a language model with a custom inference runtime. We offer **Unified Engines** (co-designed model and runtime) and **Compound Engines** (frontier models with smart context management).
