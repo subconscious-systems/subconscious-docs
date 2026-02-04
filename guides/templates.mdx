@@ -1,0 +1,104 @@
+---
+title: "Templates & Examples"
+description: "Pre-built examples to jumpstart your Subconscious agent projects"
+icon: "layer-group"
+---
+
+Use `npx create-subconscious-app` to quickly scaffold a new project from one of our templates. Each template includes working code, documentation, and best practices.
+
+## Quick Start
+
+```bash
+npx create-subconscious-app
+```
+
+The CLI will:
+1. Show you available templates
+2. Let you choose one interactively
+3. Download and set up the project
+4. Provide next steps
+
+You can also specify a template directly:
+
+```bash
+npx create-subconscious-app my-agent --example e2b_cli
+```
+
+Or list all available templates:
+
+```bash
+npx create-subconscious-app --list
+```
+
+## Available Templates
+
+<CardGroup cols={2}>
+
+<Card title="E2B CLI Agent" icon="terminal" href="https://github.com/subconscious-systems/subconscious/tree/main/examples/e2b_cli">
+  <p><strong>TypeScript</strong> • Autonomous agent with secure code execution</p>
+  <p>Build a developer-first CLI agent that reasons and executes code in isolated E2B cloud sandboxes. Perfect for data analysis, code generation, and automation tasks.</p>
+  <p><strong>Features:</strong> Long-horizon reasoning, secure sandbox execution, file I/O, multi-language support, data science ready</p>
+</Card>
+
+<Card title="Search Agent CLI" icon="magnifying-glass" href="https://github.com/subconscious-systems/subconscious/tree/main/examples/search_agent_cli">
+  <p><strong>Python</strong> • Web research and information gathering</p>
+  <p>Command-line interface for deep web research with multi-source information gathering. Demonstrates tool-calling and streaming capabilities.</p>
+  <p><strong>Features:</strong> Multi-source research, live thinking feedback, real-time streaming, multiple search providers, automatic citations</p>
+</Card>
+
+<Card title="Structured Output (TypeScript)" icon="braces" href="https://github.com/subconscious-systems/subconscious/tree/main/examples/structured_output_typescript">
+  <p><strong>TypeScript</strong> • Type-safe agent responses</p>
+  <p>Get type-safe structured responses from Subconscious agents using Zod schemas. Perfect for building APIs and applications that need predictable data structures.</p>
+  <p><strong>Features:</strong> Zod validation, TypeScript inference, automatic parsing, sentiment analysis example</p>
+</Card>
+
+<Card title="Structured Output (Python)" icon="braces" href="https://github.com/subconscious-systems/subconscious/tree/main/examples/structured_output_python">
+  <p><strong>Python</strong> • Type-safe agent responses</p>
+  <p>Get type-safe structured responses from Subconscious agents using Pydantic models. Ideal for Python applications requiring validated data structures.</p>
+  <p><strong>Features:</strong> Pydantic validation, automatic type conversion, sentiment analysis example, FastAPI/Django ready</p>
+</Card>
+
+<Card title="Convex Real-time App" icon="bolt" href="https://github.com/subconscious-systems/subconscious/tree/main/examples/convex_app">
+  <p><strong>TypeScript (React + Convex)</strong> • Full-stack real-time applications</p>
+  <p>Build a real-time AI todo assistant with instant UI updates. Demonstrates how to integrate Subconscious with Convex for real-time data synchronization.</p>
+  <p><strong>Features:</strong> Real-time WebSocket updates, React frontend, Convex backend, tool calling, database integration</p>
+</Card>
+
+</CardGroup>
+
+## Customizing Templates
+
+All templates are fully customizable. After creating a project:
+
+1. **Modify the code** - Each template includes well-documented source code
+2. **Add tools** - Extend functionality by adding custom tools
+3. **Change the engine** - Switch between different Subconscious engines
+4. **Customize the UI** - For frontend templates, modify React components
+
+## Contributing Templates
+
+Have a great example? We'd love to include it! Templates should:
+
+- Be production-ready or close to it
+- Include clear documentation
+- Follow best practices
+- Be easy to understand and modify
+
+[Submit a template →](https://github.com/subconscious-systems/subconscious)
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Get started in 5 minutes
+  </Card>
+  <Card title="Core Concepts" icon="book" href="/core-concepts/runs">
+    Learn the fundamentals
+  </Card>
+  <Card title="Tools" icon="wrench" href="/core-concepts/tools">
+    Add custom tools to your agents
+  </Card>
+  <Card title="Structured Output" icon="braces" href="/core-concepts/structured-output">
+    Get type-safe responses
+  </Card>
+</CardGroup>

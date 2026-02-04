@@ -6,19 +6,43 @@ icon: "rocket"
 
 ## 1. Create an Account
 
-[Sign up for the platform](https://subconscious.dev/platform) and create your account. Then generate an API key from your dashboard.
+[Sign up for the platform](https://subconscious.dev/platform) and create your account.
+Then generate an API key from your dashboard.
 
 
 
 ## 2. Try the Playground
 
-Before writing code, try the [Playground](https://www.subconscious.dev/playground) to test prompts and see agents in action.
+Before writing code, try the [Playground](https://www.subconscious.dev/playground) to test prompts
+and see agents in action.
 
 <Frame caption="The Subconscious Playground">
   <img src="/images/playground.png" alt="Subconscious Playground" />
 </Frame>
 
-## 3. Install the SDK
+## 3. Choose Your Path
+
+### Option A: Start with a Template (Recommended)
+
+The fastest way to get started is using our template generator:
+
+```bash
+npx create-subconscious-app
+```
+
+This interactive CLI lets you choose from pre-built examples:
+
+- **E2B CLI Agent** - Autonomous agent with secure code execution
+- **Search Agent CLI** - Web research agent with streaming
+- **Structured Output (TypeScript)** - Type-safe responses with Zod
+- **Structured Output (Python)** - Type-safe responses with Pydantic
+- **Convex Real-time App** - Full-stack app with real-time updates
+
+See [Templates](/guides/templates) for details on each example.
+
+### Option B: Install the SDK
+
+**Step 1: Install the SDK**
 
 <CodeGroup>
 
@@ -32,7 +56,7 @@ pip install subconscious-sdk
 
 </CodeGroup>
 
-## 4. Run Your First Agent
+**Step 2: Run Your First Agent**
 
 <CodeGroup>
 
@@ -93,6 +117,9 @@ That's it! You've just run your first agent.
 ## Next Steps
 
 <CardGroup cols={2}>
+  <Card title="Templates" icon="layer-group" href="/guides/templates">
+    Explore pre-built examples and templates
+  </Card>
   <Card title="Core Concepts" icon="book" href="/core-concepts/runs">
     Learn about Runs, Tools, Streaming, and more
   </Card>
