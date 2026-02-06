@@ -101,13 +101,11 @@
         "href": "https://calendly.com/jack-subconscious/15min"
       },
       {
-        "type": "button",
         "label": " SDK",
         "icon": "python",
         "href": "https://github.com/subconscious-systems/subconscious-python"
       },
       {
-        "type": "button",
         "label": " SDK",
         "icon": "js",
         "href": "https://github.com/subconscious-systems/subconscious-node"
