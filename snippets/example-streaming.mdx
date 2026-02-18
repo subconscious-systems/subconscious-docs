@@ -10,7 +10,7 @@ for event in client.stream(
     engine="tim-gpt",
     input={
         "instructions": "Write a short essay about space exploration",
-        "tools": [{"type": "platform", "id": "parallel_search"}],
+        "tools": [{"type": "platform", "id": "fast_search"}],
     },
 ):
     if event.type == "delta":
@@ -33,7 +33,7 @@ const stream = client.stream({
   engine: "tim-gpt",
   input: {
     instructions: "Write a short essay about space exploration",
-    tools: [{ type: "platform", id: "parallel_search", options: {} }],
+    tools: [{ type: "platform", id: "fast_search", options: {} }],
   },
 });
 
