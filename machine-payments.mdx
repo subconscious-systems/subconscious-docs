@@ -12,10 +12,10 @@ Built on the open [x402](https://x402.org) protocol, machine payment endpoints r
 
 <CardGroup cols={2}>
   <Card title="Search run" icon="magnifying-glass">
-    **$0.10** per run. Run a deep search on the web with a preselected model and tools.
+    **$0.10** per run. Run a deep search with a preselected engine and search tools.
   </Card>
   <Card title="Full agent run" icon="microchip">
-    **$0.50** per run. Full control over engine, instructions, and tools.
+    **$0.50** per run. Full control over the engine, instructions, and tools to kick off an agent.
   </Card>
 </CardGroup>
 
@@ -90,11 +90,10 @@ POST /v1/machines/runs
 |-------|----------|-------|
 | `engine` | Yes | `tim`, `tim-edge`, `timini`, `tim-gpt`, or `tim-gpt-heavy` |
 | `input.instructions` | Yes | Task for the agent |
-| `input.tools` | No | Omit for pure reasoning (no web access) |
+| `input.tools` | No | Omit for pure reasoning |
 | `input.answerFormat` | No | JSON schema to shape the response |
 | `input.reasoningFormat` | No | JSON schema for reasoning output |
 | `output.callbackUrl` | No | Webhook URL called on completion |
-| `options.timeout` | No | Seconds, max 3600 |
 
 ---
 
