@@ -2,6 +2,13 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Subconscious Platform Docs",
+  "contextual": {
+    "options": [
+      "copy",
+      "claude",
+      "chatgpt"
+    ]
+  },
   "font": {
     "family": "Manrope",
     "url": "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
