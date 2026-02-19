@@ -27,8 +27,17 @@
               "overview",
               "quickstart",
               "engines",
-              "pricing",
-              "libraries"
+              "libraries",
+              "pricing"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/templates",
+              "guides/response-handling",
+              "guides/error-handling",
+              "machine-payments"
             ]
           },
           {
@@ -42,15 +51,6 @@
             ]
           },
           {
-            "group": "Guides",
-            "pages": [
-              "guides/templates",
-              "guides/response-handling",
-              "guides/error-handling",
-              "machine-payments"
-            ]
-          },
-          {
             "group": "Enterprise",
             "pages": [
               "enterprise/dedicated",
@@ -61,7 +61,6 @@
           {
             "group": "Resources",
             "pages": [
-              "resources/logs",
               "resources/learn-more"
             ]
           }
