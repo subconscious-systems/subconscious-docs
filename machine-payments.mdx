@@ -1,21 +1,21 @@
 ---
 title: 'Machine Payments'
-description: 'Run AI agents instantly with crypto — no account, no API key'
+description: 'Run AI agents instantly with crypto. No account, no API key.'
 icon: 'cent-sign'
 ---
 
 ## Pay-per-run with crypto
 
-Machine Payments let any program call Subconscious agents and pay per run with **USDC on Base**. No account, no API key — just an HTTP request and an on-chain payment.
+Machine Payments let any program call Subconscious agents and pay per run with **USDC on Base**. No account, no API key. Just an HTTP request and an on-chain payment.
 
 Built on the open [x402](https://x402.org) protocol, machine payment endpoints return a standard **402 Payment Required** response when called without payment. Any x402-compatible client handles the payment flow automatically.
 
 <CardGroup cols={2}>
   <Card title="Search run" icon="magnifying-glass">
-    **$0.10** — Web search agent with managed engine and tools
+    **$0.10** per run. Run a deep search on the web with a preselected model and tools.
   </Card>
   <Card title="Full agent run" icon="microchip">
-    **$0.50** — Full control over engine, instructions, and tools
+    **$0.50** per run. Full control over engine, instructions, and tools.
   </Card>
 </CardGroup>
 
@@ -47,12 +47,12 @@ Built on the open [x402](https://x402.org) protocol, machine payment endpoints r
 
 ## Endpoints
 
-### Search run — $0.10
+### Search run ($0.10)
 
-Runs a web search agent against your query. The engine and tools are managed for you — just provide a description.
+Runs a web search agent against your query. The engine and tools are managed for you. Just provide a description.
 
-<ParamField body="description" type="string" required>
-  The search query or task description for the agent.
+<ParamField body="instructions" type="string" required>
+  The search query or task instructions for the agent.
 </ParamField>
 
 ```bash
@@ -61,13 +61,13 @@ POST /v1/machines/searches
 
 ```json Request body
 {
-  "description": "Latest news on frontier AI models"
+  "instructions": "Latest news on frontier AI models"
 }
 ```
 
 ---
 
-### Full agent run — $0.50
+### Full agent run ($0.50)
 
 Full control over engine, instructions, and tools. Mirrors the shape of `POST /v1/runs` without org-specific fields.
 
@@ -118,7 +118,7 @@ GET /v1/machines/searches/:runId
 GET /v1/machines/runs/:runId
 ```
 
-Free — no payment required. Poll until `status` is `succeeded` or `failed`.
+Free, no payment required. Poll until `status` is `succeeded` or `failed`.
 
 ```json
 {
@@ -142,22 +142,22 @@ Free — no payment required. Poll until `status` is `succeeded` or `failed`.
 |--------|---------|
 | `queued` | Run is waiting to be processed |
 | `processing` | Agent is actively working |
-| `succeeded` | Run completed — `result` is available |
-| `failed` | Run errored — check `error` field |
+| `succeeded` | Run completed. `result` is available. |
+| `failed` | Run errored. Check the `error` field. |
 
 ---
 
 ## Example with curl
 
 ```bash
-# 1. Hit the endpoint — get a 402 with payment details
+# 1. Hit the endpoint (returns 402 with payment details)
 curl -X POST https://api.subconscious.dev/v1/machines/searches \
   -H "Content-Type: application/json" \
-  -d '{"description": "Latest AI news"}'
+  -d '{"instructions": "Latest AI news"}'
 
-# 2. Pay with purl (x402 CLI) — handles payment automatically and returns runId
+# 2. Pay with purl (x402 CLI), which handles payment and returns runId
 purl -X POST https://api.subconscious.dev/v1/machines/searches \
-  -d '{"description": "Latest AI news"}'
+  -d '{"instructions": "Latest AI news"}'
 
 # 3. Poll for result (free, no payment needed)
 curl https://api.subconscious.dev/v1/machines/searches/<runId>
@@ -167,7 +167,7 @@ curl https://api.subconscious.dev/v1/machines/searches/<runId>
 
 ## x402 Protocol
 
-Machine Payments use the [x402 protocol](https://x402.org) — an open standard for HTTP-native payments. When a request arrives without a valid `X-Payment` header, the server returns:
+Machine Payments use the [x402 protocol](https://x402.org), an open standard for HTTP-native payments. When a request arrives without a valid `X-Payment` header, the server returns:
 
 ```
 HTTP/1.1 402 Payment Required
