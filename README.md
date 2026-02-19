@@ -6,13 +6,13 @@ Welcome to the Subconscious docs. We welcome your feedback and PRs to improve th
 
 Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview the documentation changes locally. To install, use the following command
 
-```
+```sh
 npm i -g mint
 ```
 
 Run the following command at the root of your documentation (where docs.json is)
 
-```
+```sh
 mint dev
 ```
 

@@ -1,0 +1,178 @@
+---
+title: 'Machine Payments'
+description: 'Run AI agents instantly with crypto — no account, no API key'
+icon: 'cent-sign'
+---
+
+## Pay-per-run with crypto
+
+Machine Payments let any program call Subconscious agents and pay per run with **USDC on Base**. No account, no API key — just an HTTP request and an on-chain payment.
+
+Built on the open [x402](https://x402.org) protocol, machine payment endpoints return a standard **402 Payment Required** response when called without payment. Any x402-compatible client handles the payment flow automatically.
+
+<CardGroup cols={2}>
+  <Card title="Search run" icon="magnifying-glass">
+    **$0.10** — Web search agent with managed engine and tools
+  </Card>
+  <Card title="Full agent run" icon="microchip">
+    **$0.50** — Full control over engine, instructions, and tools
+  </Card>
+</CardGroup>
+
+## How it works
+
+<Steps>
+  <Step title="Make a request">
+    POST to a machine endpoint without any auth headers.
+  </Step>
+  <Step title="Receive a 402">
+    The server responds with `402 Payment Required` and payment details (amount, network, deposit address).
+  </Step>
+  <Step title="Pay on-chain">
+    Send the required USDC amount on Base to the provided address.
+  </Step>
+  <Step title="Retry with payment proof">
+    Re-send the same request with the `X-Payment` header containing the payment proof. The server verifies payment and returns a `runId`.
+  </Step>
+  <Step title="Poll for results">
+    Use the `runId` to poll the GET endpoint until the run succeeds or fails. Polling is free.
+  </Step>
+</Steps>
+
+<Tip>
+  Use any [x402-compatible client](https://x402.org) (like `purl`) to handle steps 2–4 automatically.
+</Tip>
+
+---
+
+## Endpoints
+
+### Search run — $0.10
+
+Runs a web search agent against your query. The engine and tools are managed for you — just provide a description.
+
+<ParamField body="description" type="string" required>
+  The search query or task description for the agent.
+</ParamField>
+
+```bash
+POST /v1/machines/searches
+```
+
+```json Request body
+{
+  "description": "Latest news on frontier AI models"
+}
+```
+
+---
+
+### Full agent run — $0.50
+
+Full control over engine, instructions, and tools. Mirrors the shape of `POST /v1/runs` without org-specific fields.
+
+```bash
+POST /v1/machines/runs
+```
+
+```json Request body
+{
+  "engine": "tim-gpt",
+  "input": {
+    "instructions": "Summarize the top 5 AI papers from Feb 2026",
+    "tools": ["web_search"],
+    "answerFormat": { "type": "object" }
+  }
+}
+```
+
+| Field | Required | Notes |
+|-------|----------|-------|
+| `engine` | Yes | `tim`, `tim-edge`, `timini`, `tim-gpt`, or `tim-gpt-heavy` |
+| `input.instructions` | Yes | Task for the agent |
+| `input.tools` | No | Omit for pure reasoning (no web access) |
+| `input.answerFormat` | No | JSON schema to shape the response |
+| `input.reasoningFormat` | No | JSON schema for reasoning output |
+| `output.callbackUrl` | No | Webhook URL called on completion |
+| `options.timeout` | No | Seconds, max 3600 |
+
+---
+
+## Response
+
+Both endpoints return **202 Accepted** immediately with a `runId`:
+
+```json
+{
+  "runId": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "queued"
+}
+```
+
+---
+
+## Polling for results
+
+```bash
+GET /v1/machines/searches/:runId
+GET /v1/machines/runs/:runId
+```
+
+Free — no payment required. Poll until `status` is `succeeded` or `failed`.
+
+```json
+{
+  "runId": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "succeeded",
+  "result": {
+    "answer": "...",
+    "reasoning": "..."
+  },
+  "usage": {
+    "inputTokens": 120,
+    "outputTokens": 340,
+    "durationMs": 4200
+  }
+}
+```
+
+### Status values
+
+| Status | Meaning |
+|--------|---------|
+| `queued` | Run is waiting to be processed |
+| `processing` | Agent is actively working |
+| `succeeded` | Run completed — `result` is available |
+| `failed` | Run errored — check `error` field |
+
+---
+
+## Example with curl
+
+```bash
+# 1. Hit the endpoint — get a 402 with payment details
+curl -X POST https://api.subconscious.dev/v1/machines/searches \
+  -H "Content-Type: application/json" \
+  -d '{"description": "Latest AI news"}'
+
+# 2. Pay with purl (x402 CLI) — handles payment automatically and returns runId
+purl -X POST https://api.subconscious.dev/v1/machines/searches \
+  -d '{"description": "Latest AI news"}'
+
+# 3. Poll for result (free, no payment needed)
+curl https://api.subconscious.dev/v1/machines/searches/<runId>
+```
+
+---
+
+## x402 Protocol
+
+Machine Payments use the [x402 protocol](https://x402.org) — an open standard for HTTP-native payments. When a request arrives without a valid `X-Payment` header, the server returns:
+
+```
+HTTP/1.1 402 Payment Required
+```
+
+The response body contains everything a client needs to complete the payment: amount, network (Base), token (USDC), and deposit address. After paying on-chain, the client retries the original request with the payment proof in the `X-Payment` header.
+
+Any x402-compatible HTTP client (like `purl`) handles this automatically — your code just makes a normal HTTP request.

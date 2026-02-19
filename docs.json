@@ -46,7 +46,8 @@
             "pages": [
               "guides/templates",
               "guides/response-handling",
-              "guides/error-handling"
+              "guides/error-handling",
+              "machine-payments"
             ]
           },
           {
