@@ -97,18 +97,14 @@
   "navbar": {
     "links": [
       {
-        "label": "Talk to an Engineer",
-        "href": "https://calendly.com/jack-subconscious/15min"
-      },
-      {
-        "label": " SDK",
+        "label": "Python SDK",
         "icon": "python",
-        "href": "https://github.com/subconscious-systems/subconscious-python"
+        "href": "https://pypi.org/project/subconscious-sdk/"
       },
       {
-        "label": " SDK",
+        "label": "Node SDK",
         "icon": "js",
-        "href": "https://github.com/subconscious-systems/subconscious-node"
+        "href": "https://www.npmjs.com/package/subconscious"
       }
     ],
     "primary": {
