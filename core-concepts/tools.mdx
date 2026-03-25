@@ -239,13 +239,13 @@ Inject parameter values that are **hidden from the model** and automatically mer
 
 ## MCP Tools
 
-Connect to [Model Context Protocol](https://modelcontextprotocol.io/) servers to use their tools.
+Connect to any [Model Context Protocol](https://modelcontextprotocol.io/) server and use its tools in your runs. Subconscious discovers tools from the server, filters by your `allowedTools` list, and proxies calls automatically.
 
 ```typescript
 type McpTool = {
   type: "mcp";
   server: string; // MCP server URL
-  name?: string; // Specific tool (omit to use all tools from server)
+  allowedTools?: string[]; // Tool names to enable (case-insensitive)
   auth?: {
     type: "bearer" | "api_key";
     token?: string;
@@ -254,19 +254,42 @@ type McpTool = {
 };
 ```
 
-**Example:**
+### `allowedTools` filtering
+
+| Value | Behavior |
+| --- | --- |
+| Omitted / `undefined` | All tools from the server are enabled |
+| `["*"]` | All tools enabled (explicit wildcard) |
+| `["search", "get_page"]` | Only these tools (case-insensitive match) |
+| `[]` | No tools pass through (blocks all) |
+
+### Examples
 
 ```javascript
 tools: [
   // Use all tools from an MCP server
-  { type: "mcp", server: "https://mcp.example.com" },
+  { type: "mcp", server: "https://mcp.notion.so/v1" },
 
-  // Use a specific tool with auth
+  // Filter to specific tools
+  {
+    type: "mcp",
+    server: "https://mcp.notion.so/v1",
+    allowedTools: ["search", "get_page"],
+  },
+
+  // With bearer token auth
+  {
+    type: "mcp",
+    server: "https://mcp.google.com/v1",
+    auth: { type: "bearer", token: "your-oauth-token" },
+  },
+
+  // API key auth with custom header
   {
     type: "mcp",
     server: "https://mcp.example.com",
-    name: "query_database",
-    auth: { type: "bearer", token: "your-token" },
+    allowedTools: ["query_database"],
+    auth: { type: "api_key", token: "key123", header: "X-Api-Key" },
   },
 ];
 ```
