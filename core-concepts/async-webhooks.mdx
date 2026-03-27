@@ -5,16 +5,87 @@ description: "Get notified when runs complete"
 icon: "webhook"
 ---
 
-Webhooks push results to your server when a run finishes—no polling required. You provide a URL, we POST the result when it's ready.
+Webhooks let you receive results via POST when a run finishes, instead of polling. Two ways to set them up:
+
+| Method | Scope | Use case |
+|--------|-------|----------|
+| **Subscriptions** | All runs in your org | Pipelines, logging, CRM sync |
+| **Per-run `callbackUrl`** | Single run | One-off jobs, per-request routing |
+
+You can use both at the same time. If a run matches a subscription and also has a `callbackUrl`, both endpoints get a delivery.
 
 <Note>
-  For async basics (fire-and-forget, polling with `client.wait()`), see
-  [Runs](/core-concepts/runs).
+  For async basics (fire-and-forget, polling with `client.wait()`), see [Runs](/core-concepts/runs).
 </Note>
 
-## 1. Add a Callback URL
+---
 
-Pass `callbackUrl` in the `output` field when creating a run:
+## Webhook Subscriptions
+
+Subscribe to events across all runs in your org. You can manage subscriptions through the API or the [dashboard](https://www.subconscious.dev/platform/webhooks).
+
+### Create a Subscription
+
+```bash
+curl -X POST https://api.subconscious.dev/v1/webhooks/subscriptions \
+  -H "Authorization: Bearer $SUBCONSCIOUS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "callbackUrl": "https://your-server.com/webhooks/subconscious",
+    "eventTypes": ["job.succeeded", "job.failed"],
+    "secret": "your-signing-secret",
+    "description": "Production webhook"
+  }'
+```
+
+The response includes the plaintext `secret`. This is the only time you'll see it, so store it for HMAC verification.
+
+### Event Types
+
+| Event | Fires when |
+|-------|-----------|
+| `job.succeeded` | Run completed successfully |
+| `job.failed` | Run failed or timed out |
+
+### Enable / Disable
+
+Subscriptions have an `enabled` toggle. Disabling a subscription skips delivery but keeps the config and history around. Events that fire while disabled aren't retroactively sent when you re-enable.
+
+Toggle in the dashboard or through the API:
+
+```bash
+# List subscriptions (secrets are masked)
+GET /v1/webhooks/subscriptions
+
+# Delete a subscription
+DELETE /v1/webhooks/subscriptions/:id
+```
+
+### Signing & Verification
+
+If you set a `secret`, every delivery includes HMAC-SHA256 headers:
+
+| Header | Value |
+|--------|-------|
+| `X-Webhook-Signature` | HMAC-SHA256 hex digest of the payload |
+| `X-Webhook-Timestamp` | Unix timestamp of the delivery |
+| `X-Webhook-Delivery-Id` | Unique delivery identifier |
+
+Secrets are encrypted at rest with AES-256-GCM and only decrypted at signing time.
+
+```python
+import hashlib, hmac
+
+def verify_webhook(payload_bytes: bytes, secret: str, signature: str) -> bool:
+    expected = hmac.new(secret.encode(), payload_bytes, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, signature)
+```
+
+---
+
+## Per-Run Callbacks
+
+For one-off deliveries, pass `callbackUrl` on the run request:
 
 ```bash
 curl -X POST https://api.subconscious.dev/v1/runs \
@@ -22,26 +93,59 @@ curl -X POST https://api.subconscious.dev/v1/runs \
   -H "Content-Type: application/json" \
   -d '{
     "engine": "tim-gpt",
-    "input": {
-      "instructions": "Generate a detailed report"
-    },
-    "output": {
-      "callbackUrl": "https://your-server.com/webhooks/subconscious"
-    }
+    "input": { "instructions": "Generate a report" },
+    "output": { "callbackUrl": "https://your-server.com/webhooks/subconscious" }
   }'
 ```
 
-This returns immediately with a `runId`. When the run completes, we'll POST the result to your callback URL.
+Returns immediately with a `runId`. We POST the result to your URL when the run finishes.
 
-## 2. Build a Webhook Handler
+---
 
-Create an endpoint to receive the webhook POST:
+## Webhook Payload
+
+Subscriptions and per-run callbacks use the same payload format:
+
+```json
+{
+  "jobId": "acf121b1-2ec8-498a-8d65-68be0f5adec7",
+  "runId": "bcccd0a3-4153-4844-b806-b651ccab94cc",
+  "orgId": "b4dec88d-9392-486a-b8e4-f39fb3ba2472",
+  "status": "succeeded",
+  "engine": "tim-gpt",
+  "result": {
+    "fullResponse": "{\"reasoning\": [...], \"answer\": \"Hello! How can I help you today?\"}"
+  },
+  "error": null,
+  "tokens": {
+    "inputTokens": 1980,
+    "outputTokens": 406,
+    "costCents": 0
+  },
+  "createdAt": "2026-03-26T20:06:37.956Z",
+  "startedAt": null,
+  "completedAt": "2026-03-26T20:06:46.777Z",
+  "metadata": null
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `runId` | The run's unique ID |
+| `status` | `succeeded`, `failed`, `timed_out`, or `canceled` |
+| `result` | Contains `fullResponse`, a JSON string with `reasoning` steps and `answer` |
+| `error` | Error details when failed, otherwise `null` |
+| `tokens` | Token counts (`inputTokens`, `outputTokens`) and `costCents` |
+| `startedAt` | When processing started, `null` if it hasn't yet |
+| `metadata` | Passed through from `input.metadata` if you set it |
+
+## Webhook Handler
 
 <CodeGroup>
 
 ```python Python (FastAPI)
-from fastapi import FastAPI, Request
 import json
+from fastapi import FastAPI, Request
 
 app = FastAPI()
 
@@ -49,22 +153,13 @@ app = FastAPI()
 async def handle_webhook(request: Request):
     payload = await request.json()
 
-    run_id = payload.get("runId")
-    status = payload.get("status")
-
-    if status == "succeeded":
-        # Extract the answer from the result
-        content = payload["result"]["choices"][0]["message"]["content"]
-        parsed = json.loads(content)
-        answer = parsed.get("answer", "")
-        print(f"Run {run_id} completed: {answer[:100]}...")
-        # Save to database, trigger next step, etc.
-    elif status == "failed":
-        print(f"Run {run_id} failed: {payload.get('error')}")
+    if payload["status"] == "succeeded":
+        full = json.loads(payload["result"]["fullResponse"])
+        print(f"Run {payload['runId']}: {full['answer']}")
+    elif payload["status"] == "failed":
+        print(f"Run {payload['runId']} failed: {payload.get('error')}")
 
     return {"received": True}
-
-# Run with: uvicorn server:app --host 0.0.0.0 --port 8000
 ```
 
 ```typescript Node.js (Express)
@@ -77,94 +172,37 @@ app.post("/webhooks/subconscious", (req, res) => {
   const { runId, status, result, error } = req.body;
 
   if (status === "succeeded") {
-    // Extract the answer from the result
-    const content = result.choices[0].message.content;
-    const parsed = JSON.parse(content);
-    console.log(`Run ${runId} completed:`, parsed.answer?.slice(0, 100));
-    // Save to database, trigger next step, etc.
+    const { answer } = JSON.parse(result.fullResponse);
+    console.log(`Run ${runId}:`, answer);
   } else if (status === "failed") {
     console.error(`Run ${runId} failed:`, error);
   }
 
-  // Always respond quickly with 2xx
   res.status(200).json({ received: true });
 });
-
-app.listen(8000, () => console.log("Webhook server running on :8000"));
 ```
 
 </CodeGroup>
 
 <Note>
-  Your endpoint must be publicly accessible. For local development, use
-  [ngrok](https://ngrok.com) or similar.
+  Your endpoint needs to be publicly accessible. For local dev, use [ngrok](https://ngrok.com) or similar.
 </Note>
-
-## 3. Webhook Payload
-
-When a run finishes, we POST this JSON to your URL:
-
-```json
-{
-  "jobId": "9bb85845-9b20-4bb0-96dc-686a0aa3dcfe",
-  "runId": "1a45adf1-ad50-4452-a2c7-150b5bcd215c",
-  "orgId": "6d3c89bf-2665-45f8-87aa-c925979151c9",
-  "status": "succeeded",
-  "model": "tim-gpt",
-  "engine": "tim-gpt",
-  "result": {
-    "choices": [
-      {
-        "message": {
-          "role": "assistant",
-          "content": "{\"reasoning\": [...], \"answer\": \"2 + 2 = 4.\"}"
-        }
-      }
-    ],
-    "usage": {
-      "prompt_tokens": 1678,
-      "completion_tokens": 83
-    }
-  },
-  "error": null,
-  "tokens": {
-    "inputTokens": 1678,
-    "outputTokens": 83,
-    "costCents": 0
-  },
-  "createdAt": "2026-01-16T20:54:09.090Z",
-  "startedAt": "2026-01-16T20:54:09.190Z",
-  "completedAt": "2026-01-16T20:54:11.779Z"
-}
-```
-
-| Field         | Description                                                   |
-| ------------- | ------------------------------------------------------------- |
-| `runId`       | The run's unique ID                                           |
-| `jobId`       | Internal job ID                                               |
-| `status`      | Final status (`succeeded`, `failed`, `timed_out`, `canceled`) |
-| `result`      | The completion result with `choices` array                    |
-| `error`       | Error details (when failed, otherwise `null`)                 |
-| `tokens`      | Token counts (`inputTokens`, `outputTokens`, `costCents`)     |
-| `createdAt`   | When the run was created                                      |
-| `startedAt`   | When processing began                                         |
-| `completedAt` | When the run finished                                         |
 
 ## Delivery Guarantees
 
-Webhooks are delivered with:
+- **SQS-backed**: all deliveries go through a durable queue with retries and exponential backoff
+- **Timeout**: we wait up to 30 seconds for your 2xx response
+- **Dead-letter queue**: exhausted retries are stored for inspection
+- **Delivery log**: check delivery history and payloads in the [dashboard](https://www.subconscious.dev/platform/webhooks)
 
-- **Retries** — Failed deliveries retry with exponential backoff
-- **Timeouts** — We wait up to 30 seconds for your 2xx response
-- **Dead-letter queue** — Exhausted retries are stored for inspection
-- **Idempotency** — Include a unique ID in your handler to prevent duplicates
+## Dashboard
 
-## Best Practices
+Manage webhooks at [subconscious.dev/platform/webhooks](https://www.subconscious.dev/platform/webhooks):
 
-- **Respond quickly** — Return 2xx within 30 seconds, process async if needed
-- **Be idempotent** — You may receive the same webhook twice
-- **Log payloads** — Store raw payloads for debugging
-- **Validate origin** — Check request headers (signature verification coming soon)
+- Create, enable/disable, and delete subscriptions
+- Send test webhooks
+- View delivery log with status, timestamps, and expandable payloads
+- Reveal signing secret
 
 ## Related
 
@@ -172,11 +210,7 @@ Webhooks are delivered with:
   <Card title="Runs" icon="play" href="/core-concepts/runs">
     Async patterns and polling
   </Card>
-  <Card
-    title="Error Handling"
-    icon="triangle-exclamation"
-    href="/guides/error-handling"
-  >
+  <Card title="Error Handling" icon="triangle-exclamation" href="/guides/error-handling">
     Handle failed runs
   </Card>
 </CardGroup>
