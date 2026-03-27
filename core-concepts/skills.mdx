@@ -1,0 +1,137 @@
+---
+title: "Skills"
+description: "Give agents specialized knowledge with reusable skill packages"
+icon: "scroll"
+---
+
+Skills are reusable knowledge packages — coding guidelines, domain expertise, workflow instructions. Instead of stuffing everything into your prompt, skills use **progressive disclosure**: the agent sees a brief manifest, then loads full instructions on demand.
+
+| Level | What the agent sees | When |
+|-------|-------------------|------|
+| **0 — Manifest** | Name + description | Always in system prompt |
+| **1 — Instructions** | Full skill content + reference list | Agent calls `LoadSkill` |
+| **2 — References** | Deep reference documents | Agent calls `ReadSkillReference` |
+
+## Quick Start
+
+Pass skill names in the `skills` array:
+
+<CodeGroup>
+
+```python Python
+run = client.run(
+    engine="tim-gpt",
+    input={
+        "instructions": "Build a REST API with proper error handling",
+        "tools": [{"type": "platform", "id": "web_search"}],
+        "skills": ["api-design", "error-handling"],
+    },
+    options={"await_completion": True},
+)
+```
+
+```typescript Node.js
+const run = await client.run({
+  engine: "tim-gpt",
+  input: {
+    instructions: "Build a REST API with proper error handling",
+    tools: [{ type: "platform", id: "web_search" }],
+    skills: ["api-design", "error-handling"],
+  },
+  options: { awaitCompletion: true },
+});
+```
+
+```bash cURL
+curl https://api.subconscious.dev/v1/runs \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "engine": "tim-gpt",
+    "input": {
+      "instructions": "Build a REST API with proper error handling",
+      "skills": ["api-design", "error-handling"]
+    }
+  }'
+```
+
+</CodeGroup>
+
+When skills are present, `LoadSkill` and `ReadSkillReference` tools are auto-injected — you don't configure them.
+
+If you attach skills to a saved agent in the dashboard, they're included automatically on every run (API, playground, cron, Composio) without passing `skills` in the request.
+
+---
+
+## Visibility
+
+| Level | Who can use it | Created by |
+|-------|---------------|------------|
+| **Platform** | Everyone | Subconscious (curated) |
+| **Public** | Everyone | Any organization |
+| **Org** | Your org only | Your organization |
+
+New skills default to `org`.
+
+---
+
+## Skills API
+
+CRUD endpoints under `/v1/skills`:
+
+```bash
+GET    /v1/skills              # List all visible skills
+POST   /v1/skills              # Create a skill
+PUT    /v1/skills/:id          # Update a skill
+DELETE /v1/skills/:id          # Delete a skill
+```
+
+### Create Example
+
+```json
+POST /v1/skills
+{
+  "name": "my-coding-standard",
+  "displayName": "My Coding Standard",
+  "description": "Enforces our team's coding conventions",
+  "instructions": "When writing code, follow these rules:\n1. Use TypeScript strict mode\n2. ...",
+  "author": "your-team"
+}
+```
+
+<Note>
+  `name` must be kebab-case and unique within your org. You can only edit/delete org-owned skills — platform skills are read-only.
+</Note>
+
+### Skill References
+
+Reference documents are detailed specs or examples that the agent loads via `ReadSkillReference`. References support nesting via `parentReferenceId`.
+
+```bash
+GET    /v1/skills/:skillId/references              # List references
+POST   /v1/skills/:skillId/references              # Add a reference
+PUT    /v1/skills/:skillId/references/:refId       # Update a reference
+DELETE /v1/skills/:skillId/references/:refId       # Delete a reference
+```
+
+---
+
+## Dashboard
+
+Manage skills at [subconscious.dev/platform/skills](https://www.subconscious.dev/platform/skills):
+
+- **Browse platform skills** — pre-built, curated by Subconscious
+- **AI Skill Builder** — describe what you need, generate automatically
+- **GitHub import** — paste `npx skills add` commands or browse repos
+- **Attach to agents** — checkbox in the agent config panel
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Tools" icon="wrench" href="/core-concepts/tools">
+    Tools give agents actions; skills give agents knowledge
+  </Card>
+  <Card title="Runs" icon="play" href="/core-concepts/runs">
+    How skills and tools work together in runs
+  </Card>
+</CardGroup>

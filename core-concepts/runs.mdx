@@ -4,7 +4,7 @@ description: "Understanding the core unit of agent execution"
 icon: "play"
 ---
 
-A **Run** represents a single agent execution. You provide instructions and optionally tools, and the agent works to complete the task.
+A **Run** represents a single agent execution. You provide instructions, optionally tools and [skills](/core-concepts/skills), and the agent works to complete the task.
 
 ## What is a Run?
 
@@ -280,5 +280,8 @@ await client.cancel(run.runId);
   </Card>
   <Card title="Tools" icon="wrench" href="/core-concepts/tools">
     Configure tools for your runs
+  </Card>
+  <Card title="Skills" icon="scroll" href="/core-concepts/skills">
+    Add specialized knowledge to runs
   </Card>
 </CardGroup>
