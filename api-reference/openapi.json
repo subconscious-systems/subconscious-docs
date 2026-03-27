@@ -750,9 +750,10 @@
             "type": "string",
             "description": "MCP server URI or identifier"
           },
-          "name": {
-            "type": "string",
-            "description": "Optional: specific tool name, if omitted uses all tools from server"
+          "allowedTools": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Tool names to enable. Case-insensitive. Omit for all tools, [\"*\"] for explicit wildcard, [] to block all."
           },
           "auth": {
             "$ref": "#/components/schemas/McpAuth"

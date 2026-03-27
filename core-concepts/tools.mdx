@@ -239,34 +239,83 @@ Inject parameter values that are **hidden from the model** and automatically mer
 
 ## MCP Tools
 
-Connect to [Model Context Protocol](https://modelcontextprotocol.io/) servers to use their tools.
+Connect to any [Model Context Protocol](https://modelcontextprotocol.io/) server and use its tools in your runs. Subconscious discovers tools from the server, filters by your `allowedTools` list, and proxies calls automatically.
+
+### Authentication
+
+MCP servers that require authentication accept an `auth` object. The auth translates to an HTTP header sent with every tool call:
+
+| Method | When to use | Header sent |
+| --- | --- | --- |
+| **Bearer** | Most common — OAuth tokens, JWTs, etc. | `Authorization: Bearer <token>` |
+| **API key** | Service-specific API keys | `<header>: <token>` (header is typically `X-Api-Key` — check your MCP server's docs) |
+
+### Schema
 
 ```typescript
 type McpTool = {
   type: "mcp";
-  server: string; // MCP server URL
-  name?: string; // Specific tool (omit to use all tools from server)
-  auth?: {
-    type: "bearer" | "api_key";
-    token?: string;
-    header?: string; // Header name for api_key auth
-  };
+  url: string; // MCP server URL
+  allowedTools?: string[]; // Tool names to enable (case-insensitive)
+  auth?: McpAuth;
+};
+
+/**
+ * MCP Authentication
+ * Used for MCP tools that require authentication.
+ * Translates to an HTTP header sent with every tool call:
+ * - Bearer:  { "Authorization": "Bearer <token>" }
+ * - API key: { "<header>": "<token>" }
+ *
+ * Bearer auth is the most common method (e.g. OAuth tokens).
+ * For API key auth, the header is typically `X-Api-Key` but may vary —
+ * check the documentation of the MCP server you are connecting to.
+ */
+type McpAuth = {
+  type: "bearer" | "api_key";
+  token: string;
+  header?: string; // For api_key auth, the header name (e.g. "X-Api-Key")
 };
 ```
 
-**Example:**
+### `allowedTools` filtering
+
+| Value | Behavior |
+| --- | --- |
+| Omitted / `undefined` | All tools from the server are enabled |
+| `["*"]` | All tools enabled (explicit wildcard) |
+| `["search", "get_page"]` | Only these tools (case-insensitive match) |
+| `[]` | No tools pass through (blocks all) |
+
+### Examples
 
 ```javascript
 tools: [
   // Use all tools from an MCP server
-  { type: "mcp", server: "https://mcp.example.com" },
+  { type: "mcp", url: "https://mcp.notion.so/v1" },
 
-  // Use a specific tool with auth
+  // Filter to specific tools
   {
     type: "mcp",
-    server: "https://mcp.example.com",
-    name: "query_database",
-    auth: { type: "bearer", token: "your-token" },
+    url: "https://mcp.notion.so/v1",
+    allowedTools: ["search", "get_page"],
+  },
+
+  // With bearer token auth (most common — e.g. OAuth tokens)
+  {
+    type: "mcp",
+    url: "https://mcp.google.com/v1",
+    auth: { type: "bearer", token: "your-oauth-token" },
+  },
+
+  // API key auth with custom header
+  // The header is typically "X-Api-Key" but may vary —
+  // check the docs of the MCP server you are connecting to.
+  {
+    type: "mcp",
+    url: "https://mcp.example.com",
+    allowedTools: ["query_database"],
+    auth: { type: "api_key", token: "key123", header: "X-Api-Key" },
   },
 ];
 ```
