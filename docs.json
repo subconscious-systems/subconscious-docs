@@ -51,6 +51,7 @@
             "pages": [
               "core-concepts/runs",
               "core-concepts/tools",
+              "core-concepts/skills",
               "core-concepts/streaming",
               "core-concepts/async-webhooks",
               "core-concepts/structured-output"

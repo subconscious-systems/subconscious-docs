@@ -86,6 +86,62 @@ Both SDKs provide the same core methods:
 | `client.wait(runId)`   | Poll until a run completes           |
 | `client.cancel(runId)` | Cancel a running or queued run       |
 
+## Skills
+
+Both SDKs support [Skills](/core-concepts/skills). Pass an array of skill names in `input.skills` to give your agent specialized knowledge:
+
+<Tabs>
+  <Tab title="Node.js">
+    ```typescript
+    const run = await client.run({
+      engine: "tim-gpt",
+      input: {
+        instructions: "Review this code",
+        skills: ["security-review", "coding-standards"],
+      },
+      options: { awaitCompletion: true },
+    });
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    run = client.run(
+        engine="tim-gpt",
+        input={
+            "instructions": "Review this code",
+            "skills": ["security-review", "coding-standards"],
+        },
+        options={"await_completion": True},
+    )
+    ```
+  </Tab>
+</Tabs>
+
+## Webhooks
+
+Both SDKs support per-run webhook callbacks with `output.callbackUrl`. For org-wide subscriptions, use the [webhooks API](/core-concepts/async-webhooks) or the [dashboard](https://www.subconscious.dev/platform/webhooks).
+
+<Tabs>
+  <Tab title="Node.js">
+    ```typescript
+    const run = await client.run({
+      engine: "tim-gpt",
+      input: { instructions: "Generate a report" },
+      output: { callbackUrl: "https://your-server.com/webhook" },
+    });
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    run = client.run(
+        engine="tim-gpt",
+        input={"instructions": "Generate a report"},
+        output={"callbackUrl": "https://your-server.com/webhook"},
+    )
+    ```
+  </Tab>
+</Tabs>
+
 ## Next Steps
 
 <CardGroup cols={2}>
