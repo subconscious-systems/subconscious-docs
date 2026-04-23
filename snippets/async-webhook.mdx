@@ -1,43 +1,19 @@
 <CodeGroup>
 
-```python Python
-from subconscious import Subconscious
-
-client = Subconscious(api_key="YOUR_API_KEY")
-
-# Start a run with a callback URL
-run = client.run(
-    engine="tim-gpt",
-    input={
-        "instructions": "Run this as an async job and webhook me when done.",
+```bash cURL
+# Start a run with a callback URL (output.callbackUrl)
+curl -X POST https://api.subconscious.dev/v1/runs \
+  -H "Authorization: Bearer $SUBCONSCIOUS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "engine": "tim",
+    "input": {
+      "instructions": "Run this as an async job and webhook me when done."
     },
-    options={
-        "callback_url": "https://your-app.example.com/webhooks/subconscious",
-    },
-)
-
-print(f"Run started: {run.run_id}")
-```
-
-```javascript JavaScript
-import { Subconscious } from "subconscious";
-
-const client = new Subconscious({
-  apiKey: "YOUR_API_KEY",
-});
-
-// Start a run with a callback URL
-const run = await client.run({
-  engine: "tim-gpt",
-  input: {
-    instructions: "Run this as an async job and webhook me when done.",
-  },
-  options: {
-    callbackUrl: "https://your-app.example.com/webhooks/subconscious",
-  },
-});
-
-console.log(`Run started: ${run.runId}`);
+    "output": {
+      "callbackUrl": "https://your-app.example.com/webhooks/subconscious"
+    }
+  }'
 ```
 
 </CodeGroup>

@@ -77,7 +77,7 @@ POST /v1/machines/runs
 
 ```json Request body
 {
-  "engine": "tim-gpt",
+  "engine": "tim",
   "input": {
     "instructions": "Summarize the top 5 AI papers from Feb 2026",
     "tools": ["web_search"],
@@ -88,7 +88,7 @@ POST /v1/machines/runs
 
 | Field | Required | Notes |
 |-------|----------|-------|
-| `engine` | Yes | `tim`, `tim-edge`, `timini`, `tim-gpt`, or `tim-gpt-heavy` |
+| `engine` | Yes | `tim`, `tim-edge`, `tim-claude`, `tim-claude-heavy`, `tim-oss-local`, `tim-1.5` |
 | `input.instructions` | Yes | Task for the agent |
 | `input.tools` | No | Omit for pure reasoning |
 | `input.answerFormat` | No | JSON schema to shape the response |

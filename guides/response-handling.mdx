@@ -12,7 +12,7 @@ The `run.result` object contains:
 
 ```typescript
 interface RunResult {
-  answer: string | object; // String without answerFormat, object with answerFormat
+  answer: string; // Natural language, or JSON-encoded string when using answerFormat
   reasoning?: Task[]; // Step-by-step reasoning (when available)
 }
 ```
@@ -22,21 +22,22 @@ interface RunResult {
 The `answer` field contains the agent's final response. Depending on your use case:
 
 - **Without structured output**: A natural language string
-- **With structured output**: A parsed object matching your schema (no JSON parsing needed)
+- **With structured output**: A JSON-encoded string matching your schema
 
 ### Accessing Structured Answers
 
-When using `answerFormat`, the answer is already a parsed object. See [Structured Output](/core-concepts/structured-output) for schema examples.
+When using `answerFormat`, the answer is returned as a JSON-encoded string that you parse on the client. See [Structured Output](/core-concepts/structured-output) for schema examples.
 
 <CodeGroup>
 
 ```python Python
+import json
 from subconscious import Subconscious
 
 client = Subconscious(api_key="your-api-key")
 
 run = client.run(
-    engine="tim-gpt",
+    engine="tim",
     input={
         "instructions": "Analyze sentiment",
         "answerFormat": {...}  # Your schema
@@ -44,8 +45,8 @@ run = client.run(
     options={"await_completion": True},
 )
 
-# answer is already a dict - no parsing needed
-answer = run.result.answer
+# run.result.answer is a JSON string — parse it with json.loads
+answer = json.loads(run.result.answer)
 print(answer["sentiment"])
 ```
 
@@ -57,7 +58,7 @@ const client = new Subconscious({
 });
 
 const run = await client.run({
-  engine: "tim-gpt",
+  engine: "tim",
   input: {
     instructions: "Analyze sentiment",
     answerFormat: {...}  // Your schema
@@ -65,8 +66,7 @@ const run = await client.run({
   options: { awaitCompletion: true },
 });
 
-// answer is already an object - no parsing needed
-const answer = run.result?.answer;
+const answer = JSON.parse(run.result?.answer ?? "{}");
 console.log(answer.sentiment);
 ```
 
@@ -89,6 +89,7 @@ interface Task {
 
 interface ToolCall {
   tool_name: string; // Name of the tool called
+  tool_call_id?: string; // Server-assigned id for the tool call
   parameters: any; // Input parameters
   tool_result: any; // Result from the tool
 }
@@ -131,17 +132,18 @@ Loop through the reasoning to extract tool usage:
 
 ```python Python
 def extract_tool_calls(reasoning):
+    # reasoning is a list of ReasoningTask pydantic models — use attribute access
     tool_calls = []
     for task in reasoning or []:
-        if task.get("tooluse"):
+        if task.tooluse:
             tool_calls.append({
-                "tool": task["tooluse"]["tool_name"],
-                "params": task["tooluse"]["parameters"],
-                "result": task["tooluse"]["tool_result"]
+                "tool": task.tooluse.tool_name,
+                "params": task.tooluse.parameters,
+                "result": task.tooluse.tool_result,
             })
         # Check subtasks recursively
-        if task.get("subtasks"):
-            tool_calls.extend(extract_tool_calls(task["subtasks"]))
+        if task.subtasks:
+            tool_calls.extend(extract_tool_calls(task.subtasks))
     return tool_calls
 
 # Usage
@@ -183,13 +185,11 @@ The `usage` field provides metrics about the run:
 interface RunUsage {
   inputTokens: number; // Tokens in the prompt
   outputTokens: number; // Tokens generated
-  durationMs: number; // Total execution time
-  toolCalls?: {
-    // Tool usage breakdown
-    [toolName: string]: number;
-  };
+  durationMs?: number; // Total execution time (when reported by the server)
 }
 ```
+
+In Python, fields are exposed as snake_case attributes (`input_tokens`, `output_tokens`, `duration_ms`) on the `Usage` pydantic model.
 
 ### Tracking Costs
 
@@ -197,7 +197,7 @@ Use the usage information to track costs:
 
 ```python
 usage = run.usage
-input_cost = usage.input_tokens / 1_000_000 * 2.00  # tim-gpt pricing
+input_cost = usage.input_tokens / 1_000_000 * 2.00  # tim pricing
 output_cost = usage.output_tokens / 1_000_000 * 8.00
 total_cost = input_cost + output_cost
 print(f"Run cost: ${total_cost:.4f}")

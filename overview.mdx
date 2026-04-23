@@ -43,7 +43,7 @@ from subconscious import Subconscious
 client = Subconscious(api_key="your-api-key")
 
 run = client.run(
-    engine="tim-gpt",
+    engine="tim",
     input={"instructions": "Summarize the latest AI news"},
     options={"await_completion": True},
 )
@@ -59,7 +59,7 @@ const client = new Subconscious({
 });
 
 const run = await client.run({
-  engine: "tim-gpt",
+  engine: "tim",
   input: { instructions: "Summarize the latest AI news" },
   options: { awaitCompletion: true },
 });
@@ -79,14 +79,14 @@ Our agent engines combine a language model with a custom inference runtime. We o
   <Card title="TIM-Edge" icon="bolt" href="/engines">
     Unified engine tuned for performance with search tools
   </Card>
-  <Card title="TIMINI" icon="microchip" href="/engines">
-    Compound engine backed by Gemini-3 Flash
+  <Card title="TIM-Claude" icon="microchip" href="/engines">
+    Compound engine backed by Anthropic Claude Sonnet (multimodal)
   </Card>
-  <Card title="TIM-GPT" icon="microchip" href="/engines">
-    Compound engine backed by OpenAI GPT-4.1
+  <Card title="TIM-Claude-Heavy" icon="brain" href="/engines">
+    Compound engine backed by Anthropic Claude Opus (multimodal)
   </Card>
-  <Card title="TIM-GPT-Heavy" icon="brain" href="/engines">
-    Compound engine backed by OpenAI GPT-5.2
+  <Card title="TIM-1.5" icon="microchip" href="/engines">
+    Tool-calling engine for large OSS models
   </Card>
 </CardGroup>
 

@@ -7,6 +7,14 @@ icon: "cube"
 
 We provide official SDKs for seamless integration with your preferred language.
 
+<Note>
+  **v1.0 is out.** Both SDKs are on v1.0 — response types (`Run`, `Usage`,
+  `ReasoningTask`) are flat and match the canonical API wire format, and both
+  support multimodal input via `Image` / `content[]` and lifecycle-managed
+  services via `resources[]`. Upgrading from 0.x in Node? See the
+  [Node SDK migration guide](https://github.com/subconscious-systems/subconscious-node/blob/main/MIGRATION.md).
+</Note>
+
 ## Install an official SDK
 
 <Tabs>
@@ -27,7 +35,7 @@ We provide official SDKs for seamless integration with your preferred language.
     });
 
     const run = await client.run({
-      engine: "tim-gpt",
+      engine: "tim",
       input: {
         instructions: "Your task here",
         tools: [],
@@ -53,7 +61,7 @@ We provide official SDKs for seamless integration with your preferred language.
     client = Subconscious(api_key="your-api-key")
 
     run = client.run(
-        engine="tim-gpt",
+        engine="tim",
         input={
             "instructions": "Your task here",
             "tools": [],

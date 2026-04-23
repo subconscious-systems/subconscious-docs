@@ -16,13 +16,14 @@ Our agent engines combine a language model with a custom inference runtime. We o
 
 ## Available Engines
 
-| Name | API Name | Type | Description |
-|------|----------|------|-------------|
-| TIM | `tim` | Unified | Our flagship unified agent engine for a wide range of tasks |
-| TIM-Edge | `tim-edge` | Unified | Highly efficient engine tuned for performance with search tools |
-| TIMINI | `timini` | Compound | Complex reasoning engine for long-context and tool use backed by the power of Gemini-3 Flash |
-| TIM-GPT | `tim-gpt` | Compound | Complex reasoning engine for long-context and tool use backed by the power of OpenAI GPT-4.1 |
-| TIM-GPT-Heavy | `tim-gpt-heavy` | Compound | Complex reasoning engine for long-context and tool use backed by the power of OpenAI GPT-5.2 |
+| Name | API Name | Type | Multimodal | Description |
+|------|----------|------|------------|-------------|
+| TIM | `tim` | Unified | Text | Our flagship unified agent engine for a wide range of tasks |
+| TIM-Edge | `tim-edge` | Unified | Text | Highly efficient engine tuned for performance with search tools |
+| TIM-Claude | `tim-claude` | Compound | Text + images | Complex reasoning engine backed by Anthropic Claude Sonnet |
+| TIM-Claude-Heavy | `tim-claude-heavy` | Compound | Text + images | Complex reasoning engine backed by Anthropic Claude Opus |
+| TIM-OSS-Local | `tim-oss-local` | Compound | Text | Tool-calling engine for TIM-trained OSS models |
+| TIM-1.5 | `tim-1.5` | Compound | Text | Tool-calling engine for large OSS models v1.5 |
 
 ### TIM
 
@@ -32,16 +33,23 @@ TIM is our flagship unified agent engine for a wide range of tasks. It combines 
 
 TIM-Edge is our highly efficient unified engine, tuned for performance with search tools. It combines a co-designed model and runtime for peak performance, making it ideal for use cases where speed and efficiency are critical.
 
-### TIMINI
+### TIM-Claude
 
-TIMINI is a compound engine that provides complex reasoning capabilities for long-context and tool use, backed by the power of Google Gemini-3 Flash. It offers strong reasoning at competitive pricing.
+TIM-Claude is a compound engine that provides complex reasoning capabilities for long-context and tool use, backed by Anthropic Claude Sonnet. This is our recommended engine when you need maximum reasoning quality — it also supports image input (see [Multimodal Input](/core-concepts/runs#multimodal-input)).
 
-### TIM-GPT
+### TIM-Claude-Heavy
 
-TIM-GPT is a compound engine that provides complex reasoning capabilities for long-context and tool use, backed by the power of OpenAI GPT-4.1. This is our recommended engine for most use cases, offering a great balance of cost, performance, and reasoning ability.
+TIM-Claude-Heavy is our most powerful compound engine, built for the hardest reasoning tasks, backed by Anthropic Claude Opus. Use this when you need the highest capability for the most challenging problems. Supports image input.
 
-### TIM-GPT-Heavy
+### TIM-OSS-Local / TIM-1.5
 
-TIM-GPT-Heavy is our most powerful compound engine, built for complex reasoning tasks with long-context and tool use, backed by the power of OpenAI GPT-5.2. Use this when you need maximum capability for the most challenging problems.
+Tool-calling engines backed by open-source models. `tim-oss-local` is optimized for smaller, TIM-trained OSS models; `tim-1.5` targets larger OSS models at higher capability.
+
+<Note>
+  Older engine names (`tim-gpt`, `tim-gpt-heavy`, `timini`) still work — the
+  API transparently resolves them to `tim-claude`. The SDKs no longer list
+  them in the `Engine` type union; prefer `tim-claude` / `tim-claude-heavy` in
+  new code.
+</Note>
 
 All engines can be used with either the sync or async APIs. In async mode, we enqueue work for a background worker to process and expose a simple polling + webhook story for long‑running jobs.
