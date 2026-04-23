@@ -22,7 +22,6 @@ Our agent engines combine a language model with a custom inference runtime. We o
 | TIM-Edge | `tim-edge` | Unified | Text | Highly efficient engine tuned for performance with search tools |
 | TIM-Claude | `tim-claude` | Compound | Text + images | Complex reasoning engine backed by Anthropic Claude Sonnet |
 | TIM-Claude-Heavy | `tim-claude-heavy` | Compound | Text + images | Complex reasoning engine backed by Anthropic Claude Opus |
-| TIM-OSS-Local | `tim-oss-local` | Compound | Text | Tool-calling engine for TIM-trained OSS models |
 | TIM-1.5 | `tim-1.5` | Compound | Text | Tool-calling engine for large OSS models v1.5 |
 
 ### TIM
@@ -41,15 +40,8 @@ TIM-Claude is a compound engine that provides complex reasoning capabilities for
 
 TIM-Claude-Heavy is our most powerful compound engine, built for the hardest reasoning tasks, backed by Anthropic Claude Opus. Use this when you need the highest capability for the most challenging problems. Supports image input.
 
-### TIM-OSS-Local / TIM-1.5
+### TIM-1.5
 
-Tool-calling engines backed by open-source models. `tim-oss-local` is optimized for smaller, TIM-trained OSS models; `tim-1.5` targets larger OSS models at higher capability.
-
-<Note>
-  Older engine names (`tim-gpt`, `tim-gpt-heavy`, `timini`) still work — the
-  API transparently resolves them to `tim-claude`. The SDKs no longer list
-  them in the `Engine` type union; prefer `tim-claude` / `tim-claude-heavy` in
-  new code.
-</Note>
+Tool-calling engine backed by open-source models, targeting larger OSS models at higher capability.
 
 All engines can be used with either the sync or async APIs. In async mode, we enqueue work for a background worker to process and expose a simple polling + webhook story for long‑running jobs.

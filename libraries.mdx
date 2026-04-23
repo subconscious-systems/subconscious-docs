@@ -94,7 +94,7 @@ Both SDKs support [Skills](/core-concepts/skills). Pass an array of skill names 
   <Tab title="Node.js">
     ```typescript
     const run = await client.run({
-      engine: "tim-gpt",
+      engine: "tim-claude",
       input: {
         instructions: "Review this code",
         skills: ["security-review", "coding-standards"],
@@ -106,7 +106,7 @@ Both SDKs support [Skills](/core-concepts/skills). Pass an array of skill names 
   <Tab title="Python">
     ```python
     run = client.run(
-        engine="tim-gpt",
+        engine="tim-claude",
         input={
             "instructions": "Review this code",
             "skills": ["security-review", "coding-standards"],
@@ -125,7 +125,7 @@ Both SDKs support per-run webhook callbacks with `output.callbackUrl`. For org-w
   <Tab title="Node.js">
     ```typescript
     const run = await client.run({
-      engine: "tim-gpt",
+      engine: "tim-claude",
       input: { instructions: "Generate a report" },
       output: { callbackUrl: "https://your-server.com/webhook" },
     });
@@ -134,7 +134,7 @@ Both SDKs support per-run webhook callbacks with `output.callbackUrl`. For org-w
   <Tab title="Python">
     ```python
     run = client.run(
-        engine="tim-gpt",
+        engine="tim-claude",
         input={"instructions": "Generate a report"},
         output={"callbackUrl": "https://your-server.com/webhook"},
     )

@@ -609,7 +609,7 @@
         "properties": {
           "engine": {
             "type": "string",
-            "enum": ["tim", "tim-edge", "tim-claude", "tim-claude-heavy", "tim-oss-local", "tim-1.5"],
+            "enum": ["tim", "tim-edge", "tim-claude", "tim-claude-heavy", "tim-1.5"],
             "description": "The engine to use for this run"
           },
           "input": {
@@ -1242,7 +1242,7 @@
           },
           "engine": {
             "type": "string",
-            "enum": ["tim", "tim-edge", "tim-claude", "tim-claude-heavy", "tim-oss-local", "tim-1.5"],
+            "enum": ["tim", "tim-edge", "tim-claude", "tim-claude-heavy", "tim-1.5"],
             "description": "Engine used for this run"
           },
           "createdAt": {
