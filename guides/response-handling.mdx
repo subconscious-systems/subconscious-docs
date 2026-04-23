@@ -13,25 +13,25 @@ The `run.result` object contains:
 ```typescript
 interface RunResult {
   answer: string; // Natural language, or JSON-encoded string when using answerFormat
+  parsedAnswer?: unknown; // Client-side JSON.parse of `answer` (parsed_answer in Python)
   reasoning?: Task[]; // Step-by-step reasoning (when available)
 }
 ```
 
 ## The Answer Field
 
-The `answer` field contains the agent's final response. Depending on your use case:
+The `answer` field contains the agent's final response as a string:
 
 - **Without structured output**: A natural language string
 - **With structured output**: A JSON-encoded string matching your schema
 
 ### Accessing Structured Answers
 
-When using `answerFormat`, the answer is returned as a JSON-encoded string that you parse on the client. See [Structured Output](/core-concepts/structured-output) for schema examples.
+When using `answerFormat`, the API sends `answer` as a JSON-encoded string. Both SDKs decode it for you and expose the native value on `run.result.parsed_answer` (Python) / `run.result.parsedAnswer` (TypeScript). `answer` stays as the raw string if you need it. The SDKs do not validate the decoded value against your schema — validate yourself with Pydantic or Zod if you want a typed instance.
 
 <CodeGroup>
 
 ```python Python
-import json
 from subconscious import Subconscious
 
 client = Subconscious(api_key="your-api-key")
@@ -45,9 +45,11 @@ run = client.run(
     options={"await_completion": True},
 )
 
-# run.result.answer is a JSON string — parse it with json.loads
-answer = json.loads(run.result.answer)
-print(answer["sentiment"])
+# run.result.answer is the raw JSON string; parsed_answer is the decoded dict
+print(run.result.parsed_answer["sentiment"])
+
+# Hydrate into a typed Pydantic model if you need validation:
+# typed = SentimentAnalysis.model_validate(run.result.parsed_answer)
 ```
 
 ```typescript Node.js
@@ -66,8 +68,11 @@ const run = await client.run({
   options: { awaitCompletion: true },
 });
 
-const answer = JSON.parse(run.result?.answer ?? "{}");
+// run.result.answer is the raw JSON string; parsedAnswer is the decoded value
+const answer = run.result?.parsedAnswer as { sentiment: string };
 console.log(answer.sentiment);
+
+// Or validate with your Zod schema: SentimentAnalysis.parse(run.result?.parsedAnswer)
 ```
 
 </CodeGroup>

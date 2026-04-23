@@ -662,9 +662,6 @@
           },
           "answerFormat": {
             "$ref": "#/components/schemas/JSONSchemaObject"
-          },
-          "reasoningFormat": {
-            "$ref": "#/components/schemas/JSONSchemaObject"
           }
         }
       },
