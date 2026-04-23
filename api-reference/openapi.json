@@ -609,7 +609,7 @@
         "properties": {
           "engine": {
             "type": "string",
-            "enum": ["tim", "tim-edge", "timini", "tim-gpt", "tim-gpt-heavy"],
+            "enum": ["tim", "tim-edge", "tim-claude", "tim-claude-heavy", "tim-1.5"],
             "description": "The engine to use for this run"
           },
           "input": {
@@ -639,10 +639,28 @@
               "$ref": "#/components/schemas/Tool"
             }
           },
-          "answerFormat": {
-            "$ref": "#/components/schemas/JSONSchemaObject"
+          "content": {
+            "type": "array",
+            "description": "Multimodal content blocks (text, image, audio, file) — only accepted on engines that support the modality",
+            "items": {
+              "$ref": "#/components/schemas/ContentBlock"
+            }
           },
-          "reasoningFormat": {
+          "resources": {
+            "type": "array",
+            "description": "Lifecycle-managed services to initialize for this run (e.g., 'sandbox')",
+            "items": { "type": "string" }
+          },
+          "skills": {
+            "type": "array",
+            "description": "Reusable knowledge packages attached to the run",
+            "items": { "type": "string" }
+          },
+          "agentId": {
+            "type": "string",
+            "description": "Optional agent ID whose configured resources/skills should be applied"
+          },
+          "answerFormat": {
             "$ref": "#/components/schemas/JSONSchemaObject"
           }
         }
@@ -654,17 +672,102 @@
             "type": "string",
             "format": "uri",
             "description": "Optional callback URL to receive webhook notifications when the run completes"
+          },
+          "responseContent": {
+            "type": "string",
+            "enum": ["full", "answer_only"],
+            "description": "Whether callback payloads include the full reasoning trace or just the final answer"
           }
         }
       },
+      "ContentBlock": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type", "text"],
+            "properties": {
+              "type": { "type": "string", "enum": ["text"] },
+              "text": { "type": "string" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type", "source"],
+            "properties": {
+              "type": { "type": "string", "enum": ["image"] },
+              "source": { "$ref": "#/components/schemas/ContentSource" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type", "source"],
+            "properties": {
+              "type": { "type": "string", "enum": ["audio"] },
+              "source": { "$ref": "#/components/schemas/ContentSource" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type", "source"],
+            "properties": {
+              "type": { "type": "string", "enum": ["file"] },
+              "source": { "$ref": "#/components/schemas/ContentSource" },
+              "filename": { "type": "string" },
+              "mime": { "type": "string" }
+            }
+          }
+        ]
+      },
+      "ContentSource": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["kind", "data", "mime"],
+            "properties": {
+              "kind": { "type": "string", "enum": ["base64"] },
+              "data": { "type": "string", "description": "Base64-encoded bytes" },
+              "mime": { "type": "string" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["kind", "blob_key", "mime"],
+            "properties": {
+              "kind": { "type": "string", "enum": ["blob_ref"] },
+              "blob_key": { "type": "string" },
+              "mime": { "type": "string" },
+              "size_bytes": { "type": "integer" },
+              "attachment_id": { "type": "string" },
+              "presigned_url": { "type": "string" },
+              "presigned_expires_at": { "type": "string" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["kind", "url"],
+            "properties": {
+              "kind": { "type": "string", "enum": ["url"] },
+              "url": { "type": "string" },
+              "mime": { "type": "string" }
+            }
+          }
+        ]
+      },
       "RunOptions": {
         "type": "object",
+        "description": "Server-side runtime limits for a run. The SDKs additionally accept a client-side-only `awaitCompletion` / `await_completion` flag that toggles polling inside the SDK; that flag is never sent to the server.",
         "properties": {
           "timeout": {
             "type": "integer",
             "minimum": 1,
             "maximum": 3600,
-            "description": "Timeout in seconds (max 1 hour)"
+            "description": "Maximum run duration in seconds (1–3600). Server cancels the run if exceeded."
+          },
+          "max_step_tokens": {
+            "type": "integer",
+            "minimum": 256,
+            "maximum": 20000,
+            "description": "Per-step token ceiling (256–20000). Caps tokens generated in any single reasoning step."
           }
         }
       },
@@ -1139,7 +1242,7 @@
           },
           "engine": {
             "type": "string",
-            "enum": ["tim", "tim-edge", "timini", "tim-gpt", "tim-gpt-heavy"],
+            "enum": ["tim", "tim-edge", "tim-claude", "tim-claude-heavy", "tim-1.5"],
             "description": "Engine used for this run"
           },
           "createdAt": {

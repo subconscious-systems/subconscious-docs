@@ -92,9 +92,13 @@ curl -X POST https://api.subconscious.dev/v1/runs \
   -H "Authorization: Bearer $SUBCONSCIOUS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "engine": "tim-gpt",
-    "input": { "instructions": "Generate a report" },
-    "output": { "callbackUrl": "https://your-server.com/webhooks/subconscious" }
+    "engine": "tim",
+    "input": {
+      "instructions": "Generate a detailed report"
+    },
+    "output": {
+      "callbackUrl": "https://your-server.com/webhooks/subconscious"
+    }
   }'
 ```
 
@@ -112,7 +116,7 @@ Subscriptions and per-run callbacks use the same payload format:
   "runId": "bcccd0a3-4153-4844-b806-b651ccab94cc",
   "orgId": "b4dec88d-9392-486a-b8e4-f39fb3ba2472",
   "status": "succeeded",
-  "engine": "tim-gpt",
+  "engine": "tim-claude",
   "result": {
     "fullResponse": "{\"reasoning\": [...], \"answer\": \"Hello! How can I help you today?\"}"
   },
@@ -187,6 +191,56 @@ app.post("/webhooks/subconscious", (req, res) => {
 <Note>
   Your endpoint needs to be publicly accessible. For local dev, use [ngrok](https://ngrok.com) or similar.
 </Note>
+
+## 3. Webhook Payload
+
+When a run finishes, we POST this JSON to your URL:
+
+```json
+{
+  "jobId": "9bb85845-9b20-4bb0-96dc-686a0aa3dcfe",
+  "runId": "1a45adf1-ad50-4452-a2c7-150b5bcd215c",
+  "orgId": "6d3c89bf-2665-45f8-87aa-c925979151c9",
+  "status": "succeeded",
+  "model": "tim",
+  "engine": "tim",
+  "result": {
+    "choices": [
+      {
+        "message": {
+          "role": "assistant",
+          "content": "{\"reasoning\": [...], \"answer\": \"2 + 2 = 4.\"}"
+        }
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1678,
+      "completion_tokens": 83
+    }
+  },
+  "error": null,
+  "tokens": {
+    "inputTokens": 1678,
+    "outputTokens": 83,
+    "costCents": 0
+  },
+  "createdAt": "2026-01-16T20:54:09.090Z",
+  "startedAt": "2026-01-16T20:54:09.190Z",
+  "completedAt": "2026-01-16T20:54:11.779Z"
+}
+```
+
+| Field         | Description                                                   |
+| ------------- | ------------------------------------------------------------- |
+| `runId`       | The run's unique ID                                           |
+| `jobId`       | Internal job ID                                               |
+| `status`      | Final status (`succeeded`, `failed`, `timed_out`, `canceled`) |
+| `result`      | The completion result with `choices` array                    |
+| `error`       | Error details (when failed, otherwise `null`)                 |
+| `tokens`      | Token counts (`inputTokens`, `outputTokens`, `costCents`)     |
+| `createdAt`   | When the run was created                                      |
+| `startedAt`   | When processing began                                         |
+| `completedAt` | When the run finished                                         |
 
 ## Delivery Guarantees
 

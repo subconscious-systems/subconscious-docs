@@ -24,7 +24,7 @@ from subconscious import Subconscious
 client = Subconscious(api_key="your-api-key")
 
 run = client.run(
-    engine="tim-gpt",
+    engine="tim",
     input={
         "instructions": "Analyze the sentiment of this review: 'Great product, fast shipping!'",
         "tools": [],
@@ -53,8 +53,8 @@ run = client.run(
     options={"await_completion": True},
 )
 
-# Response is already a dict matching your schema
-result = run.result.answer
+# `answer` is the raw JSON string; `parsed_answer` is the decoded dict
+result = run.result.parsed_answer
 print(result["sentiment"])   # "positive"
 print(result["confidence"])  # 0.95
 print(result["keywords"])    # ["Great product", "fast shipping"]
@@ -68,7 +68,7 @@ const client = new Subconscious({
 });
 
 const run = await client.run({
-  engine: "tim-gpt",
+  engine: "tim",
   input: {
     instructions:
       "Analyze the sentiment of this review: 'Great product, fast shipping!'",
@@ -98,8 +98,12 @@ const run = await client.run({
   options: { awaitCompletion: true },
 });
 
-// Response is already an object matching your schema
-const result = run.result?.answer;
+// `answer` is the raw JSON string; `parsedAnswer` is the decoded object
+const result = run.result?.parsedAnswer as {
+  sentiment: string;
+  confidence: number;
+  keywords: string[];
+};
 console.log(result.sentiment); // "positive"
 console.log(result.confidence); // 0.95
 console.log(result.keywords); // ["Great product", "fast shipping"]
@@ -108,9 +112,12 @@ console.log(result.keywords); // ["Great product", "fast shipping"]
 </CodeGroup>
 
 <Note>
-  When using `answerFormat`, `run.result.answer` returns a **parsed object**
-  (dict in Python, object in JavaScript), not a JSON string. You can access
-  fields directly without parsing.
+  `run.result.answer` is always a string. When you supply an `answerFormat`,
+  the agent's structured output arrives as a JSON-encoded string — the SDK
+  decodes it for you and attaches the native value as
+  `run.result.parsed_answer` (Python) or `run.result.parsedAnswer`
+  (TypeScript). Use `answer` when you need the raw payload, and
+  `parsed_answer` / `parsedAnswer` when you want to read fields directly.
 </Note>
 
 ## Using Pydantic Models (Python)
@@ -130,7 +137,7 @@ class SentimentAnalysis(BaseModel):
 client = Subconscious(api_key=os.environ.get("SUBCONSCIOUS_API_KEY"))
 
 run = client.run(
-    engine="tim-gpt",
+    engine="tim",
     input={
         "instructions": "Analyze the sentiment of: 'Great product!'",
         "answerFormat": SentimentAnalysis,  # Pass the class directly
@@ -138,7 +145,11 @@ run = client.run(
     options={"await_completion": True},
 )
 
-print(run.result.answer["sentiment"])
+print(run.result.parsed_answer["sentiment"])
+
+# Or hydrate into a typed instance yourself:
+typed = SentimentAnalysis.model_validate(run.result.parsed_answer)
+print(typed.sentiment)
 ```
 
 ## Using Zod Schemas (TypeScript)
@@ -162,7 +173,7 @@ const client = new Subconscious({
 });
 
 const run = await client.run({
-  engine: "tim-gpt",
+  engine: "tim",
   input: {
     instructions: "Analyze the sentiment of: 'Great product!'",
     answerFormat: zodToJsonSchema(SentimentAnalysis, "SentimentAnalysis"),
@@ -170,7 +181,8 @@ const run = await client.run({
   options: { awaitCompletion: true },
 });
 
-const result = run.result?.answer as unknown as SentimentAnalysis;
+// Decode + validate with your Zod schema for a typed value
+const result = SentimentAnalysis.parse(run.result?.parsedAnswer);
 console.log(result.sentiment);
 ```
 
@@ -217,39 +229,6 @@ The following JSON Schema types are supported:
 | `array`   | `{"type": "array", "items": {...}}`           |
 | `object`  | `{"type": "object", "properties": {...}}`     |
 | `enum`    | `{"type": "string", "enum": ["a", "b", "c"]}` |
-
-## Using reasoningFormat
-
-You can also structure the reasoning output with `reasoningFormat`:
-
-```python
-run = client.run(
-    engine="tim-gpt",
-    input={
-        "instructions": "Research and compare two products",
-        "tools": [{"type": "platform", "id": "web_search"}],
-        "answerFormat": {...},
-        "reasoningFormat": {
-            "type": "object",
-            "title": "ResearchSteps",
-            "properties": {
-                "steps": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "action": {"type": "string"},
-                            "result": {"type": "string"}
-                        }
-                    }
-                }
-            },
-            "required": ["steps"]
-        }
-    },
-    options={"await_completion": True},
-)
-```
 
 ## Related
 

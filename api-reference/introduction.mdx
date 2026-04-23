@@ -20,13 +20,13 @@ A **Run** represents a single agent execution. You provide instructions and opti
 
 Choose from multiple inference engines optimized for different use cases:
 
-| Engine           | Type     | Description                                                          |
-| ---------------- | -------- | -------------------------------------------------------------------- |
-| `tim`            | Unified  | Our flagship unified agent engine for a wide range of tasks          |
-| `tim-edge`       | Unified  | Highly efficient engine tuned for performance with search tools      |
-| `timini`         | Compound | Complex reasoning engine for long-context and tool use backed by Gemini-3 Flash |
-| `tim-gpt`        | Compound | Complex reasoning engine backed by OpenAI GPT-4.1                    |
-| `tim-gpt-heavy`  | Compound | Complex reasoning engine backed by OpenAI GPT-5.2                    |
+| Engine             | Type     | Description                                                       |
+| ------------------ | -------- | ----------------------------------------------------------------- |
+| `tim`              | Unified  | Flagship unified agent engine for a wide range of tasks           |
+| `tim-edge`         | Unified  | Highly efficient engine tuned for performance with search tools   |
+| `tim-claude`       | Compound | Complex reasoning engine backed by Anthropic Claude Sonnet        |
+| `tim-claude-heavy` | Compound | Complex reasoning engine backed by Anthropic Claude Opus          |
+| `tim-1.5`          | Compound | Tool-calling engine for large OSS models v1.5                     |
 
 ### Tools
 
@@ -38,7 +38,7 @@ Agents can use tools to interact with external systems:
 
 ### Structured Output
 
-Request structured responses using JSON Schema via `answerFormat` and `reasoningFormat` fields.
+Request structured responses using JSON Schema via the `answerFormat` field.
 
 ## Authentication
 
@@ -48,7 +48,7 @@ All API endpoints require Bearer token authentication:
 curl https://api.subconscious.dev/v1/runs \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"engine": "tim-gpt", "input": {"instructions": "..."}}'
+  -d '{"engine": "tim", "input": {"instructions": "..."}}'
 ```
 
 Get your API key from the [Subconscious platform](https://www.subconscious.dev/platform/api-keys).
@@ -62,7 +62,7 @@ curl -X POST https://api.subconscious.dev/v1/runs \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "engine": "tim-gpt",
+    "engine": "tim",
     "input": {
       "instructions": "Research the latest developments in quantum computing"
     }
@@ -121,7 +121,7 @@ Or attach a one-off callback URL to a specific run:
 
 ```json
 {
-  "engine": "tim-gpt",
+  "engine": "tim",
   "input": { "instructions": "..." },
   "output": { "callbackUrl": "https://your-app.com/webhooks" }
 }

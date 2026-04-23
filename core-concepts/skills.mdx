@@ -20,7 +20,7 @@ Pass skill names in the `skills` array:
 
 ```python Python
 run = client.run(
-    engine="tim-gpt",
+    engine="tim-claude",
     input={
         "instructions": "Build a REST API with proper error handling",
         "tools": [{"type": "platform", "id": "web_search"}],
@@ -32,7 +32,7 @@ run = client.run(
 
 ```typescript Node.js
 const run = await client.run({
-  engine: "tim-gpt",
+  engine: "tim-claude",
   input: {
     instructions: "Build a REST API with proper error handling",
     tools: [{ type: "platform", id: "web_search" }],
@@ -47,7 +47,7 @@ curl https://api.subconscious.dev/v1/runs \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{
-    "engine": "tim-gpt",
+    "engine": "tim-claude",
     "input": {
       "instructions": "Build a REST API with proper error handling",
       "skills": ["api-design", "error-handling"]

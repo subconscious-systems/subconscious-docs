@@ -19,7 +19,6 @@
     "dark": "#FF5C28"
   },
   "favicon": "/favicon.png",
-  "openapi": "/api-reference/openapi.json",
   "feedback": {
     "thumbsRating": true
   },

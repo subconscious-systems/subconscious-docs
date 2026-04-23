@@ -17,17 +17,18 @@ icon: "triangle-exclamation"
 
 ## HTTP Status Codes
 
-| Status | Meaning             | What to do               |
-| ------ | ------------------- | ------------------------ |
-| `400`  | Bad Request         | Fix request parameters   |
-| `401`  | Unauthorized        | Check API key            |
-| `402`  | Payment Required    | Add credits              |
-| `403`  | Forbidden           | Check permissions        |
-| `404`  | Not Found           | Verify run ID            |
-| `409`  | Conflict            | Idempotency collision    |
-| `500`  | Server Error        | Retry with backoff       |
-| `502`  | Bad Gateway         | Upstream failed, retry   |
-| `503`  | Service Unavailable | Engine down, retry later |
+The Python SDK maps HTTP status codes to SDK error codes as follows:
+
+| Status | SDK error code         | Exception             | What to do                |
+| ------ | ---------------------- | --------------------- | ------------------------- |
+| `400`  | `invalid_request`      | `ValidationError`     | Fix request parameters    |
+| `401`  | `authentication_failed`| `AuthenticationError` | Check API key             |
+| `403`  | `permission_denied`    | `SubconsciousError`   | Check permissions         |
+| `404`  | `not_found`            | `NotFoundError`       | Verify run ID             |
+| `429`  | `rate_limited`         | `RateLimitError`      | Back off and retry        |
+| `503`  | `service_unavailable`  | `SubconsciousError`   | Engine down, retry later  |
+| `504`  | `timeout`              | `SubconsciousError`   | Retry with longer timeout |
+| other  | `internal_error`       | `SubconsciousError`   | Retry with backoff        |
 
 ## SDK Exceptions
 
@@ -38,10 +39,12 @@ Both SDKs throw typed exceptions you can catch:
 ```python Python
 from subconscious import Subconscious
 from subconscious.errors import (
-    SubconsciousError,    # Base class
-    AuthenticationError,  # 401
-    ValidationError,      # 400
-    NotFoundError,        # 404
+    SubconsciousError,     # Base class
+    AuthenticationError,   # 401
+    ValidationError,       # 400
+    NotFoundError,         # 404
+    RateLimitError,        # 429
+    RequestTooLargeError,  # raised client-side when the payload is too big
 )
 import os
 
@@ -49,16 +52,20 @@ client = Subconscious(api_key=os.environ.get("SUBCONSCIOUS_API_KEY"))
 
 try:
     run = client.run(
-        engine="tim-gpt",
+        engine="tim",
         input={"instructions": "Hello"},
         options={"await_completion": True},
     )
 except AuthenticationError:
     print("Invalid API key")
 except ValidationError as e:
-    print(f"Bad request: {e.message}")
+    print(f"Bad request: {e.args[0]}")
+except RateLimitError as e:
+    print(f"Rate limited: {e.args[0]}")
+except RequestTooLargeError as e:
+    print(f"Payload too large: {e}")
 except SubconsciousError as e:
-    print(f"Error {e.status}: {e.code} - {e.message}")
+    print(f"Error {e.status}: {e.code} - {e.args[0]}")
 ```
 
 ```typescript Node.js
@@ -76,7 +83,7 @@ const client = new Subconscious({
 
 try {
   const run = await client.run({
-    engine: "tim-gpt",
+    engine: "tim",
     input: { instructions: "Hello" },
     options: { awaitCompletion: true },
   });
@@ -95,14 +102,16 @@ try {
 
 Exception properties:
 
-- `code` — Error type (`"invalid_request"`, `"authentication_failed"`, etc.)
+- `code` — Error type (`"invalid_request"`, `"authentication_failed"`, `"permission_denied"`, `"not_found"`, `"rate_limited"`, `"internal_error"`, `"service_unavailable"`, `"timeout"`)
 - `status` — HTTP status code
-- `message` — Human-readable message
-- `details` — Additional context (validation errors)
+- `details` — Additional context (e.g. validation errors). May be `None`.
+- Human-readable message — in Python, read via `str(e)` (returns `"<code>: <message>"`) or `e.args[0]` (raw message). In Node, read via `e.message`.
+
+`RequestTooLargeError` is a `ValueError` subclass (not a `SubconsciousError`) raised on the client before any HTTP request when the serialized run body exceeds the 5 MiB API limit — catch it separately if you send large multimodal inputs.
 
 ## Retry Logic
 
-Retry on 5xx errors with exponential backoff:
+Retry on 429 and 5xx errors with exponential backoff:
 
 <CodeGroup>
 
@@ -118,12 +127,13 @@ def run_with_retry(instructions, max_retries=3):
     for attempt in range(max_retries):
         try:
             return client.run(
-                engine="tim-gpt",
+                engine="tim",
                 input={"instructions": instructions},
                 options={"await_completion": True},
             )
         except SubconsciousError as e:
-            if e.status < 500 or attempt == max_retries - 1:
+            retryable = e.status == 429 or e.status >= 500
+            if not retryable or attempt == max_retries - 1:
                 raise
             time.sleep(2 ** attempt)
 
@@ -141,12 +151,14 @@ async function runWithRetry(instructions: string, maxRetries = 3) {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       return await client.run({
-        engine: "tim-gpt",
+        engine: "tim",
         input: { instructions },
         options: { awaitCompletion: true },
       });
     } catch (e) {
-      if (!(e instanceof SubconsciousError) || e.status < 500) throw e;
+      const retryable =
+        e instanceof SubconsciousError && (e.status === 429 || e.status >= 500);
+      if (!retryable) throw e;
       if (attempt === maxRetries - 1) throw e;
       await new Promise((r) => setTimeout(r, Math.pow(2, attempt) * 1000));
     }
@@ -166,7 +178,7 @@ Runs can fail after being accepted. Check the `status` field:
 
 ```python Python
 run = client.run(
-    engine="tim-gpt",
+    engine="tim",
     input={"instructions": "Your task"},
     options={"await_completion": True},
 )
@@ -184,7 +196,7 @@ match run.status:
 
 ```typescript Node.js
 const run = await client.run({
-  engine: "tim-gpt",
+  engine: "tim",
   input: { instructions: "Your task" },
   options: { awaitCompletion: true },
 });
@@ -209,11 +221,13 @@ switch (run.status) {
 
 ## Quick Reference
 
-| Error           | Code  | Fix                                       |
-| --------------- | ----- | ----------------------------------------- |
-| Missing API key | `401` | Add `Authorization: Bearer sk-...` header |
-| Invalid API key | `401` | Check key is active in dashboard          |
-| No credits      | `402` | Add credits at subconscious.dev           |
-| Run not found   | `404` | Verify run ID exists                      |
-| Bad request     | `400` | Check required fields and types           |
-| Engine down     | `503` | Retry in a few minutes                    |
+| Error               | Status | Fix                                       |
+| ------------------- | ------ | ----------------------------------------- |
+| Missing API key     | `401`  | Add `Authorization: Bearer sk-...` header |
+| Invalid API key     | `401`  | Check key is active in dashboard          |
+| Bad request         | `400`  | Check required fields and types           |
+| Run not found       | `404`  | Verify run ID exists                      |
+| Rate limited        | `429`  | Back off and retry                        |
+| Engine down         | `503`  | Retry in a few minutes                    |
+| Gateway timeout     | `504`  | Retry with a longer `timeout`             |
+| Payload too large   | n/a    | `RequestTooLargeError` raised client-side before the request; split input |

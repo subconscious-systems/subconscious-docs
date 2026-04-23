@@ -12,21 +12,22 @@ The `run.result` object contains:
 
 ```typescript
 interface RunResult {
-  answer: string | object; // String without answerFormat, object with answerFormat
+  answer: string; // Natural language, or JSON-encoded string when using answerFormat
+  parsedAnswer?: unknown; // Client-side JSON.parse of `answer` (parsed_answer in Python)
   reasoning?: Task[]; // Step-by-step reasoning (when available)
 }
 ```
 
 ## The Answer Field
 
-The `answer` field contains the agent's final response. Depending on your use case:
+The `answer` field contains the agent's final response as a string:
 
 - **Without structured output**: A natural language string
-- **With structured output**: A parsed object matching your schema (no JSON parsing needed)
+- **With structured output**: A JSON-encoded string matching your schema
 
 ### Accessing Structured Answers
 
-When using `answerFormat`, the answer is already a parsed object. See [Structured Output](/core-concepts/structured-output) for schema examples.
+When using `answerFormat`, the API sends `answer` as a JSON-encoded string. Both SDKs decode it for you and expose the native value on `run.result.parsed_answer` (Python) / `run.result.parsedAnswer` (TypeScript). `answer` stays as the raw string if you need it. The SDKs do not validate the decoded value against your schema — validate yourself with Pydantic or Zod if you want a typed instance.
 
 <CodeGroup>
 
@@ -36,7 +37,7 @@ from subconscious import Subconscious
 client = Subconscious(api_key="your-api-key")
 
 run = client.run(
-    engine="tim-gpt",
+    engine="tim",
     input={
         "instructions": "Analyze sentiment",
         "answerFormat": {...}  # Your schema
@@ -44,9 +45,11 @@ run = client.run(
     options={"await_completion": True},
 )
 
-# answer is already a dict - no parsing needed
-answer = run.result.answer
-print(answer["sentiment"])
+# run.result.answer is the raw JSON string; parsed_answer is the decoded dict
+print(run.result.parsed_answer["sentiment"])
+
+# Hydrate into a typed Pydantic model if you need validation:
+# typed = SentimentAnalysis.model_validate(run.result.parsed_answer)
 ```
 
 ```typescript Node.js
@@ -57,7 +60,7 @@ const client = new Subconscious({
 });
 
 const run = await client.run({
-  engine: "tim-gpt",
+  engine: "tim",
   input: {
     instructions: "Analyze sentiment",
     answerFormat: {...}  // Your schema
@@ -65,9 +68,11 @@ const run = await client.run({
   options: { awaitCompletion: true },
 });
 
-// answer is already an object - no parsing needed
-const answer = run.result?.answer;
+// run.result.answer is the raw JSON string; parsedAnswer is the decoded value
+const answer = run.result?.parsedAnswer as { sentiment: string };
 console.log(answer.sentiment);
+
+// Or validate with your Zod schema: SentimentAnalysis.parse(run.result?.parsedAnswer)
 ```
 
 </CodeGroup>
@@ -89,6 +94,7 @@ interface Task {
 
 interface ToolCall {
   tool_name: string; // Name of the tool called
+  tool_call_id?: string; // Server-assigned id for the tool call
   parameters: any; // Input parameters
   tool_result: any; // Result from the tool
 }
@@ -131,17 +137,18 @@ Loop through the reasoning to extract tool usage:
 
 ```python Python
 def extract_tool_calls(reasoning):
+    # reasoning is a list of ReasoningTask pydantic models — use attribute access
     tool_calls = []
     for task in reasoning or []:
-        if task.get("tooluse"):
+        if task.tooluse:
             tool_calls.append({
-                "tool": task["tooluse"]["tool_name"],
-                "params": task["tooluse"]["parameters"],
-                "result": task["tooluse"]["tool_result"]
+                "tool": task.tooluse.tool_name,
+                "params": task.tooluse.parameters,
+                "result": task.tooluse.tool_result,
             })
         # Check subtasks recursively
-        if task.get("subtasks"):
-            tool_calls.extend(extract_tool_calls(task["subtasks"]))
+        if task.subtasks:
+            tool_calls.extend(extract_tool_calls(task.subtasks))
     return tool_calls
 
 # Usage
@@ -183,13 +190,11 @@ The `usage` field provides metrics about the run:
 interface RunUsage {
   inputTokens: number; // Tokens in the prompt
   outputTokens: number; // Tokens generated
-  durationMs: number; // Total execution time
-  toolCalls?: {
-    // Tool usage breakdown
-    [toolName: string]: number;
-  };
+  durationMs?: number; // Total execution time (when reported by the server)
 }
 ```
+
+In Python, fields are exposed as snake_case attributes (`input_tokens`, `output_tokens`, `duration_ms`) on the `Usage` pydantic model.
 
 ### Tracking Costs
 
@@ -197,7 +202,7 @@ Use the usage information to track costs:
 
 ```python
 usage = run.usage
-input_cost = usage.input_tokens / 1_000_000 * 2.00  # tim-gpt pricing
+input_cost = usage.input_tokens / 1_000_000 * 2.00  # tim pricing
 output_cost = usage.output_tokens / 1_000_000 * 8.00
 total_cost = input_cost + output_cost
 print(f"Run cost: ${total_cost:.4f}")
