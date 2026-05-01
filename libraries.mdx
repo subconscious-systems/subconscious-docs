@@ -8,11 +8,12 @@ icon: "cube"
 We provide official SDKs for seamless integration with your preferred language.
 
 <Note>
-  **v1.0 is out.** Both SDKs are on v1.0 — response types (`Run`, `Usage`,
-  `ReasoningTask`) are flat and match the canonical API wire format, and both
-  support multimodal input via `Image` / `content[]` and lifecycle-managed
-  services via `resources[]`. Upgrading from 0.x in Node? See the
-  [Node SDK migration guide](https://github.com/subconscious-systems/subconscious-node/blob/main/MIGRATION.md).
+  **`run` and `runAndWait` are now separate methods.** Older releases used
+  `client.run({ ..., options: { awaitCompletion: true } })` to block until
+  completion. That form still works (and prints a deprecation warning), but
+  new code should call `client.runAndWait()` / `client.run_and_wait()`
+  directly. See [Back-compat & deprecations](#back-compat--deprecations)
+  below.
 </Note>
 
 ## Install an official SDK
@@ -34,13 +35,12 @@ We provide official SDKs for seamless integration with your preferred language.
       apiKey: process.env.SUBCONSCIOUS_API_KEY!,
     });
 
-    const run = await client.run({
+    const run = await client.runAndWait({
       engine: "tim",
       input: {
         instructions: "Your task here",
         tools: [],
       },
-      options: { awaitCompletion: true },
     });
 
     console.log(run.result?.answer);
@@ -60,13 +60,12 @@ We provide official SDKs for seamless integration with your preferred language.
 
     client = Subconscious(api_key="your-api-key")
 
-    run = client.run(
+    run = client.run_and_wait(
         engine="tim",
         input={
             "instructions": "Your task here",
             "tools": [],
         },
-        options={"await_completion": True},
     )
 
     print(run.result.answer)
@@ -74,17 +73,20 @@ We provide official SDKs for seamless integration with your preferred language.
   </Tab>
 </Tabs>
 
-## SDK Methods
+## SDK methods
 
-Both SDKs provide the same core methods:
+Both SDKs provide the same core methods. The Node spellings are camelCase,
+the Python spellings are snake_case (e.g. `runAndWait` ↔ `run_and_wait`).
 
-| Method                 | Description                          |
-| ---------------------- | ------------------------------------ |
-| `client.run()`         | Create and optionally wait for a run |
-| `client.stream()`      | Create a run and stream events       |
-| `client.get(runId)`    | Get the status of a run              |
-| `client.wait(runId)`   | Poll until a run completes           |
-| `client.cancel(runId)` | Cancel a running or queued run       |
+| Method                  | Description                                                   |
+| ----------------------- | ------------------------------------------------------------- |
+| `client.run()`          | Create a run and return immediately (fire-and-forget)         |
+| `client.runAndWait()`   | Create a run and poll until it reaches a terminal state       |
+| `client.stream()`       | Create a run and stream events as they arrive                 |
+| `client.observe(runId)` | Re-attach to a live or finished run and stream its events     |
+| `client.get(runId)`     | Get the current status of a run                               |
+| `client.wait(runId)`    | Poll an existing runId until it completes                     |
+| `client.cancel(runId)`  | Cancel a run (idempotent — safe to call regardless of state)  |
 
 ## Skills
 
@@ -93,25 +95,23 @@ Both SDKs support [Skills](/core-concepts/skills). Pass an array of skill names 
 <Tabs>
   <Tab title="Node.js">
     ```typescript
-    const run = await client.run({
+    const run = await client.runAndWait({
       engine: "tim-claude",
       input: {
         instructions: "Review this code",
         skills: ["security-review", "coding-standards"],
       },
-      options: { awaitCompletion: true },
     });
     ```
   </Tab>
   <Tab title="Python">
     ```python
-    run = client.run(
+    run = client.run_and_wait(
         engine="tim-claude",
         input={
             "instructions": "Review this code",
             "skills": ["security-review", "coding-standards"],
         },
-        options={"await_completion": True},
     )
     ```
   </Tab>
@@ -119,28 +119,82 @@ Both SDKs support [Skills](/core-concepts/skills). Pass an array of skill names 
 
 ## Webhooks
 
-Both SDKs support per-run webhook callbacks with `output.callbackUrl`. For org-wide subscriptions, use the [webhooks API](/core-concepts/async-webhooks) or the [dashboard](https://www.subconscious.dev/platform/webhooks).
+Per-run webhook callbacks are configured with the top-level `output.callbackUrl`
+field on the REST request. For org-wide subscriptions, use the
+[webhooks API](/core-concepts/async-webhooks) or the
+[dashboard](https://www.subconscious.dev/platform/webhooks).
+
+```bash
+curl -X POST https://api.subconscious.dev/v1/runs \
+  -H "Authorization: Bearer $SUBCONSCIOUS_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "engine": "tim-claude",
+    "input": { "instructions": "Generate a report" },
+    "output": { "callbackUrl": "https://your-server.com/webhook" }
+  }'
+```
+
+## Back-compat & deprecations
+
+Both SDKs keep a thin compatibility shim for callers from before the
+`run` / `runAndWait` split and the wire-format normalization. Existing
+code keeps working without changes; new code should reach for the new
+spellings.
+
+### `options.awaitCompletion` — deprecated
+
+The single-method form from older releases is still accepted. It
+transparently routes through `runAndWait()` and emits a one-shot
+deprecation warning the first time it's used in a process. Migrate by
+calling `runAndWait()` directly:
 
 <Tabs>
   <Tab title="Node.js">
     ```typescript
+    // Before (still works, prints a deprecation warning once):
     const run = await client.run({
-      engine: "tim-claude",
-      input: { instructions: "Generate a report" },
-      output: { callbackUrl: "https://your-server.com/webhook" },
+      engine: "tim",
+      input: { instructions: "..." },
+      options: { awaitCompletion: true },
+    });
+
+    // After:
+    const run = await client.runAndWait({
+      engine: "tim",
+      input: { instructions: "..." },
     });
     ```
   </Tab>
   <Tab title="Python">
     ```python
+    # Before (still works, emits DeprecationWarning once):
     run = client.run(
-        engine="tim-claude",
-        input={"instructions": "Generate a report"},
-        output={"callbackUrl": "https://your-server.com/webhook"},
+        engine="tim",
+        input={"instructions": "..."},
+        options={"await_completion": True},
     )
+
+    # After:
+    run = client.run_and_wait(engine="tim", input={"instructions": "..."})
     ```
   </Tab>
 </Tabs>
+
+`RunOptions` will be removed in a future minor release.
+
+### Stream payload key: `runId`
+
+The canonical SSE event payload key is `runId` (camelCase), matching the
+REST response shape. The SDKs still accept the legacy snake_case
+`run_id` shape on the wire so callers running against older API builds
+keep working — but new emitters always write `runId`.
+
+### Error code spelling: `canceled` (one `l`)
+
+`ErrorCode` and `RunStatus` both use `canceled` (one `l`). The earlier
+double-`l` `cancelled` form was removed. Pattern-match on `code`, never
+on `message`.
 
 ## Next Steps
 

@@ -1,86 +1,62 @@
 <CodeGroup>
 
 ```python Python
-from subconscious import Subconscious
+from subconscious import Subconscious, tools
+from pydantic import BaseModel
 
-# Initialize the client
 client = Subconscious(api_key="YOUR_API_KEY")
 
-# Make request with one tool
-run = client.run(
+class WebSearchArgs(BaseModel):
+    query: str
+
+run = client.run_and_wait(
     engine="tim",
     input={
         "instructions": "Find the latest news about Tesla's stock performance this week.",
         "tools": [
-            {
-                "type": "function",
-                "name": "web_search",
-                "description": "Search the web for current information",
-                "url": "TOOL_SERVER_URL",
-                "method": "GET",
-                "timeout": 30,
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "The search query"
-                        }
-                    },
-                    "required": ["query"],
-                    "additionalProperties": False
-                }
-            }
-        ]
+            tools.function(
+                name="web_search",
+                description="Search the web for current information",
+                url="TOOL_SERVER_URL",
+                method="GET",
+                timeout=30,
+                parameters=WebSearchArgs,
+            ),
+        ],
     },
-    options={"await_completion": True}
 )
 
-# Print the answer
 print(run.result.answer)
 ```
 
 ```javascript JavaScript
-import { Subconscious } from "subconscious";
+import { Subconscious, tools } from "subconscious";
+import { z } from "zod";
 
-// Initialize the client
 const client = new Subconscious({
   apiKey: "YOUR_API_KEY",
 });
 
-// Make request with one tool
-const run = await client.run({
+const run = await client.runAndWait({
   engine: "tim",
   input: {
     instructions:
       "Find the latest news about Tesla's stock performance this week.",
     tools: [
-      {
-        type: "function",
-        function: {
-          name: "web_search",
-          description: "Search the web for current information",
-          parameters: {
-            type: "object",
-            properties: {
-              query: {
-                type: "string",
-                description: "The search query",
-              },
-            },
-            required: ["query"],
-          },
-          url: "TOOL_SERVER_URL",
-          method: "GET",
-          timeout: 30,
-        },
-      },
+      tools.function({
+        name: "web_search",
+        description: "Search the web for current information",
+        url: "TOOL_SERVER_URL",
+        method: "GET",
+        timeout: 30,
+        parameters: z.object({
+          query: z.string().describe("The search query"),
+        }),
+      }),
     ],
   },
-  options: { awaitCompletion: true },
 });
 
-// Print the answer
 console.log(run.result?.answer);
 ```
 

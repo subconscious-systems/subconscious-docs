@@ -19,26 +19,28 @@ Pass skill names in the `skills` array:
 <CodeGroup>
 
 ```python Python
-run = client.run(
+from subconscious import tools
+
+run = client.run_and_wait(
     engine="tim-claude",
     input={
         "instructions": "Build a REST API with proper error handling",
-        "tools": [{"type": "platform", "id": "web_search"}],
+        "tools": [tools.platform("web_search")],
         "skills": ["api-design", "error-handling"],
     },
-    options={"await_completion": True},
 )
 ```
 
 ```typescript Node.js
-const run = await client.run({
+import { tools } from "subconscious";
+
+const run = await client.runAndWait({
   engine: "tim-claude",
   input: {
     instructions: "Build a REST API with proper error handling",
-    tools: [{ type: "platform", id: "web_search" }],
+    tools: [tools.platform("web_search")],
     skills: ["api-design", "error-handling"],
   },
-  options: { awaitCompletion: true },
 });
 ```
 

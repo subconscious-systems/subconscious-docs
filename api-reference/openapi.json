@@ -755,7 +755,7 @@
       },
       "RunOptions": {
         "type": "object",
-        "description": "Server-side runtime limits for a run. The SDKs additionally accept a client-side-only `awaitCompletion` / `await_completion` flag that toggles polling inside the SDK; that flag is never sent to the server.",
+        "description": "Server-side runtime limits for a run. Older SDK releases also accepted a client-side-only `awaitCompletion` / `await_completion` flag here that toggled polling inside the SDK; that flag is now deprecated — use `client.runAndWait()` / `client.run_and_wait()` instead. It still works (with a one-shot deprecation warning) but is never sent to the server.",
         "properties": {
           "timeout": {
             "type": "integer",

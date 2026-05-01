@@ -23,11 +23,10 @@ from subconscious import Subconscious
 
 client = Subconscious(api_key="your-api-key")
 
-run = client.run(
+run = client.run_and_wait(
     engine="tim",
     input={
         "instructions": "Analyze the sentiment of this review: 'Great product, fast shipping!'",
-        "tools": [],
         "answerFormat": {
             "type": "object",
             "title": "SentimentAnalysis",
@@ -50,11 +49,11 @@ run = client.run(
             "required": ["sentiment", "confidence", "keywords"]
         }
     },
-    options={"await_completion": True},
 )
 
-# `answer` is the raw JSON string; `parsed_answer` is the decoded dict
-result = run.result.parsed_answer
+# `answer` is the structured value (already decoded). The raw JSON string is
+# also available on the `result` envelope for power users.
+result = run.result.answer
 print(result["sentiment"])   # "positive"
 print(result["confidence"])  # 0.95
 print(result["keywords"])    # ["Great product", "fast shipping"]
@@ -67,12 +66,15 @@ const client = new Subconscious({
   apiKey: process.env.SUBCONSCIOUS_API_KEY!,
 });
 
-const run = await client.run({
+const run = await client.runAndWait<{
+  sentiment: "positive" | "negative" | "neutral";
+  confidence: number;
+  keywords: string[];
+}>({
   engine: "tim",
   input: {
     instructions:
       "Analyze the sentiment of this review: 'Great product, fast shipping!'",
-    tools: [],
     answerFormat: {
       type: "object",
       title: "SentimentAnalysis",
@@ -95,34 +97,27 @@ const run = await client.run({
       required: ["sentiment", "confidence", "keywords"],
     },
   },
-  options: { awaitCompletion: true },
 });
 
-// `answer` is the raw JSON string; `parsedAnswer` is the decoded object
-const result = run.result?.parsedAnswer as {
-  sentiment: string;
-  confidence: number;
-  keywords: string[];
-};
-console.log(result.sentiment); // "positive"
-console.log(result.confidence); // 0.95
-console.log(result.keywords); // ["Great product", "fast shipping"]
+// `answer` is type-narrowed by the generic on `runAndWait<T>`.
+console.log(run.result?.answer.sentiment);  // "positive"
+console.log(run.result?.answer.confidence); // 0.95
+console.log(run.result?.answer.keywords);   // ["Great product", "fast shipping"]
 ```
 
 </CodeGroup>
 
 <Note>
-  `run.result.answer` is always a string. When you supply an `answerFormat`,
-  the agent's structured output arrives as a JSON-encoded string — the SDK
-  decodes it for you and attaches the native value as
-  `run.result.parsed_answer` (Python) or `run.result.parsedAnswer`
-  (TypeScript). Use `answer` when you need the raw payload, and
-  `parsed_answer` / `parsedAnswer` when you want to read fields directly.
+  When `answerFormat` is set, `run.result.answer` is the decoded
+  structured value (a dict in Python, an object in TypeScript) — not a
+  JSON string. In TypeScript you can narrow the type via the generic on
+  `runAndWait<T>(...)`, `run<T>(...)`, or `stream<T>(...)`.
 </Note>
 
 ## Using Pydantic Models (Python)
 
-The Python SDK automatically converts Pydantic models to JSON Schema:
+The Python SDK automatically converts Pydantic models to JSON Schema —
+just pass the class itself as `answerFormat`:
 
 ```python
 from subconscious import Subconscious
@@ -136,28 +131,29 @@ class SentimentAnalysis(BaseModel):
 
 client = Subconscious(api_key=os.environ.get("SUBCONSCIOUS_API_KEY"))
 
-run = client.run(
+run = client.run_and_wait(
     engine="tim",
     input={
         "instructions": "Analyze the sentiment of: 'Great product!'",
-        "answerFormat": SentimentAnalysis,  # Pass the class directly
+        "answerFormat": SentimentAnalysis,
     },
-    options={"await_completion": True},
 )
 
-print(run.result.parsed_answer["sentiment"])
+print(run.result.answer["sentiment"])
 
 # Or hydrate into a typed instance yourself:
-typed = SentimentAnalysis.model_validate(run.result.parsed_answer)
+typed = SentimentAnalysis.model_validate(run.result.answer)
 print(typed.sentiment)
 ```
 
 ## Using Zod Schemas (TypeScript)
 
-The TypeScript SDK provides a `zodToJsonSchema` helper to convert Zod schemas:
+The TypeScript SDK accepts a Zod schema directly — pass the schema as
+`answerFormat` and the SDK calls `zodToJsonSchema` for you. The generic
+on `runAndWait<T>(...)` narrows `result.answer`:
 
 ```typescript
-import { Subconscious, zodToJsonSchema } from "subconscious";
+import { Subconscious } from "subconscious";
 import { z } from "zod";
 
 const SentimentAnalysis = z.object({
@@ -172,19 +168,20 @@ const client = new Subconscious({
   apiKey: process.env.SUBCONSCIOUS_API_KEY!,
 });
 
-const run = await client.run({
+const run = await client.runAndWait<SentimentAnalysis>({
   engine: "tim",
   input: {
     instructions: "Analyze the sentiment of: 'Great product!'",
-    answerFormat: zodToJsonSchema(SentimentAnalysis, "SentimentAnalysis"),
+    answerFormat: SentimentAnalysis,
   },
-  options: { awaitCompletion: true },
 });
 
-// Decode + validate with your Zod schema for a typed value
-const result = SentimentAnalysis.parse(run.result?.parsedAnswer);
-console.log(result.sentiment);
+console.log(run.result?.answer.sentiment); // typed
 ```
+
+`zodToJsonSchema` is also exported as a public helper if you'd rather
+build the JSON Schema yourself, but the inline-Zod path above is the
+recommended one.
 
 ### Supported Zod Types
 

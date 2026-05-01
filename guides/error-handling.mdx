@@ -51,10 +51,9 @@ import os
 client = Subconscious(api_key=os.environ.get("SUBCONSCIOUS_API_KEY"))
 
 try:
-    run = client.run(
+    run = client.run_and_wait(
         engine="tim",
         input={"instructions": "Hello"},
-        options={"await_completion": True},
     )
 except AuthenticationError:
     print("Invalid API key")
@@ -82,10 +81,9 @@ const client = new Subconscious({
 });
 
 try {
-  const run = await client.run({
+  const run = await client.runAndWait({
     engine: "tim",
     input: { instructions: "Hello" },
-    options: { awaitCompletion: true },
   });
 } catch (e) {
   if (e instanceof AuthenticationError) {
@@ -100,9 +98,25 @@ try {
 
 </CodeGroup>
 
+### Error codes
+
+Every `SubconsciousError` and every `error` stream event carries a
+canonical `code` from this enum. Pattern-match on `code`, never on
+`message.includes(...)`:
+
+```
+invalid_request    authentication_failed   permission_denied
+not_found          rate_limited            internal_error
+service_unavailable  timeout               canceled
+```
+
+Note the spelling: `canceled` (one `l`). Earlier releases used
+`cancelled` (two `l`s); the single-`l` form is now canonical and
+matches `RunStatus`.
+
 Exception properties:
 
-- `code` — Error type (`"invalid_request"`, `"authentication_failed"`, `"permission_denied"`, `"not_found"`, `"rate_limited"`, `"internal_error"`, `"service_unavailable"`, `"timeout"`)
+- `code` — one of the canonical codes above
 - `status` — HTTP status code
 - `details` — Additional context (e.g. validation errors). May be `None`.
 - Human-readable message — in Python, read via `str(e)` (returns `"<code>: <message>"`) or `e.args[0]` (raw message). In Node, read via `e.message`.
@@ -126,10 +140,9 @@ client = Subconscious(api_key=os.environ.get("SUBCONSCIOUS_API_KEY"))
 def run_with_retry(instructions, max_retries=3):
     for attempt in range(max_retries):
         try:
-            return client.run(
+            return client.run_and_wait(
                 engine="tim",
                 input={"instructions": instructions},
-                options={"await_completion": True},
             )
         except SubconsciousError as e:
             retryable = e.status == 429 or e.status >= 500
@@ -150,10 +163,9 @@ const client = new Subconscious({
 async function runWithRetry(instructions: string, maxRetries = 3) {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      return await client.run({
+      return await client.runAndWait({
         engine: "tim",
         input: { instructions },
-        options: { awaitCompletion: true },
       });
     } catch (e) {
       const retryable =
@@ -177,10 +189,9 @@ Runs can fail after being accepted. Check the `status` field:
 <CodeGroup>
 
 ```python Python
-run = client.run(
+run = client.run_and_wait(
     engine="tim",
     input={"instructions": "Your task"},
-    options={"await_completion": True},
 )
 
 match run.status:
@@ -195,10 +206,9 @@ match run.status:
 ```
 
 ```typescript Node.js
-const run = await client.run({
+const run = await client.runAndWait({
   engine: "tim",
   input: { instructions: "Your task" },
-  options: { awaitCompletion: true },
 });
 
 switch (run.status) {

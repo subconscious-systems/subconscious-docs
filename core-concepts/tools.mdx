@@ -13,37 +13,33 @@ Add tools to any run:
 <CodeGroup>
 
 ```python Python
-from subconscious import Subconscious
+from subconscious import Subconscious, tools
 import os
 
 client = Subconscious(api_key=os.environ.get("SUBCONSCIOUS_API_KEY"))
 
-run = client.run(
+run = client.run_and_wait(
     engine="tim",
     input={
         "instructions": "Find the latest news about SpaceX",
-        "tools": [
-            {"type": "platform", "id": "web_search"}
-        ]
+        "tools": [tools.platform("web_search")],
     },
-    options={"await_completion": True},
 )
 ```
 
 ```typescript Node.js
-import { Subconscious } from "subconscious";
+import { Subconscious, tools } from "subconscious";
 
 const client = new Subconscious({
   apiKey: process.env.SUBCONSCIOUS_API_KEY!,
 });
 
-const run = await client.run({
+const run = await client.runAndWait({
   engine: "tim",
   input: {
     instructions: "Find the latest news about SpaceX",
-    tools: [{ type: "platform", id: "web_search" }],
+    tools: [tools.platform("web_search")],
   },
-  options: { awaitCompletion: true },
 });
 ```
 
