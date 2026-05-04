@@ -42,10 +42,9 @@ from subconscious import Subconscious
 
 client = Subconscious(api_key="your-api-key")
 
-run = client.run(
+run = client.run_and_wait(
     engine="tim",
     input={"instructions": "Summarize the latest AI news"},
-    options={"await_completion": True},
 )
 
 print(run.result.answer)
@@ -58,10 +57,9 @@ const client = new Subconscious({
   apiKey: process.env.SUBCONSCIOUS_API_KEY!,
 });
 
-const run = await client.run({
+const run = await client.runAndWait({
   engine: "tim",
   input: { instructions: "Summarize the latest AI news" },
-  options: { awaitCompletion: true },
 });
 
 console.log(run.result?.answer);

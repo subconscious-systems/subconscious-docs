@@ -3,40 +3,34 @@
 ```python Python
 from subconscious import Subconscious
 
-# Initialize the client
 client = Subconscious(api_key="YOUR_API_KEY")
 
-# Make a simple request without tools
-run = client.run(
+# Block until the run finishes and return the final result.
+run = client.run_and_wait(
     engine="tim",
     input={
         "instructions": "What's the derivative of 3x^2 * sin(x)?"
     },
-    options={"await_completion": True}
 )
 
-# Print the answer
 print(run.result.answer)
 ```
 
 ```javascript JavaScript
 import { Subconscious } from "subconscious";
 
-// Initialize the client
 const client = new Subconscious({
   apiKey: "YOUR_API_KEY",
 });
 
-// Make a simple request without tools
-const run = await client.run({
+// Block until the run finishes and return the final result.
+const run = await client.runAndWait({
   engine: "tim",
   input: {
     instructions: "What's the derivative of 3x^2 * sin(x)?",
   },
-  options: { awaitCompletion: true },
 });
 
-// Print the answer
 console.log(run.result?.answer);
 ```
 

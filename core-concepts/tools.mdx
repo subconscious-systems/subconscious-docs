@@ -13,37 +13,33 @@ Add tools to any run:
 <CodeGroup>
 
 ```python Python
-from subconscious import Subconscious
+from subconscious import Subconscious, tools
 import os
 
 client = Subconscious(api_key=os.environ.get("SUBCONSCIOUS_API_KEY"))
 
-run = client.run(
+run = client.run_and_wait(
     engine="tim",
     input={
         "instructions": "Find the latest news about SpaceX",
-        "tools": [
-            {"type": "platform", "id": "web_search"}
-        ]
+        "tools": [tools.platform("web_search")],
     },
-    options={"await_completion": True},
 )
 ```
 
 ```typescript Node.js
-import { Subconscious } from "subconscious";
+import { Subconscious, tools } from "subconscious";
 
 const client = new Subconscious({
   apiKey: process.env.SUBCONSCIOUS_API_KEY!,
 });
 
-const run = await client.run({
+const run = await client.runAndWait({
   engine: "tim",
   input: {
     instructions: "Find the latest news about SpaceX",
-    tools: [{ type: "platform", id: "web_search" }],
+    tools: [tools.platform("web_search")],
   },
-  options: { awaitCompletion: true },
 });
 ```
 
@@ -78,24 +74,24 @@ Call your own HTTP endpoints. You host the tool; Subconscious calls it during ag
 ```typescript
 type FunctionTool = {
   type: "function";
-  name: string;
-  description: string;
-  url: string;
-  method: "POST" | "GET";
-  timeout?: number; // seconds, default 30
-  parameters: {
-    type: "object";
-    properties: Record<string, any>;
-    required?: string[];
+  function: {
+    name: string;
+    description?: string;
+    url: string;
+    parameters: {
+      type: "object";
+      properties: Record<string, any>;
+      required?: string[];
+    };
+    headers?: Record<string, string>;  // HTTP headers for this tool
+    defaults?: Record<string, any>;    // Hidden params injected at call time
   };
-  headers?: Record<string, string>;  // HTTP headers for this tool
-  defaults?: Record<string, any>;    // Hidden params injected at call time
 };
 ```
 
 ### Building a Tool Server
 
-Your tool endpoint receives POST requests with parameters as JSON and returns JSON results.
+Your tool endpoint receives POST requests with a flat JSON body keyed by parameter name and returns JSON results.
 
 <CodeGroup>
 
@@ -152,14 +148,13 @@ app.listen(8000, () => console.log("Tool server running on :8000"));
 Once your server is running, register the tool in your run:
 
 ```javascript
+import { tools } from "subconscious";
+
 tools: [
-  {
-    type: "function",
+  tools.function({
     name: "get_weather",
     description: "Get current weather for a city",
     url: "https://your-server.com/weather",
-    method: "POST",
-    timeout: 10,
     parameters: {
       type: "object",
       properties: {
@@ -168,7 +163,7 @@ tools: [
       },
       required: ["city"],
     },
-  },
+  }),
 ];
 ```
 
@@ -183,12 +178,10 @@ tools: [
 Add custom HTTP headers that are sent when calling your tool's endpoint. Useful for authentication:
 
 ```javascript
-{
-  type: "function",
+tools.function({
   name: "my_api",
   description: "Call my authenticated API",
   url: "https://api.example.com/endpoint",
-  method: "POST",
   parameters: {
     type: "object",
     properties: {
@@ -201,7 +194,7 @@ Add custom HTTP headers that are sent when calling your tool's endpoint. Useful 
     "x-api-key": "your-secret-key",
     "x-custom-header": "custom-value"
   }
-}
+})
 ```
 
 Each tool can have its own headers—they're only sent when that specific tool's endpoint is called.
@@ -211,12 +204,10 @@ Each tool can have its own headers—they're only sent when that specific tool's
 Inject parameter values that are **hidden from the model** and automatically merged at call time. Perfect for session IDs, public API keys, or other values you don't want the model to see or generate:
 
 ```javascript
-{
-  type: "function",
+tools.function({
   name: "search_database",
   description: "Search the database",
   url: "https://api.example.com/search",
-  method: "POST",
   parameters: {
     type: "object",
     properties: {
@@ -232,7 +223,7 @@ Inject parameter values that are **hidden from the model** and automatically mer
     sessionId: "user-session-abc123",
     apiKey: "secret-api-key"
   }
-}
+})
 ```
 
 ---
@@ -348,6 +339,42 @@ Saved tools are useful when:
 
 ---
 
+## Resource Tools
+
+Attach lifecycle-managed hosted resources, such as a sandbox or browser, by placing resource blocks in the same `tools` array as platform, function, and MCP tools.
+
+<CodeGroup>
+
+```python Python
+from subconscious import tools
+
+run = client.run_and_wait(
+    engine="tim",
+    input={
+        "instructions": "Analyze data.csv and output a chart",
+        "tools": [tools.resource("sandbox")],
+    },
+)
+```
+
+```typescript Node.js
+import { tools } from "subconscious";
+
+const run = await client.runAndWait({
+  engine: "tim",
+  input: {
+    instructions: "Analyze data.csv and output a chart",
+    tools: [tools.resource("sandbox")],
+  },
+});
+```
+
+</CodeGroup>
+
+Currently supported resources: `sandbox`, `browser`, and `memory`.
+
+---
+
 ## Combining Tools
 
 Agents can use multiple tools together. Give them what they need:
@@ -355,16 +382,17 @@ Agents can use multiple tools together. Give them what they need:
 ```javascript
 tools: [
   // Platform tools for web research
-  { type: "platform", id: "web_search" },
-  { type: "platform", id: "page_reader" },
+  tools.platform("web_search"),
+  tools.platform("page_reader"),
+
+  // Hosted runtime resources
+  tools.resource("sandbox"),
 
   // Your custom API
-  {
-    type: "function",
+  tools.function({
     name: "save_to_database",
     description: "Save research findings to our database",
     url: "https://api.example.com/save",
-    method: "POST",
     parameters: {
       type: "object",
       properties: {
@@ -374,7 +402,7 @@ tools: [
       },
       required: ["title", "content"],
     },
-  },
+  }),
 ];
 ```
 

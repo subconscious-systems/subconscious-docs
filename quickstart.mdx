@@ -71,37 +71,35 @@ pip install subconscious-sdk
 <CodeGroup>
 
 ```typescript Node.js
-import { Subconscious } from "subconscious";
+import { Subconscious, tools } from "subconscious";
 
 const client = new Subconscious({
   apiKey: process.env.SUBCONSCIOUS_API_KEY!,
 });
 
-const run = await client.run({
+const run = await client.runAndWait({
   engine: "tim",
   input: {
     instructions:
       "Search for the latest AI news and summarize the top 3 stories",
-    tools: [{ type: "platform", id: "web_search" }],
+    tools: [tools.platform("web_search")],
   },
-  options: { awaitCompletion: true },
 });
 
 console.log(run.result?.answer);
 ```
 
 ```python Python
-from subconscious import Subconscious
+from subconscious import Subconscious, tools
 
 client = Subconscious(api_key="your-api-key")
 
-run = client.run(
+run = client.run_and_wait(
     engine="tim",
     input={
         "instructions": "Search for the latest AI news and summarize the top 3 stories",
-        "tools": [{"type": "platform", "id": "web_search"}],
+        "tools": [tools.platform("web_search")],
     },
-    options={"await_completion": True},
 )
 
 print(run.result.answer)

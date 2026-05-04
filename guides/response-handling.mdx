@@ -11,68 +11,81 @@ When a run completes, the agent returns structured results that include both the
 The `run.result` object contains:
 
 ```typescript
-interface RunResult {
-  answer: string; // Natural language, or JSON-encoded string when using answerFormat
-  parsedAnswer?: unknown; // Client-side JSON.parse of `answer` (parsed_answer in Python)
-  reasoning?: Task[]; // Step-by-step reasoning (when available)
+interface RunResult<T = string> {
+  answer: T; // string for free-form runs; the structured value when answerFormat is set
+  reasoning: ReasoningNode[] | null; // step-by-step reasoning tree (when available)
 }
 ```
 
 ## The Answer Field
 
-The `answer` field contains the agent's final response as a string:
+The shape of `result.answer` depends on whether you set `answerFormat`:
 
-- **Without structured output**: A natural language string
-- **With structured output**: A JSON-encoded string matching your schema
+- **Without `answerFormat`**: a natural language string.
+- **With `answerFormat`**: the structured value (a Pydantic model / dict in Python; an object typed by the generic on `runAndWait<T>` / `run<T>` / `stream<T>` in TypeScript).
 
 ### Accessing Structured Answers
 
-When using `answerFormat`, the API sends `answer` as a JSON-encoded string. Both SDKs decode it for you and expose the native value on `run.result.parsed_answer` (Python) / `run.result.parsedAnswer` (TypeScript). `answer` stays as the raw string if you need it. The SDKs do not validate the decoded value against your schema — validate yourself with Pydantic or Zod if you want a typed instance.
+When `answerFormat` is set, the SDKs decode the structured payload for
+you — `run.result.answer` is already the decoded value, not a JSON
+string. The SDKs do not validate the decoded value against your schema
+— validate yourself with Pydantic or Zod if you want a typed instance.
 
 <CodeGroup>
 
 ```python Python
 from subconscious import Subconscious
+from pydantic import BaseModel
+
+class SentimentAnalysis(BaseModel):
+    sentiment: str
+    confidence: float
 
 client = Subconscious(api_key="your-api-key")
 
-run = client.run(
+run = client.run_and_wait(
     engine="tim",
     input={
         "instructions": "Analyze sentiment",
-        "answerFormat": {...}  # Your schema
+        "answerFormat": SentimentAnalysis,
     },
-    options={"await_completion": True},
 )
 
-# run.result.answer is the raw JSON string; parsed_answer is the decoded dict
-print(run.result.parsed_answer["sentiment"])
+# run.result.answer is already a dict matching SentimentAnalysis
+print(run.result.answer["sentiment"])
 
-# Hydrate into a typed Pydantic model if you need validation:
-# typed = SentimentAnalysis.model_validate(run.result.parsed_answer)
+# Hydrate into a typed Pydantic instance if you want validation:
+typed = SentimentAnalysis.model_validate(run.result.answer)
+print(typed.sentiment)
 ```
 
 ```typescript Node.js
 import { Subconscious } from "subconscious";
+import { z } from "zod";
 
 const client = new Subconscious({
   apiKey: process.env.SUBCONSCIOUS_API_KEY!,
 });
 
-const run = await client.run({
+const SentimentAnalysis = z.object({
+  sentiment: z.string(),
+  confidence: z.number(),
+});
+type SentimentAnalysis = z.infer<typeof SentimentAnalysis>;
+
+const run = await client.runAndWait<SentimentAnalysis>({
   engine: "tim",
   input: {
     instructions: "Analyze sentiment",
-    answerFormat: {...}  // Your schema
+    answerFormat: SentimentAnalysis,
   },
-  options: { awaitCompletion: true },
 });
 
-// run.result.answer is the raw JSON string; parsedAnswer is the decoded value
-const answer = run.result?.parsedAnswer as { sentiment: string };
-console.log(answer.sentiment);
+// `result.answer` is narrowed to SentimentAnalysis by the generic
+console.log(run.result?.answer.sentiment);
 
-// Or validate with your Zod schema: SentimentAnalysis.parse(run.result?.parsedAnswer)
+// Optionally re-validate at runtime:
+// const validated = SentimentAnalysis.parse(run.result?.answer);
 ```
 
 </CodeGroup>
@@ -81,22 +94,21 @@ console.log(answer.sentiment);
 
 The `reasoning` field provides visibility into how the agent arrived at its answer. Each task in the array represents a step in the reasoning process.
 
-### Task Structure
+### ReasoningNode Structure
 
 ```typescript
-interface Task {
-  thought?: string; // Agent's internal reasoning
-  title?: string; // Step title
-  tooluse?: ToolCall; // Tool call details
-  subtasks?: Task[]; // Nested reasoning steps
-  conclusion?: string; // Step conclusion
+interface ReasoningNode {
+  title: string;       // Step title
+  thought: string;     // Agent's internal reasoning
+  tooluse: ToolUse | null;  // Tool call details (at most one per node)
+  subtasks: ReasoningNode[]; // Nested reasoning steps
+  conclusion: string;  // Step conclusion
 }
 
-interface ToolCall {
-  tool_name: string; // Name of the tool called
-  tool_call_id?: string; // Server-assigned id for the tool call
-  parameters: any; // Input parameters
-  tool_result: any; // Result from the tool
+interface ToolUse {
+  tool_name: string;
+  parameters?: unknown;
+  tool_result?: unknown;
 }
 ```
 
@@ -158,25 +170,28 @@ for call in calls:
 ```
 
 ```typescript Node.js
-function extractToolCalls(reasoning: Task[]): any[] {
-  const toolCalls: any[] = [];
-  for (const task of reasoning || []) {
-    if (task.tooluse) {
+import type { ReasoningNode } from "subconscious";
+
+function extractToolCalls(reasoning: ReasoningNode[]): Array<{
+  tool: string;
+  params: unknown;
+  result: unknown;
+}> {
+  const toolCalls = [];
+  for (const node of reasoning ?? []) {
+    if (node.tooluse) {
       toolCalls.push({
-        tool: task.tooluse.tool_name,
-        params: task.tooluse.parameters,
-        result: task.tooluse.tool_result,
+        tool: node.tooluse.tool_name,
+        params: node.tooluse.parameters,
+        result: node.tooluse.tool_result,
       });
     }
-    if (task.subtasks) {
-      toolCalls.push(...extractToolCalls(task.subtasks));
-    }
+    toolCalls.push(...extractToolCalls(node.subtasks));
   }
   return toolCalls;
 }
 
-// Usage
-const calls = extractToolCalls(run.result?.reasoning || []);
+const calls = extractToolCalls(run.result?.reasoning ?? []);
 calls.forEach((call) => console.log(`Tool: ${call.tool}`));
 ```
 

@@ -13,7 +13,7 @@ For background jobs or backend integrations, see [Runs](/core-concepts/runs) for
 <CodeGroup>
 
 ```typescript Node.js
-import { Subconscious } from "subconscious";
+import { Subconscious, tools } from "subconscious";
 
 const client = new Subconscious({
   apiKey: process.env.SUBCONSCIOUS_API_KEY!,
@@ -23,21 +23,36 @@ const stream = client.stream({
   engine: "tim",
   input: {
     instructions: "Write a short essay about space exploration",
-    tools: [{ type: "platform", id: "web_search" }],
+    tools: [tools.platform("web_search")],
   },
 });
 
 for await (const event of stream) {
-  if (event.type === "delta") {
-    process.stdout.write(event.content);
-  } else if (event.type === "done") {
-    console.log("\n\nRun completed:", event.runId);
+  switch (event.type) {
+    case "started":
+      console.log("runId:", event.runId);
+      break;
+    case "delta":
+      process.stdout.write(event.content);
+      break;
+    case "result":
+      console.log("\n\nfinal answer:", event.result.answer);
+      break;
+    case "error":
+      console.error(`[${event.code}] ${event.message}`);
+      break;
+    case "done":
+      console.log("\nstream done.");
+      break;
   }
 }
 ```
 
 ```python Python
-from subconscious import Subconscious
+from subconscious import Subconscious, tools
+from subconscious.types import (
+    StartedEvent, DeltaEvent, ResultEvent, ErrorEvent, DoneEvent,
+)
 
 client = Subconscious(api_key="your-api-key")
 
@@ -45,13 +60,19 @@ for event in client.stream(
     engine="tim",
     input={
         "instructions": "Write a short essay about space exploration",
-        "tools": [{"type": "platform", "id": "web_search"}],
+        "tools": [tools.platform("web_search")],
     },
 ):
-    if event.type == "delta":
+    if isinstance(event, StartedEvent):
+        print("run_id:", event.run_id)
+    elif isinstance(event, DeltaEvent):
         print(event.content, end="", flush=True)
-    elif event.type == "done":
-        print(f"\n\nRun completed: {event.run_id}")
+    elif isinstance(event, ResultEvent):
+        print("\n\nfinal answer:", event.result.answer)
+    elif isinstance(event, ErrorEvent):
+        print(f"[{event.code}] {event.message}")
+    elif isinstance(event, DoneEvent):
+        print("\nstream done.")
 ```
 
 ```bash cURL
@@ -72,51 +93,59 @@ curl https://api.subconscious.dev/v1/runs/stream \
 
 ## Event Types
 
-The stream emits different event types:
+The stream uses **Stream Events v2** — a structured taxonomy with strict
+ordering invariants. The first event is always `started` (it carries
+the `runId` synchronously so you can register a cancel handler before
+any deltas arrive). The last event is always `done`. Exactly one
+`result` (success) or `error` (failure) event fires before `done`.
 
-| Event Type | Description                  |
-| ---------- | ---------------------------- |
-| `delta`    | A chunk of generated content |
-| `done`     | The run has completed        |
-| `error`    | An error occurred            |
-
-### Delta Events
-
-Delta events contain incremental content:
-
-```typescript
-{
-  type: "delta",
-  content: "The history of space exploration..."
-}
-```
-
-### Done Events
-
-Done events signal completion and include the run ID:
-
-```typescript
-{
-  type: "done",
-  runId: "run_abc123..."
-}
-```
+| Event Type        | Description                                                          |
+| ----------------- | -------------------------------------------------------------------- |
+| `started`         | First event. Carries the `runId`.                                    |
+| `delta`           | Incremental text content from the model.                             |
+| `reasoning_node`  | One completed node from the live reasoning tree (engines that emit). |
+| `tool_call`       | One completed tool invocation.                                       |
+| `result`          | Final structured envelope (answer + reasoning). Exactly once on success. |
+| `error`           | Stream encountered an error. Carries `code` and `message`. Exactly once on failure. |
+| `done`            | Stream finished. Always last.                                        |
 
 ## Server-Sent Events (SSE)
 
-The streaming endpoint uses Server-Sent Events (SSE) format, compatible with the OpenAI streaming format. Each event is sent as:
+The streaming endpoint uses Server-Sent Events (SSE) framing. The
+canonical wire format uses named event types with camelCase `runId`:
 
 ```
-data: {"type": "delta", "content": "chunk of text"}
+event: started
+data: {"runId": "run_abc123"}
 
-data: {"type": "done", "runId": "run_abc123"}
+event: meta
+data: {"runId": "run_abc123"}
+
+data: {"choices": [{"delta": {"content": "The history of space exploration..."}}]}
+
+event: reasoning_node
+data: {"node": {...}}
+
+event: tool_call
+data: {"call": {...}}
+
+event: result
+data: {"result": {"answer": "..."}, "usage": {...}}
 
 data: [DONE]
 ```
 
+<Note>
+  SDKs running against older API builds will also see legacy snake_case
+  `run_id` payloads — the parsers accept both keys. New emitters always
+  write `runId`.
+</Note>
+
 ## Error Handling
 
-Handle errors gracefully in your stream processing:
+Stream errors arrive as a single `error` event before `done`. Pattern-match
+on `event.code` (a canonical [`ErrorCode`](/guides/error-handling#error-codes))
+rather than parsing `event.message`.
 
 <CodeGroup>
 
@@ -126,7 +155,10 @@ try {
     if (event.type === "delta") {
       process.stdout.write(event.content);
     } else if (event.type === "error") {
-      console.error("Stream error:", event.error);
+      console.error(`[${event.code}] ${event.message}`);
+      // event.code is one of: invalid_request | authentication_failed |
+      // permission_denied | not_found | rate_limited | internal_error |
+      // service_unavailable | timeout | canceled
       break;
     }
   }
@@ -136,12 +168,14 @@ try {
 ```
 
 ```python Python
+from subconscious.types import DeltaEvent, ErrorEvent
+
 try:
     for event in client.stream(...):
-        if event.type == "delta":
+        if isinstance(event, DeltaEvent):
             print(event.content, end="", flush=True)
-        elif event.type == "error":
-            print(f"Stream error: {event.error}")
+        elif isinstance(event, ErrorEvent):
+            print(f"[{event.code}] {event.message}")
             break
 except Exception as e:
     print(f"Connection error: {e}")
