@@ -18,8 +18,6 @@ run = client.run_and_wait(
                 name="web_search",
                 description="Search the web for current information",
                 url="TOOL_SERVER_URL",
-                method="GET",
-                timeout=30,
                 parameters=WebSearchArgs,
             ),
         ],
@@ -47,8 +45,6 @@ const run = await client.runAndWait({
         name: "web_search",
         description: "Search the web for current information",
         url: "TOOL_SERVER_URL",
-        method: "GET",
-        timeout: 30,
         parameters: z.object({
           query: z.string().describe("The search query"),
         }),

@@ -355,33 +355,37 @@ Supported MIME types: `image/png`, `image/jpeg`, `image/gif`, `image/webp`. Requ
 
 ## Resources
 
-Attach lifecycle-managed services (sandboxes, browsers, memory stores) to your run via `resources`. Each resource initializes before the agent starts, exposes tools during execution, and tears down when the run ends.
+Attach lifecycle-managed services (sandboxes, browsers, memory stores) to your run as resource tools in `input.tools`. Each resource initializes before the agent starts, exposes tools during execution, and tears down when the run ends.
 
 <CodeGroup>
 
 ```python Python
+from subconscious import tools
+
 run = client.run_and_wait(
     engine="tim",
     input={
         "instructions": "Analyze data.csv and output a chart",
-        "resources": ["sandbox"],
+        "tools": [tools.resource("sandbox")],
     },
 )
 ```
 
 ```typescript Node.js
+import { tools } from "subconscious";
+
 const run = await client.runAndWait({
   engine: "tim",
   input: {
     instructions: "Analyze data.csv and output a chart",
-    resources: ["sandbox"],
+    tools: [tools.resource("sandbox")],
   },
 });
 ```
 
 </CodeGroup>
 
-Currently supported resources: `sandbox` (E2B code execution sandbox).
+Currently supported resources: `sandbox`, `browser`, and `memory`.
 
 ## Canceling a Run
 
