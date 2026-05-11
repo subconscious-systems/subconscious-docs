@@ -45,7 +45,7 @@ Request structured responses using JSON Schema via the `answerFormat` field.
 All API endpoints require Bearer token authentication:
 
 ```bash
-curl https://api.subconscious.dev/v1/runs \
+curl https://api-legacy.subconscious.dev/v1/runs \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"engine": "tim", "input": {"instructions": "..."}}'
@@ -58,7 +58,7 @@ Get your API key from the [Subconscious platform](https://www.subconscious.dev/p
 ### Create an async run
 
 ```bash
-curl -X POST https://api.subconscious.dev/v1/runs \
+curl -X POST https://api-legacy.subconscious.dev/v1/runs \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -81,7 +81,7 @@ Response:
 ### Poll for results
 
 ```bash
-curl https://api.subconscious.dev/v1/runs/run_abc123 \
+curl https://api-legacy.subconscious.dev/v1/runs/run_abc123 \
   -H "Authorization: Bearer YOUR_API_KEY"
 ```
 
@@ -108,7 +108,7 @@ Response (when complete):
 Instead of polling, configure webhooks to receive notifications when runs complete:
 
 ```bash
-curl -X POST https://api.subconscious.dev/v1/webhooks/subscriptions \
+curl -X POST https://api-legacy.subconscious.dev/v1/webhooks/subscriptions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{

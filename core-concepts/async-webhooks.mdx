@@ -27,7 +27,7 @@ Subscribe to events across all runs in your org. You can manage subscriptions th
 ### Create a Subscription
 
 ```bash
-curl -X POST https://api.subconscious.dev/v1/webhooks/subscriptions \
+curl -X POST https://api-legacy.subconscious.dev/v1/webhooks/subscriptions \
   -H "Authorization: Bearer $SUBCONSCIOUS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -88,7 +88,7 @@ def verify_webhook(payload_bytes: bytes, secret: str, signature: str) -> bool:
 For one-off deliveries, pass `callbackUrl` on the run request:
 
 ```bash
-curl -X POST https://api.subconscious.dev/v1/runs \
+curl -X POST https://api-legacy.subconscious.dev/v1/runs \
   -H "Authorization: Bearer $SUBCONSCIOUS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
