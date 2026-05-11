@@ -149,16 +149,16 @@ Free, no payment required. Poll until `status` is `succeeded` or `failed`.
 
 ```bash
 # 1. Hit the endpoint (returns 402 with payment details)
-curl -X POST https://api.subconscious.dev/v1/machines/searches \
+curl -X POST https://api-legacy.subconscious.dev/v1/machines/searches \
   -H "Content-Type: application/json" \
   -d '{"instructions": "Latest AI news"}'
 
 # 2. Pay with purl (x402 CLI), which handles payment and returns runId
-purl -X POST https://api.subconscious.dev/v1/machines/searches \
+purl -X POST https://api-legacy.subconscious.dev/v1/machines/searches \
   -d '{"instructions": "Latest AI news"}'
 
 # 3. Poll for result (free, no payment needed)
-curl https://api.subconscious.dev/v1/machines/searches/<runId>
+curl https://api-legacy.subconscious.dev/v1/machines/searches/<runId>
 ```
 
 ---

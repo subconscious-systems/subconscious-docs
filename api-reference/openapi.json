@@ -10,7 +10,7 @@
   },
   "servers": [
     {
-      "url": "https://api.subconscious.dev/v1"
+      "url": "https://api-legacy.subconscious.dev/v1"
     }
   ],
   "security": [
