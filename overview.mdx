@@ -1,138 +1,91 @@
 ---
-title: "Subconscious Platform"
+title: "Subconscious"
 sidebarTitle: "Overview"
 icon: "house"
 ---
 
-Subconscious is a developer-first platform for building production-ready AI agents. We provide a complete agent system that handles context management, tool orchestration, and long-horizon reasoning, so you can focus on defining what your agent should do. Our platform works with any service or tool, including MCPs, giving you everything you need to deploy sophisticated agents at scale.
+Subconscious is an AI lab that makes open models dramatically more capable with a novel inference runtime and complementary post-training. Our API is fully OpenAI-compatible, so you can point the OpenAI SDK at our endpoint and start generating completions easily with two lines of code.
 
-## Quickstart
-
-<CardGroup cols={2}>
-  <Card title="Get started" icon="rocket" href="/quickstart">
-    Build your first agent in under 5 minutes
-  </Card>
-  <Card title="Browse templates" icon="layer-group" href="/guides/templates">
-    Start from pre-built examples
-  </Card>
-</CardGroup>
-
-### For AI tools
-
-- [subconscious.dev/llms.txt](https://docs.subconscious.dev/llms.txt) - Documentation index with links
-- [subconscious.dev/llms-full.txt](https://docs.subconscious.dev/llms-full.txt) - Complete documentation in one file
-
-
-<Tip>
-  **Build with AI coding assistants:** Let your coding agents understand the Subconscious API.
-  
-  ```bash
-  npx skills add https://github.com/subconscious-systems/skills --skill subconscious-dev
-  ```
-  
-  This gives Claude Code, Cursor, and other AI assistants deep knowledge of Subconscious, so you can build with the API faster.
-</Tip>
-
-### Try it now
+## Quick Look
 
 <CodeGroup>
 
 ```python Python
-from subconscious import Subconscious
+from openai import OpenAI
 
-client = Subconscious(api_key="your-api-key")
-
-run = client.run(
-    engine="tim",
-    input={"instructions": "Summarize the latest AI news"},
-    options={"await_completion": True},
+client = OpenAI(
+    api_key="your-api-key",
+    base_url="https://api.subconscious.dev/v1",
 )
 
-print(run.result.answer)
+response = client.chat.completions.create(
+    model="subconscious/tim-qwen3.6-27b",
+    messages=[{"role": "user", "content": "What is the capital of France?"}],
+)
+
+print(response.choices[0].message.content)
 ```
 
 ```typescript Node.js
-import { Subconscious } from "subconscious";
+import OpenAI from "openai";
 
-const client = new Subconscious({
-  apiKey: process.env.SUBCONSCIOUS_API_KEY!,
+const client = new OpenAI({
+  apiKey: "your-api-key",
+  baseURL: "https://api.subconscious.dev/v1",
 });
 
-const run = await client.run({
-  engine: "tim",
-  input: { instructions: "Summarize the latest AI news" },
-  options: { awaitCompletion: true },
+const response = await client.chat.completions.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  messages: [{ role: "user", content: "What is the capital of France?" }],
 });
 
-console.log(run.result?.answer);
+console.log(response.choices[0].message.content);
+```
+
+```bash cURL
+curl https://api.subconscious.dev/v1/chat/completions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "subconscious/tim-qwen3.6-27b",
+    "messages": [{"role": "user", "content": "What is the capital of France?"}]
+  }'
 ```
 
 </CodeGroup>
-## Engines
 
-Our agent engines combine a language model with a custom inference runtime. We offer **Unified Engines** (co-designed model and runtime) and **Compound Engines** (frontier models with smart context management).
+## Available Models
 
-<CardGroup cols={3}>
-  <Card title="TIM" icon="zap" href="/engines">
-    Flagship unified agent engine for a wide range of tasks
-  </Card>
-  <Card title="TIM-Edge" icon="bolt" href="/engines">
-    Unified engine tuned for performance with search tools
-  </Card>
-  <Card title="TIM-Claude" icon="microchip" href="/engines">
-    Compound engine backed by Anthropic Claude Sonnet (multimodal)
-  </Card>
-  <Card title="TIM-Claude-Heavy" icon="brain" href="/engines">
-    Compound engine backed by Anthropic Claude Opus (multimodal)
-  </Card>
-  <Card title="TIM-1.5" icon="microchip" href="/engines">
-    Tool-calling engine for large OSS models
-  </Card>
-</CardGroup>
+| Model | Input | Cached Input | Output |
+|-------|-------|-------------|--------|
+| `subconscious/tim-qwen3.6-27b` | $0.50 / 1M | $0.05 / 1M | $3.50 / 1M |
 
-[View all engines →](/engines)
+**Coming soon:** `tim-qwen3.5-4b`, `tim-qwen3.5-9b`, `tim-qwen3.5-122b-a10b`, `tim-nemotron3-nano`, `tim-nemotron3-super`, `tim-kimi2.6`
 
-## Start building
+## Get Started
 
 <CardGroup cols={2}>
-  <Card title="Run your first agent" icon="circle-play" href="/quickstart">
-    Get started in 5 minutes
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Make your first API call in under 5 minutes
   </Card>
-  <Card title="Define custom tools" icon="wrench" href="/core-concepts/tools">
-    Extend agents with your APIs
-  </Card>
-  <Card title="Add skills" icon="scroll" href="/core-concepts/skills">
-    Give agents specialized knowledge
-  </Card>
-  <Card
-    title="Stream responses"
-    icon="wave-pulse"
-    href="/core-concepts/streaming"
-  >
-    Real-time output for chat UIs
-  </Card>
-  <Card
-    title="Async and webhooks"
-    icon="webhook"
-    href="/core-concepts/async-webhooks"
-  >
-    Durable jobs for pipelines
-  </Card>
-  <Card
-    title="Structured output"
-    icon="code"
-    href="/core-concepts/structured-output"
-  >
-    Get JSON responses from agents
-  </Card>
-  <Card
-    title="Machine Payments"
-    icon="badge-cent"
-    href="/machine-payments"
-  >
-    Pay-per-run with USDC — no account needed
-  </Card>
-  <Card title="API Reference" icon="book" href="/api-reference/introduction">
+  <Card title="API Reference" icon="book" href="/api-reference/chat-completions">
     Full endpoint documentation
   </Card>
+  <Card title="Streaming" icon="wave-pulse" href="/features/streaming">
+    Stream responses token by token in real time
+  </Card>
+  <Card title="Structured Output" icon="code" href="/features/structured-output">
+    Get typed JSON responses with schema validation
+  </Card>
+  <Card title="Thinking Mode" icon="brain" href="/features/thinking">
+    Enable step-by-step reasoning for complex tasks
+  </Card>
+  <Card title="Pricing" icon="coins" href="/pricing">
+    Simple, transparent token-based pricing
+  </Card>
 </CardGroup>
+
+### For AI Tools
+
+- [subconscious.dev/llms.txt](https://docs.subconscious.dev/llms.txt): Documentation index with links
+- [subconscious.dev/llms-full.txt](https://docs.subconscious.dev/llms-full.txt): Complete documentation in one file

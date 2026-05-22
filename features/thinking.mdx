@@ -1,0 +1,124 @@
+---
+title: "Thinking Mode"
+description: "Enable step-by-step reasoning for complex tasks"
+icon: "brain"
+---
+
+Thinking mode enables the model to reason step by step before producing its final answer. This is useful for complex tasks like math, logic, code generation, and multi-step analysis.
+
+## How It Works
+
+When thinking mode is enabled, the model generates internal reasoning tokens (wrapped in `<think>` tags) before the final response. These reasoning tokens help the model work through complex problems but are included in your output token usage.
+
+## Enabling Thinking Mode
+
+Pass `chat_template_kwargs` with `enable_thinking: true` in the request body. Since this is a Subconscious-specific extension, use the `extra_body` parameter in the OpenAI SDK:
+
+<CodeGroup>
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-api-key",
+    base_url="https://api.subconscious.dev/v1",
+)
+
+response = client.chat.completions.create(
+    model="subconscious/tim-qwen3.6-27b",
+    messages=[{"role": "user", "content": "What is 127 * 849 + 3621?"}],
+    extra_body={
+        "chat_template_kwargs": {"enable_thinking": True},
+    },
+)
+
+print(response.choices[0].message.content)
+```
+
+```typescript Node.js
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "your-api-key",
+  baseURL: "https://api.subconscious.dev/v1",
+});
+
+const response = await client.chat.completions.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  messages: [{ role: "user", content: "What is 127 * 849 + 3621?" }],
+  // @ts-expect-error Subconscious extension
+  chat_template_kwargs: { enable_thinking: true },
+});
+
+console.log(response.choices[0].message.content);
+```
+
+```bash cURL
+curl https://api.subconscious.dev/v1/chat/completions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "subconscious/tim-qwen3.6-27b",
+    "messages": [{"role": "user", "content": "What is 127 * 849 + 3621?"}],
+    "chat_template_kwargs": {"enable_thinking": true}
+  }'
+```
+
+</CodeGroup>
+
+## Response Format
+
+With thinking mode enabled, the model's response includes reasoning wrapped in `<think>` tags followed by the final answer:
+
+```
+<think>
+Let me calculate this step by step.
+127 * 849 = 127 * 800 + 127 * 49
+127 * 800 = 101,600
+127 * 49 = 6,223
+101,600 + 6,223 = 107,823
+107,823 + 3,621 = 111,444
+</think>
+
+The answer is **111,444**.
+```
+
+## Streaming with Thinking
+
+Thinking mode works with streaming. The reasoning tokens stream first, followed by the final answer:
+
+```python Python
+stream = client.chat.completions.create(
+    model="subconscious/tim-qwen3.6-27b",
+    messages=[{"role": "user", "content": "Solve: If 3x + 7 = 22, what is x?"}],
+    stream=True,
+    extra_body={
+        "chat_template_kwargs": {"enable_thinking": True},
+    },
+)
+
+for chunk in stream:
+    content = chunk.choices[0].delta.content
+    if content:
+        print(content, end="", flush=True)
+```
+
+## When to Use Thinking Mode
+
+**Use thinking mode for:**
+- Math and arithmetic problems
+- Logic puzzles and reasoning tasks
+- Complex code generation
+- Multi-step analysis
+- Tasks requiring planning or strategy
+
+**Skip thinking mode for:**
+- Simple Q&A
+- Creative writing
+- Translation
+- Summarization
+- Tasks where speed matters more than accuracy
+
+<Note>
+  Thinking tokens count toward your output token usage. For simple tasks, leaving thinking mode off will be faster and more cost-effective.
+</Note>

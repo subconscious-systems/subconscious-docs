@@ -1,0 +1,150 @@
+---
+title: "Streaming"
+description: "Stream responses token by token in real time"
+icon: "wave-pulse"
+---
+
+Streaming delivers tokens as they're generated, which enables responsive UIs and real-time output. Subconscious uses the standard OpenAI streaming format: Server-Sent Events (SSE) with `ChatCompletionChunk` objects.
+
+## Basic Streaming
+
+Set `stream=True` to receive a stream of chunks instead of waiting for the full response:
+
+<CodeGroup>
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-api-key",
+    base_url="https://api.subconscious.dev/v1",
+)
+
+stream = client.chat.completions.create(
+    model="subconscious/tim-qwen3.6-27b",
+    messages=[{"role": "user", "content": "Explain how neural networks learn."}],
+    stream=True,
+)
+
+for chunk in stream:
+    content = chunk.choices[0].delta.content
+    if content:
+        print(content, end="", flush=True)
+print()
+```
+
+```typescript Node.js
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "your-api-key",
+  baseURL: "https://api.subconscious.dev/v1",
+});
+
+const stream = await client.chat.completions.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  messages: [{ role: "user", content: "Explain how neural networks learn." }],
+  stream: true,
+});
+
+for await (const chunk of stream) {
+  const content = chunk.choices[0]?.delta?.content;
+  if (content) process.stdout.write(content);
+}
+console.log();
+```
+
+```bash cURL
+curl https://api.subconscious.dev/v1/chat/completions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "subconscious/tim-qwen3.6-27b",
+    "messages": [{"role": "user", "content": "Explain how neural networks learn."}],
+    "stream": true
+  }'
+```
+
+</CodeGroup>
+
+## SSE Format
+
+Each event in the stream is a `data:` line containing a JSON `ChatCompletionChunk` object:
+
+```
+data: {"id":"chatcmpl-abc123","object":"chat.completion.chunk","model":"subconscious/tim-qwen3.6-27b","choices":[{"index":0,"delta":{"content":"Hello"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-abc123","object":"chat.completion.chunk","model":"subconscious/tim-qwen3.6-27b","choices":[{"index":0,"delta":{"content":" world"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl-abc123","object":"chat.completion.chunk","model":"subconscious/tim-qwen3.6-27b","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}
+
+data: [DONE]
+```
+
+The final chunk has `finish_reason: "stop"` and is followed by `data: [DONE]`.
+
+## Error Handling
+
+Errors during streaming are delivered as SSE events. The OpenAI SDK raises exceptions automatically:
+
+<CodeGroup>
+
+```python Python
+from openai import APIError
+
+try:
+    stream = client.chat.completions.create(
+        model="subconscious/tim-qwen3.6-27b",
+        messages=[{"role": "user", "content": "Hello"}],
+        stream=True,
+    )
+    for chunk in stream:
+        content = chunk.choices[0].delta.content
+        if content:
+            print(content, end="", flush=True)
+except APIError as e:
+    print(f"API error: {e.status_code} - {e.message}")
+```
+
+```typescript Node.js
+import OpenAI from "openai";
+
+try {
+  const stream = await client.chat.completions.create({
+    model: "subconscious/tim-qwen3.6-27b",
+    messages: [{ role: "user", content: "Hello" }],
+    stream: true,
+  });
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content;
+    if (content) process.stdout.write(content);
+  }
+} catch (error) {
+  if (error instanceof OpenAI.APIError) {
+    console.error(`API error: ${error.status} - ${error.message}`);
+  }
+}
+```
+
+</CodeGroup>
+
+## Usage Statistics
+
+To receive token usage in the stream, include `stream_options`:
+
+```python Python
+stream = client.chat.completions.create(
+    model="subconscious/tim-qwen3.6-27b",
+    messages=[{"role": "user", "content": "Hello"}],
+    stream=True,
+    stream_options={"include_usage": True},
+)
+
+for chunk in stream:
+    if chunk.usage:
+        print(f"Input: {chunk.usage.prompt_tokens}, Output: {chunk.usage.completion_tokens}")
+    elif chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)
+```
+
+Usage data is included in the final chunk of the stream.

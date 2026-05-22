@@ -1,0 +1,281 @@
+---
+title: "Chat Completions"
+description: "POST /v1/chat/completions"
+icon: "book"
+---
+
+Create a chat completion. This endpoint is fully compatible with the [OpenAI Chat Completions API](https://platform.openai.com/docs/api-reference/chat/create).
+
+## Endpoint
+
+```
+POST https://api.subconscious.dev/v1/chat/completions
+```
+
+## Authentication
+
+Pass your API key in the `Authorization` header:
+
+```
+Authorization: Bearer YOUR_API_KEY
+```
+
+API keys are created from your [Subconscious dashboard](https://subconscious.dev/platform/api-keys).
+
+## Request Body
+
+<ParamField body="model" type="string" required>
+  The model to use. Currently available: `subconscious/tim-qwen3.6-27b`
+</ParamField>
+
+<ParamField body="messages" type="array" required>
+  The conversation history. Each message has a `role` and `content`.
+
+  Supported roles:
+  - `system`: Sets the behavior of the assistant
+  - `user`: The user's message
+  - `assistant`: Previous assistant responses, used for multi-turn conversations
+</ParamField>
+
+<ParamField body="stream" type="boolean" default="false">
+  If `true`, responses are streamed as Server-Sent Events (SSE). Each event is a `ChatCompletionChunk` object. The stream ends with `data: [DONE]`.
+</ParamField>
+
+<ParamField body="max_tokens" type="integer">
+  Maximum number of tokens to generate in the response.
+</ParamField>
+
+<ParamField body="max_completion_tokens" type="integer">
+  An alternative to `max_tokens`. Maximum number of tokens to generate.
+</ParamField>
+
+<ParamField body="temperature" type="number">
+  Sampling temperature between 0 and 2. Lower values make output more focused and deterministic, while higher values make it more creative.
+</ParamField>
+
+<ParamField body="top_p" type="number">
+  Nucleus sampling parameter. Only considers tokens whose cumulative probability exceeds this threshold.
+</ParamField>
+
+<ParamField body="frequency_penalty" type="number">
+  Penalizes tokens based on their frequency in the text so far. Values between -2.0 and 2.0.
+</ParamField>
+
+<ParamField body="presence_penalty" type="number">
+  Penalizes tokens based on whether they appear in the text so far. Values between -2.0 and 2.0.
+</ParamField>
+
+<ParamField body="stop" type="string | array">
+  Up to 4 sequences where the model will stop generating.
+</ParamField>
+
+<ParamField body="response_format" type="object">
+  Constrains the response format. See [Structured Output](/features/structured-output).
+
+  - `{"type": "json_object"}` ensures valid JSON output
+  - `{"type": "json_schema", "json_schema": {...}}` ensures output matches a specific schema
+</ParamField>
+
+<ParamField body="stream_options" type="object">
+  Options for streaming responses.
+
+  - `include_usage` (boolean): Include token usage in the final streamed chunk
+</ParamField>
+
+<ParamField body="chat_template_kwargs" type="object">
+  **Subconscious extension.** Controls model-specific features.
+
+  - `enable_thinking` (boolean): Enables [thinking mode](/features/thinking) for step-by-step reasoning
+</ParamField>
+
+## Response
+
+### Non-Streaming
+
+```json
+{
+  "id": "chatcmpl-abc123",
+  "object": "chat.completion",
+  "created": 1716000000,
+  "model": "subconscious/tim-qwen3.6-27b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Hello! How can I help you today?"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 12,
+    "completion_tokens": 9,
+    "total_tokens": 21
+  }
+}
+```
+
+### Streaming
+
+Each event is a `data:` line with a `ChatCompletionChunk`:
+
+```json
+{
+  "id": "chatcmpl-abc123",
+  "object": "chat.completion.chunk",
+  "created": 1716000000,
+  "model": "subconscious/tim-qwen3.6-27b",
+  "choices": [
+    {
+      "index": 0,
+      "delta": {
+        "content": "Hello"
+      },
+      "finish_reason": null
+    }
+  ]
+}
+```
+
+The stream terminates with `data: [DONE]`.
+
+## Error Responses
+
+| Status | Description |
+|--------|-------------|
+| `400` | Bad request due to invalid parameters or unsupported options |
+| `401` | Unauthorized because of a missing or invalid API key |
+| `429` | Rate limited due to too many requests or tokens per minute |
+| `500` | Internal server error |
+
+Error body format:
+
+```json
+{
+  "error": {
+    "message": "Invalid API key",
+    "type": "authentication_error",
+    "code": "invalid_api_key"
+  }
+}
+```
+
+## Examples
+
+### Basic Completion
+
+<CodeGroup>
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-api-key",
+    base_url="https://api.subconscious.dev/v1",
+)
+
+response = client.chat.completions.create(
+    model="subconscious/tim-qwen3.6-27b",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Hello!"},
+    ],
+)
+
+print(response.choices[0].message.content)
+```
+
+```typescript Node.js
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "your-api-key",
+  baseURL: "https://api.subconscious.dev/v1",
+});
+
+const response = await client.chat.completions.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  messages: [
+    { role: "system", content: "You are a helpful assistant." },
+    { role: "user", content: "Hello!" },
+  ],
+});
+
+console.log(response.choices[0].message.content);
+```
+
+```bash cURL
+curl https://api.subconscious.dev/v1/chat/completions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "subconscious/tim-qwen3.6-27b",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "Hello!"}
+    ]
+  }'
+```
+
+</CodeGroup>
+
+### Multi-Turn Conversation
+
+<CodeGroup>
+
+```python Python
+response = client.chat.completions.create(
+    model="subconscious/tim-qwen3.6-27b",
+    messages=[
+        {"role": "system", "content": "You are a helpful coding assistant."},
+        {"role": "user", "content": "How do I read a file in Python?"},
+        {"role": "assistant", "content": "You can use the built-in `open()` function..."},
+        {"role": "user", "content": "How about writing to a file?"},
+    ],
+)
+```
+
+```typescript Node.js
+const response = await client.chat.completions.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  messages: [
+    { role: "system", content: "You are a helpful coding assistant." },
+    { role: "user", content: "How do I read a file in Python?" },
+    { role: "assistant", content: "You can use the built-in `open()` function..." },
+    { role: "user", content: "How about writing to a file?" },
+  ],
+});
+```
+
+</CodeGroup>
+
+### Streaming with Usage
+
+```python Python
+stream = client.chat.completions.create(
+    model="subconscious/tim-qwen3.6-27b",
+    messages=[{"role": "user", "content": "Write a short poem."}],
+    stream=True,
+    stream_options={"include_usage": True},
+)
+
+for chunk in stream:
+    if chunk.usage:
+        print(f"\nTokens used: {chunk.usage.prompt_tokens} in, {chunk.usage.completion_tokens} out")
+    elif chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)
+```
+
+### With Thinking Mode
+
+```bash cURL
+curl https://api.subconscious.dev/v1/chat/completions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "subconscious/tim-qwen3.6-27b",
+    "messages": [{"role": "user", "content": "What is 15% of 340?"}],
+    "chat_template_kwargs": {"enable_thinking": true}
+  }'
+```

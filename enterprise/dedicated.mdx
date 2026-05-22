@@ -1,22 +1,47 @@
 ---
-title: 'Dedicated Endpoints'
-description: 'Reserve a dedicated endpoint for higher throughput and security'
-icon: 'server'
+title: "Dedicated Endpoints"
+description: "Reserved compute with guaranteed capacity"
+icon: "server"
 ---
 
-Dedicated endpoints give you reserved compute tailored to your workload. We've worked with large enterprises across a variety of industries to deploy agentic search, browser automation, and workflow optimization agents on dedicated infrastructure.
+Dedicated endpoints give your organization reserved inference capacity with guaranteed throughput, custom rate limits, and stricter isolation.
 
 <CardGroup cols={3}>
   <Card title="Guaranteed throughput" icon="gauge-high">
     Reserved capacity with no noisy neighbors
   </Card>
-  <Card title="Custom models" icon="microchip">
-    Host engines post-trained on your tools and workflows
+  <Card title="Custom rate limits" icon="sliders">
+    Higher token and request limits tailored to your workload
   </Card>
   <Card title="Stricter isolation" icon="shield-halved">
-    Network and data isolation for regulated environments
+    Dedicated compute for regulated environments
   </Card>
 </CardGroup>
+
+## What You Get
+
+- **Reserved GPU capacity** so your requests always have compute available, with no queuing behind other customers.
+- **Custom rate limits** with token-per-minute and request-per-minute limits configured to your needs.
+- **SLA guarantees** including uptime and latency commitments for production workloads.
+- **Priority support** with direct access to our engineering team.
+
+## How It Works
+
+Dedicated endpoints use the same OpenAI-compatible API, so your code doesn't change. We provision isolated compute for your organization and configure your API keys to route to dedicated infrastructure.
+
+```python Python
+from openai import OpenAI
+
+# Same API, same SDK, just higher limits and dedicated compute
+client = OpenAI(
+    api_key="your-api-key",
+    base_url="https://api.subconscious.dev/v1",
+)
+```
+
+## Pricing
+
+Dedicated endpoint pricing is based on reserved capacity and varies by workload. Contact us for a quote.
 
 <Card title="Talk to Sales" icon="phone" href="https://calendly.com/jack-subconscious/dedicated">
   Schedule a call to discuss your dedicated endpoint needs.
