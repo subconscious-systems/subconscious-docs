@@ -1,0 +1,62 @@
+---
+title: "Cloud API"
+description: "The standard Subconscious inference endpoint"
+icon: "cloud"
+---
+
+The Subconscious Cloud API is the fastest way to access our inference infrastructure. All requests go through `api.subconscious.dev`, our managed gateway that handles authentication, rate limiting, and routing.
+
+## How It Works
+
+<CardGroup cols={3}>
+  <Card title="OpenAI compatible" icon="plug">
+    Use the standard OpenAI SDK with no custom libraries needed
+  </Card>
+  <Card title="Global edge" icon="globe">
+    Low-latency access from anywhere
+  </Card>
+  <Card title="Managed infrastructure" icon="server">
+    We handle scaling, reliability, and uptime
+  </Card>
+</CardGroup>
+
+## Architecture
+
+Your API requests flow through a managed gateway:
+
+1. Your application calls `api.subconscious.dev/v1/chat/completions`
+2. The gateway authenticates your API key and enforces rate limits
+3. The request is routed to the inference cluster
+4. Responses stream back to your application
+
+## API Keys
+
+API keys are created and managed from your [Subconscious dashboard](https://subconscious.dev/platform/api-keys). Each organization can have multiple active keys.
+
+```python Python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-api-key",               # From your dashboard
+    base_url="https://api.subconscious.dev/v1",
+)
+```
+
+## Default Limits
+
+| Limit | Default |
+|-------|---------|
+| Tokens per minute | 1,000,000 |
+| Requests per minute | 100 |
+| Tokens per day | 10,000,000 |
+
+Need higher limits? See [Dedicated Endpoints](/enterprise/dedicated) or [contact us](https://calendly.com/jack-subconscious/dedicated).
+
+## Billing
+
+Usage is billed per token. See [Pricing](/pricing) for current rates.
+
+- Credits are added from your dashboard
+- Usage is deducted automatically per request
+- Auto-pay is available for uninterrupted service
+- Usage dashboards show real-time consumption

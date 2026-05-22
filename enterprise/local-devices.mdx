@@ -1,0 +1,64 @@
+---
+title: "Local Devices"
+description: "Run inference on workstations, laptops, and mobile devices"
+icon: "laptop"
+---
+
+Deploy Subconscious models directly on local hardware for offline inference, ultra-low latency, and complete data privacy. All processing happens on-device, so no data ever leaves the machine.
+
+<CardGroup cols={3}>
+  <Card title="Zero latency" icon="bolt">
+    Inference runs directly on device with no network round-trip
+  </Card>
+  <Card title="Fully offline" icon="wifi-slash">
+    Works without internet connectivity
+  </Card>
+  <Card title="Complete privacy" icon="lock">
+    Data never leaves the device
+  </Card>
+</CardGroup>
+
+## Supported Devices
+
+### Workstations & Servers
+- Desktop machines with dedicated GPUs
+- Development workstations
+- Edge servers and on-site hardware
+
+### Laptops
+- GPU-equipped laptops (NVIDIA, Apple Silicon)
+- Development and field use
+
+### Mobile Devices
+- iOS and Android deployment
+- On-device inference for mobile applications
+
+## Use Cases
+
+- **Sensitive data processing** for healthcare, legal, and financial documents that cannot leave the device
+- **Field operations** where deployments don't have reliable internet access
+- **Development** for local testing and iteration without API costs
+- **Edge computing** for real-time inference at the point of data collection
+
+## How It Works
+
+We provide optimized model packages for different hardware targets. The local runtime exposes the same OpenAI-compatible API on localhost, so your application code works unchanged:
+
+```python Python
+from openai import OpenAI
+
+# Same API, running locally
+client = OpenAI(
+    api_key="local",
+    base_url="http://localhost:8080/v1",
+)
+
+response = client.chat.completions.create(
+    model="subconscious/tim-qwen3.6-27b",
+    messages=[{"role": "user", "content": "Hello!"}],
+)
+```
+
+<Card title="Talk to Sales" icon="phone" href="https://calendly.com/jack-subconscious/dedicated">
+  Schedule a call to discuss local deployment for your organization.
+</Card>

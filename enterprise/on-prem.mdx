@@ -1,22 +1,55 @@
 ---
-title: 'On-Prem'
-description: 'Deploy the Subconscious platform in your own infrastructure'
-icon: 'building'
+title: "On-Prem & Customer Cloud"
+description: "Deploy Subconscious inference in your own infrastructure"
+icon: "building"
 ---
 
-For organizations with strict data residency, compliance, or network isolation requirements, we offer full on-premises deployment of the Subconscious platform. We've partnered with enterprises across a variety of industries to bring agentic search, browser automation, and workflow optimization capabilities behind their firewall.
+For organizations with strict data residency, compliance, or network isolation requirements, we deploy Subconscious inference directly into your infrastructure, whether that's your own cloud (AWS, GCP, Azure) or an on-premises data center.
 
 <CardGroup cols={3}>
   <Card title="Data residency" icon="lock">
-    All data stays within your network boundary
+    All data stays within your network boundary, and nothing leaves your environment
   </Card>
-  <Card title="Full runtime" icon="server">
-    Engines, tool execution, and observability in your environment
+  <Card title="Full inference stack" icon="server">
+    Model serving, API gateway, and monitoring deployed in your infrastructure
   </Card>
   <Card title="White-glove setup" icon="handshake">
     Our team works directly with your infrastructure and security teams
   </Card>
 </CardGroup>
+
+## Deployment Options
+
+### Customer Cloud
+
+We deploy into your existing cloud environment:
+
+- **AWS**: EKS, EC2, or SageMaker-based deployment
+- **GCP**: GKE or Compute Engine deployment
+- **Azure**: AKS or VM-based deployment
+
+Your data never leaves your cloud account. We provide the container images, configuration, and deployment automation.
+
+### On-Premises
+
+For air-gapped or fully on-premises environments:
+
+- Deploy to bare metal or virtualized GPU infrastructure
+- No internet connectivity required after initial setup
+- Full control over network policies and access
+
+## What's Included
+
+- **Model weights and serving infrastructure** optimized for your hardware
+- **OpenAI-compatible API endpoint** running inside your network with the same API you already use
+- **Monitoring and observability** including health checks, metrics, and logging
+- **Ongoing support** with updates, patches, and direct engineering support
+
+## Requirements
+
+- GPU infrastructure (specific requirements depend on deployment size)
+- Container orchestration (Kubernetes preferred)
+- Network access for initial setup and updates (can be air-gapped post-setup)
 
 <Card title="Talk to Sales" icon="phone" href="https://calendly.com/jack-subconscious/dedicated">
   Schedule a call to scope your on-prem deployment.

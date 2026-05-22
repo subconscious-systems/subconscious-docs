@@ -1,145 +1,200 @@
 ---
 title: "Quickstart"
-description: "Get started with Subconscious in under 5 minutes"
+description: "Make your first API call in under 5 minutes"
 icon: "rocket"
 ---
 
 ## 1. Create an Account
 
-[Sign up for the platform](https://subconscious.dev/platform) and create your account.
-Then generate an API key from your dashboard.
-
-
+[Sign up on the platform](https://subconscious.dev/platform) and generate an API key from your dashboard.
 
 ## 2. Try the Playground
 
-Before writing code, try the [Playground](https://www.subconscious.dev/playground) to test prompts
-and see agents in action.
+Before writing code, try the [Playground](https://www.subconscious.dev/playground) to test prompts interactively.
 
-<Frame caption="The Subconscious Playground">
-  <img src="/images/playground.png" alt="Subconscious Playground" />
-</Frame>
+## 3. Install the OpenAI SDK
 
-<Tip>
-  **Build with AI coding assistants:** Install our skill to get expert Subconscious guidance while coding:
-  
-  ```bash
-  npx skills add https://github.com/subconscious-systems/skills --skill subconscious-dev
-  ```
-  
-  This gives Claude Code, Cursor, and other AI assistants deep knowledge of Subconscious patterns—perfect for vibecoding your next agent app!
-</Tip>
-
-## 3. Choose Your Path
-
-### Option A: Start with a Template (Recommended)
-
-The fastest way to get started is using our template generator:
-
-```bash
-npx create-subconscious-app
-```
-
-This interactive CLI lets you choose from pre-built examples:
-
-- **E2B CLI Agent** - Autonomous agent with secure code execution
-- **Search Agent CLI** - Web research agent with streaming
-- **Structured Output (TypeScript)** - Type-safe responses with Zod
-- **Structured Output (Python)** - Type-safe responses with Pydantic
-- **Convex Real-time App** - Full-stack app with real-time updates
-
-See [Templates](/guides/templates) for details on each example.
-
-### Option B: Install the SDK
-
-**Step 1: Install the SDK**
+Subconscious is fully compatible with the OpenAI SDK. Install it for your language:
 
 <CodeGroup>
 
-```bash Node.js
-npm install subconscious
+```bash Python
+pip install openai
 ```
 
-```bash Python
-pip install subconscious-sdk
+```bash Node.js
+npm install openai
 ```
 
 </CodeGroup>
 
-**Step 2: Run Your First Agent**
+## 4. Make Your First Request
+
+Set your API key and base URL, then create a chat completion:
 
 <CodeGroup>
 
-```typescript Node.js
-import { Subconscious } from "subconscious";
-
-const client = new Subconscious({
-  apiKey: process.env.SUBCONSCIOUS_API_KEY!,
-});
-
-const run = await client.run({
-  engine: "tim",
-  input: {
-    instructions:
-      "Search for the latest AI news and summarize the top 3 stories",
-    tools: [{ type: "platform", id: "web_search" }],
-  },
-  options: { awaitCompletion: true },
-});
-
-console.log(run.result?.answer);
-```
-
 ```python Python
-from subconscious import Subconscious
+from openai import OpenAI
 
-client = Subconscious(api_key="your-api-key")
-
-run = client.run(
-    engine="tim",
-    input={
-        "instructions": "Search for the latest AI news and summarize the top 3 stories",
-        "tools": [{"type": "platform", "id": "web_search"}],
-    },
-    options={"await_completion": True},
+client = OpenAI(
+    api_key="your-api-key",
+    base_url="https://api.subconscious.dev/v1",
 )
 
-print(run.result.answer)
+response = client.chat.completions.create(
+    model="subconscious/tim-qwen3.6-27b",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Explain quantum computing in three sentences."},
+    ],
+)
+
+print(response.choices[0].message.content)
+```
+
+```typescript Node.js
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "your-api-key",
+  baseURL: "https://api.subconscious.dev/v1",
+});
+
+const response = await client.chat.completions.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  messages: [
+    { role: "system", content: "You are a helpful assistant." },
+    { role: "user", content: "Explain quantum computing in three sentences." },
+  ],
+});
+
+console.log(response.choices[0].message.content);
 ```
 
 ```bash cURL
-curl https://api-legacy.subconscious.dev/v1/runs \
-  -H "Content-Type: application/json" \
+curl https://api.subconscious.dev/v1/chat/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
   -d '{
-    "engine": "tim",
-    "input": {
-      "instructions": "Search for the latest AI news and summarize the top 3 stories",
-      "tools": [{"type": "platform", "id": "web_search"}]
-    }
+    "model": "subconscious/tim-qwen3.6-27b",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "Explain quantum computing in three sentences."}
+    ]
   }'
 ```
 
 </CodeGroup>
 
-That's it! You've just run your first agent.
+## 5. Try Streaming
+
+You can stream responses token by token for real-time output:
+
+<CodeGroup>
+
+```python Python
+stream = client.chat.completions.create(
+    model="subconscious/tim-qwen3.6-27b",
+    messages=[{"role": "user", "content": "Write a haiku about programming."}],
+    stream=True,
+)
+
+for chunk in stream:
+    content = chunk.choices[0].delta.content
+    if content:
+        print(content, end="", flush=True)
+```
+
+```typescript Node.js
+const stream = await client.chat.completions.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  messages: [{ role: "user", content: "Write a haiku about programming." }],
+  stream: true,
+});
+
+for await (const chunk of stream) {
+  const content = chunk.choices[0]?.delta?.content;
+  if (content) process.stdout.write(content);
+}
+```
+
+</CodeGroup>
+
+See [Streaming](/features/streaming) for more details.
+
+## 6. Try Structured Output
+
+You can also get typed JSON responses by providing a schema:
+
+<CodeGroup>
+
+```python Python
+response = client.chat.completions.create(
+    model="subconscious/tim-qwen3.6-27b",
+    messages=[{"role": "user", "content": "Analyze the sentiment of: 'I love this product!'"}],
+    response_format={
+        "type": "json_schema",
+        "json_schema": {
+            "name": "sentiment_analysis",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "sentiment": {"type": "string", "enum": ["positive", "negative", "neutral"]},
+                    "confidence": {"type": "number"},
+                },
+                "required": ["sentiment", "confidence"],
+            },
+        },
+    },
+)
+
+import json
+result = json.loads(response.choices[0].message.content)
+print(result)  # {"sentiment": "positive", "confidence": 0.95}
+```
+
+```typescript Node.js
+const response = await client.chat.completions.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  messages: [{ role: "user", content: "Analyze the sentiment of: 'I love this product!'" }],
+  response_format: {
+    type: "json_schema",
+    json_schema: {
+      name: "sentiment_analysis",
+      schema: {
+        type: "object",
+        properties: {
+          sentiment: { type: "string", enum: ["positive", "negative", "neutral"] },
+          confidence: { type: "number" },
+        },
+        required: ["sentiment", "confidence"],
+      },
+    },
+  },
+});
+
+const result = JSON.parse(response.choices[0].message.content!);
+console.log(result); // { sentiment: "positive", confidence: 0.95 }
+```
+
+</CodeGroup>
+
+See [Structured Output](/features/structured-output) for more details.
 
 ## Next Steps
 
 <CardGroup cols={2}>
-  <Card title="Templates" icon="layer-group" href="/guides/templates">
-    Explore pre-built examples and templates
+  <Card title="Streaming" icon="wave-pulse" href="/features/streaming">
+    Real-time token-by-token output
   </Card>
-  <Card title="Core Concepts" icon="book" href="/core-concepts/runs">
-    Learn about Runs, Tools, Streaming, and more
+  <Card title="Structured Output" icon="code" href="/features/structured-output">
+    Typed JSON responses with schemas
   </Card>
-  <Card title="Engines" icon="engine" href="/engines">
-    Explore available models and their capabilities
+  <Card title="Thinking Mode" icon="brain" href="/features/thinking">
+    Enable step-by-step reasoning
   </Card>
-  <Card title="Streaming" icon="wave-pulse" href="/core-concepts/streaming">
-    Stream responses in real-time
-  </Card>
-  <Card title="API Reference" icon="code" href="/api-reference/introduction">
-    Full API documentation
+  <Card title="API Reference" icon="book" href="/api-reference/chat-completions">
+    Full endpoint documentation
   </Card>
 </CardGroup>
