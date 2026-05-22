@@ -22,6 +22,11 @@
   "feedback": {
     "thumbsRating": true
   },
+  "api": {
+    "playground": {
+      "display": "interactive"
+    }
+  },
   "navigation": {
     "tabs": [
       {
@@ -63,14 +68,7 @@
       },
       {
         "tab": "API Reference",
-        "groups": [
-          {
-            "group": "API Reference",
-            "pages": [
-              "api-reference/chat-completions"
-            ]
-          }
-        ]
+        "openapi": "/api-reference/openapi.json"
       }
     ]
   },

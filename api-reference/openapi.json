@@ -1,0 +1,274 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Subconscious API",
+    "version": "1.0.0",
+    "description": "OpenAI-compatible inference API"
+  },
+  "servers": [
+    {
+      "url": "https://api.subconscious.dev/v1"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/chat/completions": {
+      "post": {
+        "operationId": "createChatCompletion",
+        "summary": "Create a chat completion",
+        "description": "Generates a model response for the given conversation. This endpoint is fully compatible with the OpenAI Chat Completions API.",
+        "x-codeSamples": [
+          {
+            "lang": "python",
+            "label": "Python (OpenAI SDK)",
+            "source": "from openai import OpenAI\n\nclient = OpenAI(\n    api_key=\"your-api-key\",\n    base_url=\"https://api.subconscious.dev/v1\",\n)\n\nresponse = client.chat.completions.create(\n    model=\"subconscious/tim-qwen3.6-27b\",\n    messages=[{\"role\": \"user\", \"content\": \"What is the capital of France?\"}],\n)\n\nprint(response.choices[0].message.content)"
+          },
+          {
+            "lang": "javascript",
+            "label": "Node.js (OpenAI SDK)",
+            "source": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({\n  apiKey: \"your-api-key\",\n  baseURL: \"https://api.subconscious.dev/v1\",\n});\n\nconst response = await client.chat.completions.create({\n  model: \"subconscious/tim-qwen3.6-27b\",\n  messages: [{ role: \"user\", content: \"What is the capital of France?\" }],\n});\n\nconsole.log(response.choices[0].message.content);"
+          },
+          {
+            "lang": "bash",
+            "label": "cURL",
+            "source": "curl https://api.subconscious.dev/v1/chat/completions \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"model\": \"subconscious/tim-qwen3.6-27b\",\n    \"messages\": [{\"role\": \"user\", \"content\": \"What is the capital of France?\"}]\n  }'"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["model", "messages"],
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "description": "The model to use for completion.",
+                    "enum": ["subconscious/tim-qwen3.6-27b"],
+                    "example": "subconscious/tim-qwen3.6-27b"
+                  },
+                  "messages": {
+                    "type": "array",
+                    "description": "The conversation history. Each message has a role and content.",
+                    "items": {
+                      "type": "object",
+                      "required": ["role", "content"],
+                      "properties": {
+                        "role": {
+                          "type": "string",
+                          "enum": ["system", "user", "assistant"],
+                          "description": "The role of the message author."
+                        },
+                        "content": {
+                          "type": "string",
+                          "description": "The content of the message."
+                        }
+                      }
+                    },
+                    "example": [
+                      {"role": "user", "content": "What is the capital of France?"}
+                    ]
+                  },
+                  "stream": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If true, responses are streamed as Server-Sent Events. Each event is a ChatCompletionChunk object. The stream ends with `data: [DONE]`."
+                  },
+                  "max_tokens": {
+                    "type": "integer",
+                    "description": "Maximum number of tokens to generate in the response."
+                  },
+                  "max_completion_tokens": {
+                    "type": "integer",
+                    "description": "An alternative to max_tokens. Maximum number of tokens to generate."
+                  },
+                  "temperature": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 2,
+                    "description": "Sampling temperature between 0 and 2. Lower values make output more focused and deterministic, while higher values make it more creative."
+                  },
+                  "top_p": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Nucleus sampling parameter. Only considers tokens whose cumulative probability exceeds this threshold."
+                  },
+                  "frequency_penalty": {
+                    "type": "number",
+                    "minimum": -2,
+                    "maximum": 2,
+                    "description": "Penalizes tokens based on their frequency in the text so far."
+                  },
+                  "presence_penalty": {
+                    "type": "number",
+                    "minimum": -2,
+                    "maximum": 2,
+                    "description": "Penalizes tokens based on whether they appear in the text so far."
+                  },
+                  "stop": {
+                    "oneOf": [
+                      {"type": "string"},
+                      {"type": "array", "items": {"type": "string"}, "maxItems": 4}
+                    ],
+                    "description": "Up to 4 sequences where the model will stop generating."
+                  },
+                  "response_format": {
+                    "type": "object",
+                    "description": "Constrains the response format. Use `{\"type\": \"json_object\"}` for valid JSON or `{\"type\": \"json_schema\", \"json_schema\": {...}}` for schema-constrained output.",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["text", "json_object", "json_schema"]
+                      },
+                      "json_schema": {
+                        "type": "object",
+                        "description": "The JSON schema to constrain the output to. Required when type is json_schema.",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "A name for the schema."
+                          },
+                          "schema": {
+                            "type": "object",
+                            "description": "The JSON Schema object."
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "stream_options": {
+                    "type": "object",
+                    "description": "Options for streaming responses.",
+                    "properties": {
+                      "include_usage": {
+                        "type": "boolean",
+                        "description": "If true, include token usage in the final streamed chunk."
+                      }
+                    }
+                  },
+                  "chat_template_kwargs": {
+                    "type": "object",
+                    "description": "Subconscious extension. Controls model-specific features like thinking mode.",
+                    "properties": {
+                      "enable_thinking": {
+                        "type": "boolean",
+                        "description": "If true, enables step-by-step reasoning. The model will output its reasoning in <think> tags before the final answer."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful completion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "A unique identifier for the completion.",
+                      "example": "chatcmpl-abc123"
+                    },
+                    "object": {
+                      "type": "string",
+                      "enum": ["chat.completion"],
+                      "description": "The object type."
+                    },
+                    "created": {
+                      "type": "integer",
+                      "description": "Unix timestamp of when the completion was created.",
+                      "example": 1716000000
+                    },
+                    "model": {
+                      "type": "string",
+                      "description": "The model used for the completion.",
+                      "example": "subconscious/tim-qwen3.6-27b"
+                    },
+                    "choices": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "integer"
+                          },
+                          "message": {
+                            "type": "object",
+                            "properties": {
+                              "role": {
+                                "type": "string",
+                                "enum": ["assistant"]
+                              },
+                              "content": {
+                                "type": "string",
+                                "description": "The generated message content."
+                              }
+                            }
+                          },
+                          "finish_reason": {
+                            "type": "string",
+                            "enum": ["stop", "length"],
+                            "description": "The reason the model stopped generating."
+                          }
+                        }
+                      }
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "prompt_tokens": {
+                          "type": "integer",
+                          "description": "Number of tokens in the prompt."
+                        },
+                        "completion_tokens": {
+                          "type": "integer",
+                          "description": "Number of tokens in the generated completion."
+                        },
+                        "total_tokens": {
+                          "type": "integer",
+                          "description": "Total number of tokens used."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to invalid parameters or unsupported options"
+          },
+          "401": {
+            "description": "Unauthorized because of a missing or invalid API key"
+          },
+          "429": {
+            "description": "Rate limited due to too many requests or tokens per minute"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "API key from your Subconscious dashboard"
+      }
+    }
+  }
+}
