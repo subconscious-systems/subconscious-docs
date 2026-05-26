@@ -45,7 +45,8 @@
             "pages": [
               "features/streaming",
               "features/structured-output",
-              "features/thinking"
+              "features/thinking",
+              "features/subconscious-cache"
             ]
           },
           {
