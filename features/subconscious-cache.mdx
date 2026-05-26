@@ -10,7 +10,7 @@ Subconscious cache helps the inference system detect when context engineering ha
 
 To hit the subconscious cache, the cached tokens and new inputs need to satisfy two criteria:
 1. The cached chain can be precisely split into three sections `A, B, C`
-2. The new input chain can be precisely split into three sections `A, C, D`, where `A` and `C` matches prefix `A` and suffix `C` in the cache, where `len(C) > threshold`. We usually set threshold=8 tokens to avoid matching the suffix of chat templates.
+2. The new input chain can be precisely split into three sections `A, C, D`, such that `A` and `C` match the prefix `A` and suffix `C` in the cache and `len(C) > threshold`. We usually set `threshold = 8` tokens to avoid matching the suffix of chat templates.
 
 ## Manually Triggering Subconscious Cache
 
