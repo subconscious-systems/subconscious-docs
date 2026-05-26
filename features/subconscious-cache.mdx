@@ -70,7 +70,7 @@ curl https://api.subconscious.dev/v1/chat/completions \
 
 </CodeGroup>
 
-## When to Turn off Auto compaction
+## When to Turn Off Auto Compaction
 
 if you turn off auto compaction, you need to manually construct inputs that can hit the subconscious cache. Just make sure you only prune **one** continuous token sequence from the message list. If there is no context pruning, the new input will simply hit prefix cache. If more than one chunks are pruned, we cannot find suffix tokens satisfying the subconscious rules.
 
