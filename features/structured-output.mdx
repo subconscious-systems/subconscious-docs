@@ -4,15 +4,20 @@ description: "Get typed JSON responses with schema validation"
 icon: "code"
 ---
 
-Structured output lets you define a JSON schema for the model's response, ensuring you get consistently typed data back. This uses the standard OpenAI `response_format` parameter.
+Structured output lets you define a JSON schema for the model's response, ensuring you get
+consistently typed data back. The **OpenAI** format uses the standard `response_format`
+parameter. The **Anthropic** Messages format has no `response_format`; instead you achieve the
+same result with **forced tool use** — define a tool whose `input_schema` is your target
+schema, require it via `tool_choice`, and read the typed `tool_use` block from the response.
 
 ## JSON Schema
 
-Pass a JSON schema via `response_format` to constrain the model's output:
+Pass a JSON schema via `response_format` (OpenAI) or a forced tool (Anthropic) to constrain the
+model's output:
 
 <CodeGroup>
 
-```python Python
+```python Python (OpenAI)
 from openai import OpenAI
 import json
 
@@ -47,7 +52,7 @@ print(result)
 # {"company": "Tesla", "revenue": "$25.5B", "period": "Q3 2024", "growth": "8% YoY"}
 ```
 
-```typescript Node.js
+```typescript Node.js (OpenAI)
 import OpenAI from "openai";
 
 const client = new OpenAI({
@@ -86,16 +91,96 @@ const result = JSON.parse(response.choices[0].message.content!);
 console.log(result);
 ```
 
+```python Python (Anthropic)
+from anthropic import Anthropic
+
+client = Anthropic(
+    auth_token="your-api-key",
+    base_url="https://api.subconscious.dev",
+)
+
+schema = {
+    "type": "object",
+    "properties": {
+        "company": {"type": "string"},
+        "revenue": {"type": "string"},
+        "period": {"type": "string"},
+        "growth": {"type": "string"},
+    },
+    "required": ["company", "revenue", "period", "growth"],
+}
+
+message = client.messages.create(
+    model="subconscious/tim-qwen3.6-27b",
+    max_tokens=1024,
+    tools=[{
+        "name": "financial_extract",
+        "description": "Record the extracted financial facts.",
+        "input_schema": schema,
+    }],
+    tool_choice={"type": "tool", "name": "financial_extract"},
+    messages=[{"role": "user", "content": "Extract the key facts from: 'Tesla reported $25.5B in Q3 2024 revenue, up 8% year-over-year.'"}],
+)
+
+result = next(b.input for b in message.content if b.type == "tool_use")
+print(result)
+# {"company": "Tesla", "revenue": "$25.5B", "period": "Q3 2024", "growth": "8% YoY"}
+```
+
+```typescript Node.js (Anthropic)
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic({
+  authToken: "your-api-key",
+  baseURL: "https://api.subconscious.dev",
+});
+
+const message = await client.messages.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  max_tokens: 1024,
+  tools: [
+    {
+      name: "financial_extract",
+      description: "Record the extracted financial facts.",
+      input_schema: {
+        type: "object",
+        properties: {
+          company: { type: "string" },
+          revenue: { type: "string" },
+          period: { type: "string" },
+          growth: { type: "string" },
+        },
+        required: ["company", "revenue", "period", "growth"],
+      },
+    },
+  ],
+  tool_choice: { type: "tool", name: "financial_extract" },
+  messages: [
+    {
+      role: "user",
+      content:
+        "Extract the key facts from: 'Tesla reported $25.5B in Q3 2024 revenue, up 8% year-over-year.'",
+    },
+  ],
+});
+
+const block = message.content.find((b) => b.type === "tool_use");
+console.log(block?.input);
+```
+
 </CodeGroup>
 
 ## With Pydantic (Python)
 
-Use Pydantic models to define your schema and parse the response:
+Use Pydantic models to define your schema and parse the response. The same
+`model_json_schema()` output works as the OpenAI `json_schema` or as an Anthropic tool's
+`input_schema`:
 
-```python Python
+<CodeGroup>
+
+```python Python (OpenAI)
 from openai import OpenAI
 from pydantic import BaseModel
-import json
 
 client = OpenAI(
     api_key="your-api-key",
@@ -125,11 +210,50 @@ print(result.confidence)   # 0.95
 print(result.keywords)     # ["fantastic", "smoothly"]
 ```
 
+```python Python (Anthropic)
+import json
+from anthropic import Anthropic
+from pydantic import BaseModel
+
+client = Anthropic(
+    auth_token="your-api-key",
+    base_url="https://api.subconscious.dev",
+)
+
+class SentimentAnalysis(BaseModel):
+    sentiment: str
+    confidence: float
+    keywords: list[str]
+
+message = client.messages.create(
+    model="subconscious/tim-qwen3.6-27b",
+    max_tokens=1024,
+    tools=[{
+        "name": "sentiment_analysis",
+        "description": "Record the sentiment analysis result.",
+        "input_schema": SentimentAnalysis.model_json_schema(),
+    }],
+    tool_choice={"type": "tool", "name": "sentiment_analysis"},
+    messages=[{"role": "user", "content": "Analyze: 'The new update is fantastic, everything runs so smoothly now!'"}],
+)
+
+raw = next(b.input for b in message.content if b.type == "tool_use")
+result = SentimentAnalysis.model_validate(raw)
+print(result.sentiment)    # "positive"
+print(result.confidence)   # 0.95
+print(result.keywords)     # ["fantastic", "smoothly"]
+```
+
+</CodeGroup>
+
 ## With Zod (TypeScript)
 
-Use Zod schemas with `zodResponseFormat` from the OpenAI SDK:
+Use Zod schemas with `zodResponseFormat` (OpenAI), or convert the Zod schema to JSON Schema and
+use it as an Anthropic tool's `input_schema`:
 
-```typescript Node.js
+<CodeGroup>
+
+```typescript Node.js (OpenAI)
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
@@ -163,9 +287,54 @@ const result = SentimentAnalysis.parse(
 console.log(result.sentiment); // "positive"
 ```
 
+```typescript Node.js (Anthropic)
+import Anthropic from "@anthropic-ai/sdk";
+import { z } from "zod";
+import { zodToJsonSchema } from "zod-to-json-schema";
+
+const client = new Anthropic({
+  authToken: "your-api-key",
+  baseURL: "https://api.subconscious.dev",
+});
+
+const SentimentAnalysis = z.object({
+  sentiment: z.enum(["positive", "negative", "neutral"]),
+  confidence: z.number(),
+  keywords: z.array(z.string()),
+});
+
+const message = await client.messages.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  max_tokens: 1024,
+  tools: [
+    {
+      name: "sentiment_analysis",
+      description: "Record the sentiment analysis result.",
+      input_schema: zodToJsonSchema(SentimentAnalysis) as Anthropic.Tool.InputSchema,
+    },
+  ],
+  tool_choice: { type: "tool", name: "sentiment_analysis" },
+  messages: [
+    {
+      role: "user",
+      content:
+        "Analyze: 'The new update is fantastic, everything runs so smoothly now!'",
+    },
+  ],
+});
+
+const block = message.content.find((b) => b.type === "tool_use");
+const result = SentimentAnalysis.parse(block?.input);
+console.log(result.sentiment); // "positive"
+```
+
+</CodeGroup>
+
 ## JSON Mode
 
-For simpler cases where you just need valid JSON without a specific schema, use JSON mode:
+JSON mode is specific to the OpenAI format. For simpler cases where you just need valid JSON
+without a specific schema, use JSON mode. (The Anthropic Messages format has no JSON mode — use
+the forced tool-use pattern shown above when you need structured JSON.)
 
 ```python Python
 response = client.chat.completions.create(

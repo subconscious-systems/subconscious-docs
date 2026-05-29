@@ -12,11 +12,14 @@ When thinking mode is enabled, the model generates internal reasoning tokens (wr
 
 ## Enabling Thinking Mode
 
-Pass `chat_template_kwargs` with `enable_thinking: true` in the request body. Since this is a Subconscious-specific extension, use the `extra_body` parameter in the OpenAI SDK:
+Each wire format controls thinking with its own native mechanism. With the **OpenAI** format,
+pass the Subconscious extension `chat_template_kwargs` with `enable_thinking: true` via the
+`extra_body` parameter. With the **Anthropic** format, use the native `thinking` parameter
+(`{"type": "enabled", "budget_tokens": ...}`):
 
 <CodeGroup>
 
-```python Python
+```python Python (OpenAI)
 from openai import OpenAI
 
 client = OpenAI(
@@ -35,7 +38,7 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-```typescript Node.js
+```typescript Node.js (OpenAI)
 import OpenAI from "openai";
 
 const client = new OpenAI({
@@ -53,7 +56,50 @@ const response = await client.chat.completions.create({
 console.log(response.choices[0].message.content);
 ```
 
-```bash cURL
+```python Python (Anthropic)
+from anthropic import Anthropic
+
+client = Anthropic(
+    auth_token="your-api-key",
+    base_url="https://api.subconscious.dev",
+)
+
+message = client.messages.create(
+    model="subconscious/tim-qwen3.6-27b",
+    max_tokens=2048,
+    thinking={"type": "enabled", "budget_tokens": 2000},
+    messages=[{"role": "user", "content": "What is 127 * 849 + 3621?"}],
+)
+
+for block in message.content:
+    if block.type == "thinking":
+        print("[thinking]", block.thinking)
+    elif block.type == "text":
+        print(block.text)
+```
+
+```typescript Node.js (Anthropic)
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic({
+  authToken: "your-api-key",
+  baseURL: "https://api.subconscious.dev",
+});
+
+const message = await client.messages.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  max_tokens: 2048,
+  thinking: { type: "enabled", budget_tokens: 2000 },
+  messages: [{ role: "user", content: "What is 127 * 849 + 3621?" }],
+});
+
+for (const block of message.content) {
+  if (block.type === "thinking") console.log("[thinking]", block.thinking);
+  else if (block.type === "text") console.log(block.text);
+}
+```
+
+```bash cURL (Chat Completions)
 curl https://api.subconscious.dev/v1/chat/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
@@ -64,11 +110,31 @@ curl https://api.subconscious.dev/v1/chat/completions \
   }'
 ```
 
+```bash cURL (Messages)
+curl https://api.subconscious.dev/v1/messages \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "content-type: application/json" \
+  -d '{
+    "model": "subconscious/tim-qwen3.6-27b",
+    "max_tokens": 2048,
+    "thinking": {"type": "enabled", "budget_tokens": 2000},
+    "messages": [{"role": "user", "content": "What is 127 * 849 + 3621?"}]
+  }'
+```
+
 </CodeGroup>
+
+<Note>
+  Both controls enable the same underlying feature. The OpenAI format toggles it with the
+  `enable_thinking` extension; the Anthropic format uses the native `thinking` config and also
+  lets you cap reasoning with `budget_tokens`.
+</Note>
 
 ## Response Format
 
-With thinking mode enabled, the model's response includes reasoning wrapped in `<think>` tags followed by the final answer:
+With the **OpenAI** format, the model's response includes reasoning wrapped in `<think>` tags
+followed by the final answer:
 
 ```
 <think>
@@ -83,11 +149,25 @@ Let me calculate this step by step.
 The answer is **111,444**.
 ```
 
+With the **Anthropic** format, the reasoning is returned as a separate `thinking` content block
+before the `text` block, rather than inline tags:
+
+```json
+{
+  "content": [
+    {"type": "thinking", "thinking": "Let me calculate this step by step...", "signature": ""},
+    {"type": "text", "text": "The answer is **111,444**."}
+  ]
+}
+```
+
 ## Streaming with Thinking
 
 Thinking mode works with streaming. The reasoning tokens stream first, followed by the final answer:
 
-```python Python
+<CodeGroup>
+
+```python Python (OpenAI)
 stream = client.chat.completions.create(
     model="subconscious/tim-qwen3.6-27b",
     messages=[{"role": "user", "content": "Solve: If 3x + 7 = 22, what is x?"}],
@@ -102,6 +182,23 @@ for chunk in stream:
     if content:
         print(content, end="", flush=True)
 ```
+
+```python Python (Anthropic)
+with client.messages.stream(
+    model="subconscious/tim-qwen3.6-27b",
+    max_tokens=2048,
+    thinking={"type": "enabled", "budget_tokens": 2000},
+    messages=[{"role": "user", "content": "Solve: If 3x + 7 = 22, what is x?"}],
+) as stream:
+    for event in stream:
+        if event.type == "content_block_delta":
+            if event.delta.type == "thinking_delta":
+                print(event.delta.thinking, end="", flush=True)
+            elif event.delta.type == "text_delta":
+                print(event.delta.text, end="", flush=True)
+```
+
+</CodeGroup>
 
 ## When to Use Thinking Mode
 

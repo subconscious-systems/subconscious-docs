@@ -42,9 +42,11 @@ Deploy Subconscious models directly on local hardware for offline inference, ult
 
 ## How It Works
 
-We provide optimized model packages for different hardware targets. The local runtime exposes the same OpenAI-compatible API on localhost, so your application code works unchanged:
+We provide optimized model packages for different hardware targets. The local runtime exposes the same OpenAI- and Anthropic-compatible API on localhost, so your application code works unchanged:
 
-```python Python
+<CodeGroup>
+
+```python Python (OpenAI)
 from openai import OpenAI
 
 # Same API, running locally
@@ -58,6 +60,24 @@ response = client.chat.completions.create(
     messages=[{"role": "user", "content": "Hello!"}],
 )
 ```
+
+```python Python (Anthropic)
+from anthropic import Anthropic
+
+# Same API, running locally
+client = Anthropic(
+    auth_token="local",
+    base_url="http://localhost:8080",
+)
+
+message = client.messages.create(
+    model="subconscious/tim-qwen3.6-27b",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Hello!"}],
+)
+```
+
+</CodeGroup>
 
 <Card title="Talk to Sales" icon="phone" href="https://calendly.com/jack-subconscious/dedicated">
   Schedule a call to discuss local deployment for your organization.
