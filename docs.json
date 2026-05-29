@@ -69,7 +69,15 @@
       },
       {
         "tab": "API Reference",
-        "openapi": "/api-reference/openapi.json"
+        "groups": [
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api-reference/chat-completions",
+              "api-reference/messages"
+            ]
+          }
+        ]
       }
     ]
   },

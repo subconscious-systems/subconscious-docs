@@ -12,18 +12,27 @@ icon: "rocket"
 
 Before writing code, try the [Playground](https://www.subconscious.dev/playground) to test prompts interactively.
 
-## 3. Install the OpenAI SDK
+## 3. Install an SDK
 
-Subconscious is fully compatible with the OpenAI SDK. Install it for your language:
+Subconscious is compatible with both the OpenAI and Anthropic SDKs — use whichever you
+prefer. Install it for your language:
 
 <CodeGroup>
 
-```bash Python
+```bash Python (OpenAI)
 pip install openai
 ```
 
-```bash Node.js
+```bash Node.js (OpenAI)
 npm install openai
+```
+
+```bash Python (Anthropic)
+pip install anthropic
+```
+
+```bash Node.js (Anthropic)
+npm install @anthropic-ai/sdk
 ```
 
 </CodeGroup>
@@ -34,7 +43,7 @@ Set your API key and base URL, then create a chat completion:
 
 <CodeGroup>
 
-```python Python
+```python Python (OpenAI)
 from openai import OpenAI
 
 client = OpenAI(
@@ -53,7 +62,7 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-```typescript Node.js
+```typescript Node.js (OpenAI)
 import OpenAI from "openai";
 
 const client = new OpenAI({
@@ -72,7 +81,47 @@ const response = await client.chat.completions.create({
 console.log(response.choices[0].message.content);
 ```
 
-```bash cURL
+```python Python (Anthropic)
+from anthropic import Anthropic
+
+client = Anthropic(
+    auth_token="your-api-key",
+    base_url="https://api.subconscious.dev",
+)
+
+message = client.messages.create(
+    model="subconscious/tim-qwen3.6-27b",
+    max_tokens=1024,
+    system="You are a helpful assistant.",
+    messages=[
+        {"role": "user", "content": "Explain quantum computing in three sentences."},
+    ],
+)
+
+print(message.content[0].text)
+```
+
+```typescript Node.js (Anthropic)
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic({
+  authToken: "your-api-key",
+  baseURL: "https://api.subconscious.dev",
+});
+
+const message = await client.messages.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  max_tokens: 1024,
+  system: "You are a helpful assistant.",
+  messages: [
+    { role: "user", content: "Explain quantum computing in three sentences." },
+  ],
+});
+
+console.log(message.content[0].text);
+```
+
+```bash cURL (Chat Completions)
 curl https://api.subconscious.dev/v1/chat/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
@@ -85,6 +134,132 @@ curl https://api.subconscious.dev/v1/chat/completions \
   }'
 ```
 
+```bash cURL (Messages)
+curl https://api.subconscious.dev/v1/messages \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "content-type: application/json" \
+  -d '{
+    "model": "subconscious/tim-qwen3.6-27b",
+    "max_tokens": 1024,
+    "system": "You are a helpful assistant.",
+    "messages": [
+      {"role": "user", "content": "Explain quantum computing in three sentences."}
+    ]
+  }'
+```
+
+</CodeGroup>
+
+### Using an agents SDK
+
+If you want to use an agents SDK with our API, here is how you would do it:
+
+<CodeGroup>
+
+```python OpenAI Agents
+from openai import AsyncOpenAI
+from agents import (
+    Agent,
+    Runner,
+    OpenAIChatCompletionsModel,
+    set_tracing_disabled,
+)
+
+API_KEY = "your-api-key"
+MODEL = "subconscious/tim-qwen3.6-27b"
+
+
+def run_openai_agent():
+    client = AsyncOpenAI(
+        api_key=API_KEY,
+        base_url="https://api.subconscious.dev/v1",
+    )
+    # Tracing would otherwise try to reach OpenAI's backend.
+    set_tracing_disabled(True)
+
+    # Pass an explicit Chat Completions model bound to our client. A bare
+    # model string would route through the MultiProvider, which treats the
+    # "subconscious/" segment as a provider prefix and fails.
+    agent = Agent(
+        name="Assistant",
+        instructions="You are a helpful assistant.",
+        model=OpenAIChatCompletionsModel(model=MODEL, openai_client=client),
+    )
+    result = Runner.run_sync(agent, "What is the capital of France?")
+    print("OpenAI Agents SDK response:")
+    print(result.final_output)
+
+
+run_openai_agent()
+```
+
+```python Claude Agent SDK
+# The SDK reads its endpoint/credentials from env vars and drives the Claude
+# Code CLI under the hood (so Node.js + the CLI must be installed). Set these
+# before importing/using the SDK so the spawned CLI inherits them.
+
+import asyncio
+import os
+from claude_agent_sdk import query, ClaudeAgentOptions
+
+API_KEY = "your-api-key"
+
+os.environ["ANTHROPIC_BASE_URL"] = "https://api.subconscious.dev"
+os.environ["ANTHROPIC_AUTH_TOKEN"] = API_KEY
+MODEL = "subconscious/tim-qwen3.6-27b"
+
+
+async def run_claude_agent():
+    print("Claude Agent SDK response:")
+    options = ClaudeAgentOptions(model=MODEL)
+    async for message in query(
+        prompt="What is the capital of France?",
+        options=options,
+    ):
+        print(message)
+
+
+asyncio.run(run_claude_agent())
+```
+
+```python LangChain
+# Dependencies: langchain, langchain-openai, langchain-anthropic
+
+from langchain.agents import create_agent
+from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
+
+API_KEY = "your-api-key"
+MODEL = "subconscious/tim-qwen3.6-27b"
+PROMPT = {"messages": [{"role": "user", "content": "What is the capital of France?"}]}
+
+# ---------------------------------------------------------------------------
+# OpenAI chat completions format
+# ---------------------------------------------------------------------------
+openai_model = ChatOpenAI(
+    model=MODEL,
+    api_key=API_KEY,
+    base_url="https://api.subconscious.dev/v1",
+)
+openai_agent = create_agent(openai_model, tools=[])
+print("OpenAI format:")
+print(openai_agent.invoke(PROMPT)["messages"][-1].content)
+
+# ---------------------------------------------------------------------------
+# Anthropic messages format
+# ---------------------------------------------------------------------------
+anthropic_model = ChatAnthropic(
+    model=MODEL,
+    base_url="https://api.subconscious.dev",
+    api_key="unused",  # auth goes through the Bearer header below
+    default_headers={"Authorization": f"Bearer {API_KEY}"},
+)
+anthropic_agent = create_agent(anthropic_model, tools=[])
+print("\nAnthropic format:")
+print(anthropic_agent.invoke(PROMPT)["messages"][-1].content)
+```
+
 </CodeGroup>
 
 ## 5. Try Streaming
@@ -93,7 +268,7 @@ You can stream responses token by token for real-time output:
 
 <CodeGroup>
 
-```python Python
+```python Python (OpenAI)
 stream = client.chat.completions.create(
     model="subconscious/tim-qwen3.6-27b",
     messages=[{"role": "user", "content": "Write a haiku about programming."}],
@@ -106,7 +281,7 @@ for chunk in stream:
         print(content, end="", flush=True)
 ```
 
-```typescript Node.js
+```typescript Node.js (OpenAI)
 const stream = await client.chat.completions.create({
   model: "subconscious/tim-qwen3.6-27b",
   messages: [{ role: "user", content: "Write a haiku about programming." }],
@@ -116,6 +291,33 @@ const stream = await client.chat.completions.create({
 for await (const chunk of stream) {
   const content = chunk.choices[0]?.delta?.content;
   if (content) process.stdout.write(content);
+}
+```
+
+```python Python (Anthropic)
+with client.messages.stream(
+    model="subconscious/tim-qwen3.6-27b",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Write a haiku about programming."}],
+) as stream:
+    for text in stream.text_stream:
+        print(text, end="", flush=True)
+```
+
+```typescript Node.js (Anthropic)
+const stream = client.messages.stream({
+  model: "subconscious/tim-qwen3.6-27b",
+  max_tokens: 1024,
+  messages: [{ role: "user", content: "Write a haiku about programming." }],
+});
+
+for await (const event of stream) {
+  if (
+    event.type === "content_block_delta" &&
+    event.delta.type === "text_delta"
+  ) {
+    process.stdout.write(event.delta.text);
+  }
 }
 ```
 
@@ -129,7 +331,7 @@ You can also get typed JSON responses by providing a schema:
 
 <CodeGroup>
 
-```python Python
+```python Python (OpenAI)
 response = client.chat.completions.create(
     model="subconscious/tim-qwen3.6-27b",
     messages=[{"role": "user", "content": "Analyze the sentiment of: 'I love this product!'"}],
@@ -154,7 +356,7 @@ result = json.loads(response.choices[0].message.content)
 print(result)  # {"sentiment": "positive", "confidence": 0.95}
 ```
 
-```typescript Node.js
+```typescript Node.js (OpenAI)
 const response = await client.chat.completions.create({
   model: "subconscious/tim-qwen3.6-27b",
   messages: [{ role: "user", content: "Analyze the sentiment of: 'I love this product!'" }],
@@ -176,6 +378,62 @@ const response = await client.chat.completions.create({
 
 const result = JSON.parse(response.choices[0].message.content!);
 console.log(result); // { sentiment: "positive", confidence: 0.95 }
+```
+
+```python Python (Anthropic)
+# The Messages API has no response_format; force a tool call whose
+# input_schema is your target schema, then read the tool_use input.
+tool = {
+    "name": "sentiment_analysis",
+    "description": "Record the sentiment analysis result.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "sentiment": {"type": "string", "enum": ["positive", "negative", "neutral"]},
+            "confidence": {"type": "number"},
+        },
+        "required": ["sentiment", "confidence"],
+    },
+}
+
+message = client.messages.create(
+    model="subconscious/tim-qwen3.6-27b",
+    max_tokens=1024,
+    tools=[tool],
+    tool_choice={"type": "tool", "name": "sentiment_analysis"},
+    messages=[{"role": "user", "content": "Analyze the sentiment of: 'I love this product!'"}],
+)
+
+result = next(b.input for b in message.content if b.type == "tool_use")
+print(result)  # {"sentiment": "positive", "confidence": 0.95}
+```
+
+```typescript Node.js (Anthropic)
+// The Messages API has no response_format; force a tool call whose
+// input_schema is your target schema, then read the tool_use input.
+const message = await client.messages.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  max_tokens: 1024,
+  tools: [
+    {
+      name: "sentiment_analysis",
+      description: "Record the sentiment analysis result.",
+      input_schema: {
+        type: "object",
+        properties: {
+          sentiment: { type: "string", enum: ["positive", "negative", "neutral"] },
+          confidence: { type: "number" },
+        },
+        required: ["sentiment", "confidence"],
+      },
+    },
+  ],
+  tool_choice: { type: "tool", name: "sentiment_analysis" },
+  messages: [{ role: "user", content: "Analyze the sentiment of: 'I love this product!'" }],
+});
+
+const block = message.content.find((b) => b.type === "tool_use");
+console.log(block?.input); // { sentiment: "positive", confidence: 0.95 }
 ```
 
 </CodeGroup>

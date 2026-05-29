@@ -27,9 +27,11 @@ Dedicated endpoints give your organization reserved inference capacity with guar
 
 ## How It Works
 
-Dedicated endpoints use the same OpenAI-compatible API, so your code doesn't change. We provision isolated compute for your organization and configure your API keys to route to dedicated infrastructure.
+Dedicated endpoints use the same OpenAI- and Anthropic-compatible API, so your code doesn't change. We provision isolated compute for your organization and configure your API keys to route to dedicated infrastructure.
 
-```python Python
+<CodeGroup>
+
+```python Python (OpenAI)
 from openai import OpenAI
 
 # Same API, same SDK, just higher limits and dedicated compute
@@ -38,6 +40,18 @@ client = OpenAI(
     base_url="https://api.subconscious.dev/v1",
 )
 ```
+
+```python Python (Anthropic)
+from anthropic import Anthropic
+
+# Same API, same SDK, just higher limits and dedicated compute
+client = Anthropic(
+    auth_token="your-api-key",
+    base_url="https://api.subconscious.dev",
+)
+```
+
+</CodeGroup>
 
 ## Pricing
 

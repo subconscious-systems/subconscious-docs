@@ -9,8 +9,8 @@ The Subconscious Cloud API is the fastest way to access our inference infrastruc
 ## How It Works
 
 <CardGroup cols={3}>
-  <Card title="OpenAI compatible" icon="plug">
-    Use the standard OpenAI SDK with no custom libraries needed
+  <Card title="OpenAI & Anthropic compatible" icon="plug">
+    Use the standard OpenAI or Anthropic SDK with no custom libraries needed
   </Card>
   <Card title="Global edge" icon="globe">
     Low-latency access from anywhere
@@ -24,7 +24,7 @@ The Subconscious Cloud API is the fastest way to access our inference infrastruc
 
 Your API requests flow through a managed gateway:
 
-1. Your application calls `api.subconscious.dev/v1/chat/completions`
+1. Your application calls `api.subconscious.dev/v1/chat/completions` (OpenAI) or `api.subconscious.dev/v1/messages` (Anthropic)
 2. The gateway authenticates your API key and enforces rate limits
 3. The request is routed to the inference cluster
 4. Responses stream back to your application
@@ -33,7 +33,9 @@ Your API requests flow through a managed gateway:
 
 API keys are created and managed from your [Subconscious dashboard](https://subconscious.dev/platform/api-keys). Each organization can have multiple active keys.
 
-```python Python
+<CodeGroup>
+
+```python Python (OpenAI)
 from openai import OpenAI
 
 client = OpenAI(
@@ -41,6 +43,17 @@ client = OpenAI(
     base_url="https://api.subconscious.dev/v1",
 )
 ```
+
+```python Python (Anthropic)
+from anthropic import Anthropic
+
+client = Anthropic(
+    auth_token="your-api-key",            # From your dashboard
+    base_url="https://api.subconscious.dev",
+)
+```
+
+</CodeGroup>
 
 ## Default Limits
 
