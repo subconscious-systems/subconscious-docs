@@ -4,15 +4,15 @@ description: "Stream responses token by token in real time"
 icon: "wave-pulse"
 ---
 
-Streaming delivers tokens as they're generated, which enables responsive UIs and real-time output. Subconscious uses the standard OpenAI streaming format: Server-Sent Events (SSE) with `ChatCompletionChunk` objects.
+Streaming delivers tokens as they're generated, which enables responsive UIs and real-time output. Subconscious streams using whichever wire format you call: the OpenAI format emits Server-Sent Events (SSE) with `ChatCompletionChunk` objects, and the Anthropic Messages format emits the Anthropic event protocol (`message_start`, `content_block_delta`, `message_stop`).
 
 ## Basic Streaming
 
-Set `stream=True` to receive a stream of chunks instead of waiting for the full response:
+Set `stream=True` (or use `client.messages.stream(...)` with the Anthropic SDK) to receive a stream of chunks instead of waiting for the full response:
 
 <CodeGroup>
 
-```python Python
+```python Python (OpenAI)
 from openai import OpenAI
 
 client = OpenAI(
@@ -33,7 +33,7 @@ for chunk in stream:
 print()
 ```
 
-```typescript Node.js
+```typescript Node.js (OpenAI)
 import OpenAI from "openai";
 
 const client = new OpenAI({
@@ -54,7 +54,47 @@ for await (const chunk of stream) {
 console.log();
 ```
 
-```bash cURL
+```python Python (Anthropic)
+from anthropic import Anthropic
+
+client = Anthropic(
+    auth_token="your-api-key",
+    base_url="https://api.subconscious.dev",
+)
+
+with client.messages.stream(
+    model="subconscious/tim-qwen3.6-27b",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Explain how neural networks learn."}],
+) as stream:
+    for text in stream.text_stream:
+        print(text, end="", flush=True)
+print()
+```
+
+```typescript Node.js (Anthropic)
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic({
+  authToken: "your-api-key",
+  baseURL: "https://api.subconscious.dev",
+});
+
+const stream = client.messages.stream({
+  model: "subconscious/tim-qwen3.6-27b",
+  max_tokens: 1024,
+  messages: [{ role: "user", content: "Explain how neural networks learn." }],
+});
+
+for await (const event of stream) {
+  if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+    process.stdout.write(event.delta.text);
+  }
+}
+console.log();
+```
+
+```bash cURL (Chat Completions)
 curl https://api.subconscious.dev/v1/chat/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
@@ -65,9 +105,24 @@ curl https://api.subconscious.dev/v1/chat/completions \
   }'
 ```
 
+```bash cURL (Messages)
+curl https://api.subconscious.dev/v1/messages \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "content-type: application/json" \
+  -d '{
+    "model": "subconscious/tim-qwen3.6-27b",
+    "max_tokens": 1024,
+    "messages": [{"role": "user", "content": "Explain how neural networks learn."}],
+    "stream": true
+  }'
+```
+
 </CodeGroup>
 
 ## SSE Format
+
+### Chat Completions
 
 Each event in the stream is a `data:` line containing a JSON `ChatCompletionChunk` object:
 
@@ -83,13 +138,42 @@ data: [DONE]
 
 The final chunk has `finish_reason: "stop"` and is followed by `data: [DONE]`.
 
+### Messages
+
+The Messages endpoint emits the Anthropic event protocol. Each SSE message has an `event:` type and a `data:` JSON payload, progressing through `message_start`, one or more content blocks (`content_block_start` → `content_block_delta` → `content_block_stop`), then `message_delta` and `message_stop`:
+
+```
+event: message_start
+data: {"type":"message_start","message":{"id":"msg_abc123","type":"message","role":"assistant","content":[],"model":"subconscious/tim-qwen3.6-27b","stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":12,"output_tokens":0,"cache_read_input_tokens":0}}}
+
+event: content_block_start
+data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}}
+
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Hello"}}
+
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":" world"}}
+
+event: content_block_stop
+data: {"type":"content_block_stop","index":0}
+
+event: message_delta
+data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"output_tokens":18}}
+
+event: message_stop
+data: {"type":"message_stop"}
+```
+
+Unlike the Chat Completions format, there is no `data: [DONE]` sentinel — the stream ends with `message_stop`.
+
 ## Error Handling
 
-Errors during streaming are delivered as SSE events. The OpenAI SDK raises exceptions automatically:
+Errors during streaming are delivered as SSE events. Both SDKs raise exceptions automatically:
 
 <CodeGroup>
 
-```python Python
+```python Python (OpenAI)
 from openai import APIError
 
 try:
@@ -106,7 +190,7 @@ except APIError as e:
     print(f"API error: {e.status_code} - {e.message}")
 ```
 
-```typescript Node.js
+```typescript Node.js (OpenAI)
 import OpenAI from "openai";
 
 try {
@@ -126,13 +210,51 @@ try {
 }
 ```
 
+```python Python (Anthropic)
+from anthropic import APIError
+
+try:
+    with client.messages.stream(
+        model="subconscious/tim-qwen3.6-27b",
+        max_tokens=1024,
+        messages=[{"role": "user", "content": "Hello"}],
+    ) as stream:
+        for text in stream.text_stream:
+            print(text, end="", flush=True)
+except APIError as e:
+    print(f"API error: {e.status_code} - {e.message}")
+```
+
+```typescript Node.js (Anthropic)
+import Anthropic from "@anthropic-ai/sdk";
+
+try {
+  const stream = client.messages.stream({
+    model: "subconscious/tim-qwen3.6-27b",
+    max_tokens: 1024,
+    messages: [{ role: "user", content: "Hello" }],
+  });
+  for await (const event of stream) {
+    if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+      process.stdout.write(event.delta.text);
+    }
+  }
+} catch (error) {
+  if (error instanceof Anthropic.APIError) {
+    console.error(`API error: ${error.status} - ${error.message}`);
+  }
+}
+```
+
 </CodeGroup>
 
 ## Usage Statistics
 
-To receive token usage in the stream, include `stream_options`:
+For the Chat Completions format, include `stream_options` to receive token usage in the final chunk. For the Messages format, usage is built in: `input_tokens` arrives on `message_start` and `output_tokens` on `message_delta`.
 
-```python Python
+<CodeGroup>
+
+```python Python (OpenAI)
 stream = client.chat.completions.create(
     model="subconscious/tim-qwen3.6-27b",
     messages=[{"role": "user", "content": "Hello"}],
@@ -147,4 +269,18 @@ for chunk in stream:
         print(chunk.choices[0].delta.content, end="", flush=True)
 ```
 
-Usage data is included in the final chunk of the stream.
+```python Python (Anthropic)
+with client.messages.stream(
+    model="subconscious/tim-qwen3.6-27b",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Hello"}],
+) as stream:
+    for text in stream.text_stream:
+        print(text, end="", flush=True)
+    final = stream.get_final_message()
+    print(f"\nInput: {final.usage.input_tokens}, Output: {final.usage.output_tokens}")
+```
+
+</CodeGroup>
+
+For Chat Completions, usage data is included in the final chunk of the stream.

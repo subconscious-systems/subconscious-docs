@@ -1,0 +1,135 @@
+---
+title: "Subconscious Cache"
+description: "Disable auto compaction and trigger subconscious cache manually."
+icon: "zap"
+---
+
+Subconscious cache helps the inference system detect when context engineering happens in agent reasoning runs by matching the prefix and suffix of cached tokens against new inputs. The goal is to preserve the memory of the pruned tokens implicitly within the latent states of suffix tokens and improve the cache hit rate.
+
+## How It Works
+
+To hit the subconscious cache, the cached tokens and new inputs need to satisfy two criteria:
+1. The cached chain can be precisely split into three sections `A, B, C`
+2. The new input chain can be precisely split into three sections `A, C, D`, such that `A` and `C` match the prefix `A` and suffix `C` in the cache and `len(C) > threshold`. We usually set `threshold = 8` tokens to avoid matching the suffix of chat templates.
+
+## Manually Triggering Subconscious Cache
+
+Subconscious LLM API enables auto-compaction by default. Under the auto-compaction mode, developers should just send any message list to the LLM API and the inference system will detect prunable messages. Message pruning happened in the auto-mode can automatically hit subconscious cache.
+
+If you want to manually hit subconscious by controlling the context by yourself instead of auto-compaction, simply disable auto compaction in the chat kwards. The `chat_template_kwargs` extension is accepted on both the Chat Completions and Messages endpoints.
+
+<CodeGroup>
+
+```python Python (OpenAI)
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="your-api-key",
+    base_url="https://api.subconscious.dev/v1",
+)
+
+response = client.chat.completions.create(
+    model="subconscious/tim-qwen3.6-27b",
+    messages=[{"role": "user", "content": "What is 127 * 849 + 3621?"}],
+    extra_body={
+        "chat_template_kwargs": {"enable_auto_compaction": False},
+    },
+)
+
+print(response.choices[0].message.content)
+```
+
+```typescript Node.js (OpenAI)
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "your-api-key",
+  baseURL: "https://api.subconscious.dev/v1",
+});
+
+const response = await client.chat.completions.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  messages: [{ role: "user", content: "What is 127 * 849 + 3621?" }],
+  // @ts-expect-error Subconscious extension
+  chat_template_kwargs: { enable_auto_compaction: false },
+});
+
+console.log(response.choices[0].message.content);
+```
+
+```python Python (Anthropic)
+from anthropic import Anthropic
+
+client = Anthropic(
+    auth_token="your-api-key",
+    base_url="https://api.subconscious.dev",
+)
+
+message = client.messages.create(
+    model="subconscious/tim-qwen3.6-27b",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "What is 127 * 849 + 3621?"}],
+    extra_body={
+        "chat_template_kwargs": {"enable_auto_compaction": False},
+    },
+)
+
+print(message.content[0].text)
+```
+
+```typescript Node.js (Anthropic)
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic({
+  authToken: "your-api-key",
+  baseURL: "https://api.subconscious.dev",
+});
+
+const message = await client.messages.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  max_tokens: 1024,
+  messages: [{ role: "user", content: "What is 127 * 849 + 3621?" }],
+  // @ts-expect-error Subconscious extension
+  chat_template_kwargs: { enable_auto_compaction: false },
+});
+
+console.log(message.content[0].text);
+```
+
+```bash cURL (Chat Completions)
+curl https://api.subconscious.dev/v1/chat/completions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "subconscious/tim-qwen3.6-27b",
+    "messages": [{"role": "user", "content": "What is 127 * 849 + 3621?"}],
+    "chat_template_kwargs": {"enable_auto_compaction": false}
+  }'
+```
+
+```bash cURL (Messages)
+curl https://api.subconscious.dev/v1/messages \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "content-type: application/json" \
+  -d '{
+    "model": "subconscious/tim-qwen3.6-27b",
+    "max_tokens": 1024,
+    "messages": [{"role": "user", "content": "What is 127 * 849 + 3621?"}],
+    "chat_template_kwargs": {"enable_auto_compaction": false}
+  }'
+```
+
+</CodeGroup>
+
+## When to Turn Off Auto Compaction
+
+If you turn off auto compaction, you need to manually construct inputs that can hit the subconscious cache. Just make sure you only prune **one** continuous token sequence from the message list. If there is no context pruning, the new input will simply hit prefix cache. If more than one chunks are pruned, we cannot find suffix tokens satisfying the subconscious rules.
+
+**Use Auto Compaction for:**
+- Programming tasks, where assistant-tool-user messages keeps growing in a message list
+- Multi-turn conversation - rigid context pruning rule cannot handle arbitrary user inputs
+
+**Skip auto compaction for:**
+- ReACT multi-modal reasoning: Subconscious cache works perfectly when you only keep latest turns / images in the message list
+- Other applications where you need to carefully control context engineering.

@@ -260,6 +260,268 @@
           }
         }
       }
+    },
+    "/messages": {
+      "post": {
+        "operationId": "createMessage",
+        "summary": "Create a message",
+        "description": "Generates a model response for the given conversation. This endpoint is fully compatible with the Anthropic Messages API, so you can use the Anthropic SDK by pointing its base URL at Subconscious.",
+        "security": [
+          {"apiKeyAuth": []},
+          {"bearerAuth": []}
+        ],
+        "x-codeSamples": [
+          {
+            "lang": "python",
+            "label": "Python (Anthropic SDK)",
+            "source": "from anthropic import Anthropic\n\nclient = Anthropic(\n    auth_token=\"your-api-key\",\n    base_url=\"https://api.subconscious.dev\",\n)\n\nmessage = client.messages.create(\n    model=\"subconscious/tim-qwen3.6-27b\",\n    max_tokens=1024,\n    messages=[{\"role\": \"user\", \"content\": \"What is the capital of France?\"}],\n)\n\nprint(message.content[0].text)"
+          },
+          {
+            "lang": "javascript",
+            "label": "Node.js (Anthropic SDK)",
+            "source": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({\n  authToken: \"your-api-key\",\n  baseURL: \"https://api.subconscious.dev\",\n});\n\nconst message = await client.messages.create({\n  model: \"subconscious/tim-qwen3.6-27b\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"What is the capital of France?\" }],\n});\n\nconsole.log(message.content[0].text);"
+          },
+          {
+            "lang": "bash",
+            "label": "cURL",
+            "source": "curl https://api.subconscious.dev/v1/messages \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\" \\\n  -H \"content-type: application/json\" \\\n  -d '{\n    \"model\": \"subconscious/tim-qwen3.6-27b\",\n    \"max_tokens\": 1024,\n    \"messages\": [{\"role\": \"user\", \"content\": \"What is the capital of France?\"}]\n  }'"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["model", "messages", "max_tokens"],
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "description": "The model to use for completion.",
+                    "enum": ["subconscious/tim-qwen3.6-27b"],
+                    "example": "subconscious/tim-qwen3.6-27b"
+                  },
+                  "messages": {
+                    "type": "array",
+                    "description": "The conversation history. Each message has a role and content. Content is either a string or an array of content blocks (text, image, tool_use, tool_result, thinking).",
+                    "items": {
+                      "type": "object",
+                      "required": ["role", "content"],
+                      "properties": {
+                        "role": {
+                          "type": "string",
+                          "enum": ["user", "assistant"],
+                          "description": "The role of the message author. System prompts are passed via the top-level `system` field, not as a message."
+                        },
+                        "content": {
+                          "oneOf": [
+                            {"type": "string"},
+                            {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "description": "A content block. `type` selects the block shape: `text` ({text}), `image` ({source}), `tool_use` ({id, name, input}), `tool_result` ({tool_use_id, content, is_error}), `thinking` ({thinking}).",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": ["text", "image", "tool_use", "tool_result", "thinking"]
+                                  },
+                                  "text": {"type": "string"},
+                                  "source": {
+                                    "type": "object",
+                                    "description": "Image source. Either base64 ({type:\"base64\", media_type, data}) or url ({type:\"url\", url}).",
+                                    "properties": {
+                                      "type": {"type": "string", "enum": ["base64", "url"]},
+                                      "media_type": {"type": "string", "example": "image/png"},
+                                      "data": {"type": "string"},
+                                      "url": {"type": "string"}
+                                    }
+                                  },
+                                  "id": {"type": "string", "description": "tool_use block id."},
+                                  "name": {"type": "string", "description": "tool_use block tool name."},
+                                  "input": {"type": "object", "description": "tool_use block arguments."},
+                                  "tool_use_id": {"type": "string", "description": "tool_result block: the id of the tool_use it answers."},
+                                  "content": {"description": "tool_result block content (string or array of blocks)."},
+                                  "is_error": {"type": "boolean", "description": "tool_result block: whether the tool call errored."},
+                                  "thinking": {"type": "string", "description": "thinking block reasoning text."}
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    "example": [
+                      {"role": "user", "content": "What is the capital of France?"}
+                    ]
+                  },
+                  "max_tokens": {
+                    "type": "integer",
+                    "description": "The maximum number of tokens to generate before stopping. Required.",
+                    "example": 1024
+                  },
+                  "system": {
+                    "oneOf": [
+                      {"type": "string"},
+                      {"type": "array", "items": {"type": "object", "properties": {"type": {"type": "string", "enum": ["text"]}, "text": {"type": "string"}}}}
+                    ],
+                    "description": "A system prompt: a string or an array of text content blocks."
+                  },
+                  "stream": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If true, responses are streamed as Server-Sent Events using the Anthropic event protocol (`message_start`, `content_block_start`, `content_block_delta`, `content_block_stop`, `message_delta`, `message_stop`)."
+                  },
+                  "temperature": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Amount of randomness injected into the response."
+                  },
+                  "top_p": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Nucleus sampling parameter."
+                  },
+                  "top_k": {
+                    "type": "integer",
+                    "description": "Only sample from the top K options for each subsequent token."
+                  },
+                  "stop_sequences": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Custom text sequences that will cause the model to stop generating."
+                  },
+                  "tools": {
+                    "type": "array",
+                    "description": "Definitions of tools the model may use.",
+                    "items": {
+                      "type": "object",
+                      "required": ["name", "input_schema"],
+                      "properties": {
+                        "name": {"type": "string"},
+                        "description": {"type": "string"},
+                        "input_schema": {"type": "object", "description": "JSON Schema for the tool's input."}
+                      }
+                    }
+                  },
+                  "tool_choice": {
+                    "type": "object",
+                    "description": "How the model should use the provided tools.",
+                    "properties": {
+                      "type": {"type": "string", "enum": ["auto", "any", "tool"]},
+                      "name": {"type": "string", "description": "Required when type is `tool`: the tool the model must use."}
+                    }
+                  },
+                  "thinking": {
+                    "type": "object",
+                    "description": "Enable extended thinking. When enabled, the response includes `thinking` content blocks before the final `text` block.",
+                    "properties": {
+                      "type": {"type": "string", "enum": ["enabled"]},
+                      "budget_tokens": {"type": "integer", "description": "Token budget for reasoning."}
+                    }
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "description": "An object describing metadata about the request.",
+                    "properties": {
+                      "user_id": {"type": "string"}
+                    }
+                  },
+                  "chat_template_kwargs": {
+                    "type": "object",
+                    "description": "Subconscious extension. Controls model-specific features such as auto-compaction (Subconscious Cache).",
+                    "properties": {
+                      "enable_auto_compaction": {
+                        "type": "boolean",
+                        "description": "If false, disables automatic context compaction so you can control Subconscious Cache manually."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "A unique identifier for the message.",
+                      "example": "msg_abc123"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": ["message"],
+                      "description": "The object type."
+                    },
+                    "role": {
+                      "type": "string",
+                      "enum": ["assistant"]
+                    },
+                    "content": {
+                      "type": "array",
+                      "description": "An array of content blocks. Text blocks ({type:\"text\", text}), thinking blocks ({type:\"thinking\", thinking, signature}), and tool_use blocks ({type:\"tool_use\", id, name, input}).",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "type": {"type": "string", "enum": ["text", "thinking", "tool_use"]},
+                          "text": {"type": "string"},
+                          "thinking": {"type": "string"},
+                          "signature": {"type": "string"},
+                          "id": {"type": "string"},
+                          "name": {"type": "string"},
+                          "input": {"type": "object"}
+                        }
+                      }
+                    },
+                    "model": {
+                      "type": "string",
+                      "example": "subconscious/tim-qwen3.6-27b"
+                    },
+                    "stop_reason": {
+                      "type": "string",
+                      "enum": ["end_turn", "max_tokens", "tool_use"],
+                      "description": "The reason the model stopped generating."
+                    },
+                    "stop_sequence": {
+                      "type": ["string", "null"],
+                      "description": "The custom stop sequence that was generated, if any."
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "input_tokens": {"type": "integer", "description": "Number of input tokens used."},
+                        "output_tokens": {"type": "integer", "description": "Number of output tokens generated."},
+                        "cache_read_input_tokens": {"type": "integer", "description": "Number of input tokens read from cache."}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to invalid parameters or unsupported options"
+          },
+          "401": {
+            "description": "Unauthorized because of a missing or invalid API key"
+          },
+          "429": {
+            "description": "Rate limited due to too many requests or tokens per minute"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -268,6 +530,12 @@
         "type": "http",
         "scheme": "bearer",
         "description": "API key from your Subconscious dashboard"
+      },
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "API key from your Subconscious dashboard. Accepted by the Anthropic Messages endpoints in place of the Authorization header, for use with the Anthropic SDK."
       }
     }
   }

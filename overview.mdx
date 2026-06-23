@@ -4,13 +4,13 @@ sidebarTitle: "Overview"
 icon: "house"
 ---
 
-Subconscious is an AI lab that makes open models dramatically more capable with a novel inference runtime and complementary post-training. Our API is fully OpenAI-compatible, so you can start generating completions with three lines of code.
+Subconscious is an AI lab that makes open models dramatically more capable with a novel inference runtime and complementary post-training. Our API is compatible with both the OpenAI Chat Completions and Anthropic Messages APIs, so you can start generating completions with three lines of code using whichever SDK you already use.
 
 ## Quick Look
 
 <CodeGroup>
 
-```python Python
+```python Python (OpenAI)
 from openai import OpenAI
 
 client = OpenAI(
@@ -26,7 +26,7 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-```typescript Node.js
+```typescript Node.js (OpenAI)
 import OpenAI from "openai";
 
 const client = new OpenAI({
@@ -42,12 +42,58 @@ const response = await client.chat.completions.create({
 console.log(response.choices[0].message.content);
 ```
 
-```bash cURL
+```python Python (Anthropic)
+from anthropic import Anthropic
+
+client = Anthropic(
+    auth_token="your-api-key",
+    base_url="https://api.subconscious.dev",
+)
+
+message = client.messages.create(
+    model="subconscious/tim-qwen3.6-27b",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "What is the capital of France?"}],
+)
+
+print(message.content[0].text)
+```
+
+```typescript Node.js (Anthropic)
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic({
+  authToken: "your-api-key",
+  baseURL: "https://api.subconscious.dev",
+});
+
+const message = await client.messages.create({
+  model: "subconscious/tim-qwen3.6-27b",
+  max_tokens: 1024,
+  messages: [{ role: "user", content: "What is the capital of France?" }],
+});
+
+console.log(message.content[0].text);
+```
+
+```bash cURL (Chat Completions)
 curl https://api.subconscious.dev/v1/chat/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "subconscious/tim-qwen3.6-27b",
+    "messages": [{"role": "user", "content": "What is the capital of France?"}]
+  }'
+```
+
+```bash cURL (Messages)
+curl https://api.subconscious.dev/v1/messages \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "content-type: application/json" \
+  -d '{
+    "model": "subconscious/tim-qwen3.6-27b",
+    "max_tokens": 1024,
     "messages": [{"role": "user", "content": "What is the capital of France?"}]
   }'
 ```
