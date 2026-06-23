@@ -1,43 +1,48 @@
 ---
 title: "Privacy & Security"
-description: "How we protect your data"
+description: "How we handle and protect your data"
 icon: "shield"
 ---
 
-We take security seriously because we understand that we're handling your core data and workflows. Your business processes, sensitive information, and operational data are entrusted to us, and we treat this responsibility with the highest level of care.
+Security is foundational to how we build Subconscious. We treat your prompts, completions, and workflows with the highest level of care.
 
-## Data Handling
+## Your Query Data Is Not Retained
+
+We do not store, log, or retain the content of your inference requests or responses. Prompts and completions are processed transiently to serve your request and are never persisted.
+
+The only usage data we retain is the token-accounting metadata required to operate and bill the service: your input tokens, your output tokens, and your cached tokens.
+
+This metadata records *how much* you used, never *what* you sent or received. We have no record of the substance of your queries, and your data is never used to train or improve models.
+
+## Security
 
 <CardGroup cols={2}>
-  <Card title="No training on your data" icon="lock">
-    Your prompts and completions are never used to train or improve models
+  <Card title="Encrypted in transit" icon="lock">
+    All API traffic is encrypted using industry-standard TLS.
   </Card>
-  <Card title="No data retention" icon="trash">
-    Inference requests are and discarded. We don't store your prompts or responses.
+  <Card title="Scoped per organization" icon="building">
+    API keys are issued per organization, required for every request, and revocable at any time.
   </Card>
-  <Card title="Encrypted in transit" icon="shield-halved">
-    All API traffic is encrypted via TLS
+  <Card title="Least-privilege access" icon="user-shield">
+    Internal access to production systems is restricted to authorized personnel.
   </Card>
-  <Card title="Isolated per organization" icon="building">
-    API keys and usage are scoped to your organization
+  <Card title="Vetted subprocessors" icon="server">
+    We build on a small set of established, security-conscious infrastructure providers.
   </Card>
 </CardGroup>
 
-## Infrastructure Security
+## Privacy
 
-- **API key management**: Keys are cryptographically generated and can be rotated or revoked instantly from your dashboard.
-- **Rate limiting**: Per-organization rate limits protect against abuse.
-- **Automatic revocation**: Keys are automatically disabled if billing thresholds are exceeded.
-- **Audit logging**: All API key creation, deletion, and usage events are logged.
+We collect only the personal data needed to provide and support the service, such as account identity, contact details, and basic technical and usage data. You retain rights over your personal data, including access, correction, and erasure. For full details, see our [Privacy Policy](https://www.subconscious.dev/privacy) and [Security](https://www.subconscious.dev/security) pages.
 
-## Enterprise Security
+## Enterprise
 
-For organizations with additional security requirements, we offer:
+For organizations with additional requirements, we offer:
 
 - **Dedicated endpoints** with isolated compute and no shared infrastructure. See [Dedicated Endpoints](/enterprise/dedicated).
 - **On-prem deployment** to run inference in your own cloud or data center. See [On-Prem](/enterprise/on-prem).
-- **Custom security reviews** where we work directly with your security team.
+- **Custom security reviews** with your security team.
 
-<Card title="Contact Us" icon="envelope" href="https://calendly.com/jack-subconscious/dedicated">
-  Have questions about our security practices? Schedule a call with our team.
-</Card>
+## Contact
+
+Found a vulnerability or have a question about our practices? Reach us at [security@subconscious.dev](mailto:security@subconscious.dev) (security) or [privacy@subconscious.dev](mailto:privacy@subconscious.dev) (privacy).

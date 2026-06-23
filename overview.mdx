@@ -14,12 +14,12 @@ Subconscious is an AI lab that makes language models dramatically more capable w
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="your-api-key",
-    base_url="https://api.subconscious.dev/v1",
+    api_key="your-api-key", # Step 1: add your API key
+    base_url="https://api.subconscious.dev/v1", # Step 2: point to our api
 )
 
 response = client.chat.completions.create(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/tim-qwen3.6-27b", # Step 3: set the model. You're all set!
     messages=[{"role": "user", "content": "What is the capital of France?"}],
 )
 
@@ -100,11 +100,12 @@ curl https://api.subconscious.dev/v1/messages \
 
 </CodeGroup>
 
+To try this yourself, grab an API key on our [platform](https://subconscious.dev).
+
+
 ## Available Models
 
 See [Pricing](https://www.subconscious.dev/pricing) for the full list of available models and current per-token rates.
-
-**Coming soon:** `tim-nemotron3-ultra`, `tim-kimi2.7`
 
 ## Get Started
 
