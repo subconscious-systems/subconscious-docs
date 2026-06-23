@@ -1,22 +1,28 @@
 ---
 title: "Subconscious Cache"
-description: "Disable auto compaction and trigger subconscious cache manually."
-icon: "zap"
+description: "(Advanced) Disable auto compaction and trigger the subconscious cache manually."
+icon: "layer-group"
 ---
 
-Subconscious cache helps the inference system detect when context engineering happens in agent reasoning runs by matching the prefix and suffix of cached tokens against new inputs. The goal is to preserve the memory of the pruned tokens implicitly within the latent states of suffix tokens and improve the cache hit rate.
+Normally, our TIMRUN inference runtime has two features enabled by default to improve agent performance and ability.
+
+1. Auto Compaction -> compact the message list at runtime.
+2. Subconscious Cache -> Maintain both the prefix and the suffix around the pruned messages.
+
+This guide will walk you through how to disable auto compaction, so that you can use the subconscious cache explicitly.
 
 ## How It Works
 
 To hit the subconscious cache, the cached tokens and new inputs need to satisfy two criteria:
 1. The cached chain can be precisely split into three sections `A, B, C`
-2. The new input chain can be precisely split into three sections `A, C, D`, such that `A` and `C` match the prefix `A` and suffix `C` in the cache and `len(C) > threshold`. We usually set `threshold = 8` tokens to avoid matching the suffix of chat templates.
+2. Section `B` is pruned.
+3. The new input chain can be precisely split into three sections `A, C, D`, such that `A` and `C` match the prefix `A` and suffix `C` in the cache and `len(C) > threshold`. We usually set `threshold = 8` tokens to avoid matching the suffix of chat templates.
 
 ## Manually Triggering Subconscious Cache
 
-Subconscious LLM API enables auto-compaction by default. Under the auto-compaction mode, developers should just send any message list to the LLM API and the inference system will detect prunable messages. Message pruning happened in the auto-mode can automatically hit subconscious cache.
+Subconscious API enables auto-compaction by default. Under the auto-compaction mode, developers can send any message list to the LLM API and the inference system will detect prunable messages. Message pruning in the auto compaction mode will automatically hit the subconscious cache.
 
-If you want to manually hit subconscious by controlling the context by yourself instead of auto-compaction, simply disable auto compaction in the chat kwards. The `chat_template_kwargs` extension is accepted on both the Chat Completions and Messages endpoints.
+If you want to manually hit subconscious by controlling the context by yourself instead of auto-compaction, simply disable auto compaction in the chat kwards. The `chat_template_kwargs` extension is accepted on both the Completions and Messages endpoints.
 
 <CodeGroup>
 
@@ -128,7 +134,9 @@ If you turn off auto compaction, you need to manually construct inputs that can 
 
 **Use Auto Compaction for:**
 - Programming tasks, where assistant-tool-user messages keeps growing in a message list
-- Multi-turn conversation - rigid context pruning rule cannot handle arbitrary user inputs
+- Browser automation, where dead end exploration is easily pruned
+- Workflow automation, where stale tool calls pile up quickly
+- Multi-turn conversation, where rigid context pruning rule cannot handle arbitrary user inputs
 
 **Skip auto compaction for:**
 - ReACT multi-modal reasoning: Subconscious cache works perfectly when you only keep latest turns / images in the message list

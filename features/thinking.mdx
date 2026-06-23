@@ -4,7 +4,11 @@ description: "Enable step-by-step reasoning for complex tasks"
 icon: "brain"
 ---
 
-Thinking mode enables the model to reason step by step before producing its final answer. This is useful for complex tasks like math, logic, code generation, and multi-step analysis.
+Thinking mode enables the model to reason step by step before producing its final answer. This provides higher quality outputs for complex tasks like math, logic, code generation, and multi-step analysis.
+
+<Note>
+  Closed models usually **hide** their reasoning, returning only a summary or nothing at all. Because Subconscious serves **open models**, the model's reasoning is **completely visible**. You get the full, unaltered chain of thought, giving you total transparency for debugging, auditing, and trust.
+</Note>
 
 ## How It Works
 
@@ -12,9 +16,13 @@ When thinking mode is enabled, the model generates internal reasoning tokens (wr
 
 ## Enabling Thinking Mode
 
-Each wire format controls thinking with its own native mechanism. With the **OpenAI** format,
+Each wire format controls thinking with its own syntax.
+
+With the **OpenAI** format,
 pass the Subconscious extension `chat_template_kwargs` with `enable_thinking: true` via the
-`extra_body` parameter. With the **Anthropic** format, use the native `thinking` parameter
+`extra_body` parameter. 
+
+With the **Anthropic** format, use the native `thinking` parameter
 (`{"type": "enabled", "budget_tokens": ...}`):
 
 <CodeGroup>

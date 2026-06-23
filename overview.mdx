@@ -4,7 +4,7 @@ sidebarTitle: "Overview"
 icon: "house"
 ---
 
-Subconscious is an AI lab that makes open models dramatically more capable with a novel inference runtime and complementary post-training. Our API is compatible with both the OpenAI Chat Completions and Anthropic Messages APIs, so you can start generating completions with three lines of code using whichever SDK you already use.
+Subconscious is an AI lab that makes language models dramatically more capable with our inference runtime TIMRUN and complementary post-trained TIM family of models. Our API is compatible with both the OpenAI Completions and Anthropic Messages APIs, so you can get started with our API with three lines of code with the SDK you already use.
 
 ## Quick Look
 
@@ -102,12 +102,9 @@ curl https://api.subconscious.dev/v1/messages \
 
 ## Available Models
 
-| Model | Input | Cached Input | Output |
-|-------|-------|-------------|--------|
-| `subconscious/tim-qwen3.6-27b` | $0.50 / 1M | $0.05 / 1M | $3.50 / 1M |
-| `subconscious/glm-5.2` | $1.40 / 1M | $0.26 / 1M | $4.40 / 1M |
+See [Pricing](https://www.subconscious.dev/pricing) for the full list of available models and current per-token rates.
 
-**Coming soon:** `tim-qwen3.5-4b`, `tim-qwen3.5-9b`, `tim-qwen3.5-122b-a10b`, `tim-nemotron3-nano`, `tim-nemotron3-super`, `tim-kimi2.6`
+**Coming soon:** `tim-nemotron3-ultra`, `tim-kimi2.7`
 
 ## Get Started
 
@@ -118,21 +115,9 @@ curl https://api.subconscious.dev/v1/messages \
   <Card title="API Reference" icon="book" href="/api-reference/chat-completions">
     Full endpoint documentation
   </Card>
-  <Card title="Streaming" icon="wave-pulse" href="/features/streaming">
-    Stream responses token by token in real time
-  </Card>
-  <Card title="Structured Output" icon="code" href="/features/structured-output">
-    Get typed JSON responses with schema validation
-  </Card>
-  <Card title="Thinking Mode" icon="brain" href="/features/thinking">
-    Enable step-by-step reasoning for complex tasks
-  </Card>
-  <Card title="Pricing" icon="coins" href="/pricing">
-    Simple, transparent token-based pricing
-  </Card>
 </CardGroup>
 
-### For AI Tools
+### AI Readable
 
 - [subconscious.dev/llms.txt](https://docs.subconscious.dev/llms.txt): Documentation index with links
 - [subconscious.dev/llms-full.txt](https://docs.subconscious.dev/llms-full.txt): Complete documentation in one file

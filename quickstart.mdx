@@ -1,6 +1,6 @@
 ---
 title: "Quickstart"
-description: "Make your first API call in under 5 minutes"
+description: "Make your first API call"
 icon: "rocket"
 ---
 
@@ -153,7 +153,7 @@ curl https://api.subconscious.dev/v1/messages \
 
 ### Using an agents SDK
 
-If you want to use an agents SDK with our API, here is how you would do it:
+Want to use an SDK build for handling agents? Try one of these:
 
 <CodeGroup>
 
@@ -258,6 +258,30 @@ anthropic_model = ChatAnthropic(
 anthropic_agent = create_agent(anthropic_model, tools=[])
 print("\nAnthropic format:")
 print(anthropic_agent.invoke(PROMPT)["messages"][-1].content)
+```
+
+```typescript Vercel AI SDK
+// Dependencies: ai, @ai-sdk/openai-compatible
+
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { generateText } from "ai";
+
+const API_KEY = "your-api-key";
+const MODEL = "subconscious/tim-qwen3.6-27b";
+
+const subconscious = createOpenAICompatible({
+  name: "subconscious",
+  apiKey: API_KEY,
+  baseURL: "https://api.subconscious.dev/v1",
+});
+
+const { text } = await generateText({
+  model: subconscious.chatModel(MODEL),
+  system: "You are a helpful assistant.",
+  prompt: "What is the capital of France?",
+});
+
+console.log(text);
 ```
 
 </CodeGroup>

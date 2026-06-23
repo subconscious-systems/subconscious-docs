@@ -1,5 +1,5 @@
 ---
-title: "Cloud API"
+title: "API"
 description: "The standard Subconscious inference endpoint"
 icon: "cloud"
 ---
@@ -20,18 +20,9 @@ The Subconscious Cloud API is the fastest way to access our inference infrastruc
   </Card>
 </CardGroup>
 
-## Architecture
-
-Your API requests flow through a managed gateway:
-
-1. Your application calls `api.subconscious.dev/v1/chat/completions` (OpenAI) or `api.subconscious.dev/v1/messages` (Anthropic)
-2. The gateway authenticates your API key and enforces rate limits
-3. The request is routed to the inference cluster
-4. Responses stream back to your application
-
 ## API Keys
 
-API keys are created and managed from your [Subconscious dashboard](https://subconscious.dev/platform/api-keys). Each organization can have multiple active keys.
+API keys are created and managed from your [Subconscious dashboard](https://subconscious.dev/platform/api-keys).
 
 <CodeGroup>
 
@@ -55,19 +46,9 @@ client = Anthropic(
 
 </CodeGroup>
 
-## Default Limits
-
-| Limit | Default |
-|-------|---------|
-| Tokens per minute | 1,000,000 |
-| Requests per minute | 100 |
-| Tokens per day | 10,000,000 |
-
-Need higher limits? See [Dedicated Endpoints](/enterprise/dedicated) or [contact us](https://calendly.com/jack-subconscious/dedicated).
-
 ## Billing
 
-Usage is billed per token. See [Pricing](/pricing) for current rates.
+Usage is billed per token. See [Pricing](https://www.subconscious.dev/pricing) for current rates.
 
 - Credits are added from your dashboard
 - Usage is deducted automatically per request

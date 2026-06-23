@@ -36,8 +36,7 @@
             "group": "Get Started",
             "pages": [
               "overview",
-              "quickstart",
-              "pricing"
+              "quickstart"
             ]
           },
           {
@@ -52,11 +51,11 @@
           {
             "group": "Ways to Use",
             "pages": [
-              "enterprise/cloud-api",
-              "enterprise/dedicated",
-              "enterprise/on-prem",
-              "enterprise/local-devices",
-              "enterprise/privacy"
+              "ways-to-use/cloud-api",
+              "ways-to-use/dedicated",
+              "ways-to-use/on-prem",
+              "ways-to-use/local-devices",
+              "ways-to-use/privacy"
             ]
           },
           {
@@ -122,7 +121,7 @@
     },
     {
       "source": "/platform/pricing",
-      "destination": "/pricing"
+      "destination": "https://www.subconscious.dev/pricing"
     },
     {
       "source": "/platform/tools",
@@ -154,7 +153,7 @@
     },
     {
       "source": "/offerings/usage",
-      "destination": "/pricing"
+      "destination": "https://www.subconscious.dev/pricing"
     },
     {
       "source": "/core-concepts/runs",
