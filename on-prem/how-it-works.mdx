@@ -12,18 +12,18 @@ The ORANGE Line consists of three core components:
 
 {/*TODO: Consider upgrading this diagram to a hand-drawn version in Figma for a more approachable look.*/}
 ```mermaid
-flowchart LR
+flowchart TD
   subgraph distribution["Distribution Platform"]
-    direction LR
+    direction TB
     releases["Subconscious releases"]
-    distr["Distr customer portal"]
+    distr["Customer deployment portal"]
     releases -->|"versions, signs, scans, packages"| distr
   end
 
   codingAgents["Coding agents"]
 
   subgraph customer["Customer Cloud"]
-    direction LR
+    direction TB
     gateway["API Gateway"]
     runtime["Inference Runtime"]
     gpus["Customer GPUs"]
@@ -32,8 +32,11 @@ flowchart LR
   end
 
   codingAgents --> gateway
-  distr -->|"software delivery and updates"| gateway
-  distr -->|"runtime releases"| runtime
+  distr -->|"opt-in or auto-deploy"| gateway
+  distr -->|"opt-in or auto-deploy"| runtime
+
+  style distribution fill:#fff3e8,stroke:#ff5c28,stroke-width:1px,color:#5f2411
+  style customer fill:#eef7ff,stroke:#4ea3ff,stroke-width:1px,color:#17324d
 ```
 
 ## API Gateway
