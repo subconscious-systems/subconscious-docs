@@ -18,7 +18,7 @@ For production customer-hosted deployments:
 - Customer requests, prompts, completions, logs, keys, and operational data remain in the customer environment unless the customer explicitly chooses otherwise.
 - Subconscious does not host the customer's production inference system.
 - Subconscious does not require persistent access to the customer's cloud account.
-- Subconscious does not need ingress into the customer's cloud account by default.
+- Subconscious does not need ingress into the customer's cloud account.
 - Subconscious does not control production availability.
 - The customer controls versioning, deployment cadence, networking, access, monitoring, and ORANGE Line operations.
 - Updates are customer-approved and installable through the customer's own change-management process unless the customer explicitly chooses an assisted update workflow.
@@ -305,7 +305,7 @@ Yes. Customers can scan release artifacts and deployed components using their ow
 
 ### Is telemetry enabled by default?
 
-Customer-hosted deployments should not send customer data telemetry by default. Any telemetry should be explicit, documented, configurable, and opt-in.
+Customer-hosted deployments should not send customer data telemetry by default. Any telemetry should be explicit, documented, configurable, and opt-in. Subconscious helps the customer to configure monitoring and logging into their systems of record for complete ability to support their deployments.
 
 ### What happens during an incident?
 
@@ -314,8 +314,3 @@ The customer owns incident response for the API Gateway and Inference Runtime in
 ### Can we run in a restricted or air-gapped environment?
 
 Subconscious can support planning for restricted, private registry, semi-air-gapped, or air-gapped deployment workflows. Exact support depends on the customer's environment and release distribution requirements.
-
-### What security evidence should we request?
-
-Customers should request the architecture memo, data-flow diagram, shared responsibility matrix, release integrity materials, vulnerability scan results, SBOMs, update process, support access policy, and telemetry statement.
-
