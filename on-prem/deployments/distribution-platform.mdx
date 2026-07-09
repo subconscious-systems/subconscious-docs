@@ -1,18 +1,20 @@
 ---
 title: "Distribution Platform"
-description: "How Distr supports customer-hosted deployment and updates"
+description: "Software delivery, versioning, updates, and assisted self-managed deployment"
 icon: "truck-fast"
 ---
 
-Subconscious uses [Distr](https://distr.sh/docs/) to help distribute and operate customer-hosted deployments. Distr is built for delivering Docker, Helm, and OCI artifacts into self-managed, assisted self-managed, bring-your-own-cloud, air-gapped, and edge environments.
+The **Distribution Platform** manages software delivery, versioning, updates, release metadata, and assisted self-managed deployment for The ORANGE Line.
+
+It is powered by [Distr](https://distr.sh/docs/), a platform built for delivering Docker, Helm, and OCI artifacts into self-managed, assisted self-managed, bring-your-own-cloud, air-gapped, and edge environments.
 
 During onboarding, your Subconscious FDE provisions a customer portal for your organization. The portal gives your team a place to view deployment instructions, inspect available artifacts, manage deployments, generate access tokens, and review release resources.
 
-## What Distr is used for
+## What the Distribution Platform is used for
 
-The distribution platform supports the software distribution plane. This is separate from the runtime plane that serves inference traffic.
+The Distribution Platform delivers the software that runs in the customer's environment. It is separate from the API Gateway and Inference Runtime that serve production inference traffic.
 
-Subconscious uses the distribution plane to deliver:
+Subconscious uses it to deliver:
 
 - Helm charts and container images.
 - Customer-specific deployment instructions.
@@ -22,7 +24,7 @@ Subconscious uses the distribution plane to deliver:
 - Vulnerability reports and release evidence where available.
 - Customer-managed deployment secrets when enabled for the deployment.
 
-The runtime plane is the system your engineers use. The distribution plane is the mechanism for delivering, updating, and supporting that system.
+The API Gateway and Inference Runtime are the components your engineers use during production inference. The Distribution Platform is the mechanism for delivering, updating, and supporting those components.
 
 ## Customer portal
 
@@ -92,11 +94,11 @@ In assisted self-managed mode, deployment secrets may be managed through the cus
 Common secrets include:
 
 - Registry access tokens.
-- Gateway admin credentials.
+- API Gateway admin credentials.
 - Model provider credentials.
 - Database and cache credentials.
 - Observability export credentials.
 - TLS certificate references.
 
-Runtime route credentials and API keys are covered in [Gateway setup](/on-prem/deployments/gateway-setup).
+API Gateway route credentials and API keys are covered in [API Gateway setup](/on-prem/deployments/gateway-setup).
 

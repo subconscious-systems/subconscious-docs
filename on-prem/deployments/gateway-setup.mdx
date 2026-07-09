@@ -1,14 +1,14 @@
 ---
-title: "Gateway Setup"
+title: "API Gateway Setup"
 description: "Configure users, API keys, routes, limits, test requests, and day-two admin workflows"
 icon: "gear"
 ---
 
-After the runtime plane is deployed, the next step is gateway setup. This is where your team and Subconscious configure the admin surfaces, users, API keys, SGL worker routes, model access, limits, monitoring, and day-two workflows that make the deployment usable by your engineering organization.
+After The ORANGE Line is deployed, the next step is API Gateway setup. This is where your team and Subconscious configure the admin surfaces, users, API keys, model routes, model access, limits, monitoring, and day-two workflows that make the deployment usable by your engineering organization.
 
 Deployment answers: "How does the software get installed into our environment?"
 
-Gateway setup answers: "How do we configure the installed system so engineers can use it safely?"
+API Gateway setup answers: "How do we configure the installed system so engineers can use it safely?"
 
 ## Where this fits
 
@@ -16,8 +16,8 @@ In a typical onboarding:
 
 1. Your Subconscious FDE provisions your customer portal in Distr.
 2. Your team chooses [traditional self-hosted or assisted self-managed](/on-prem/deployments/methods).
-3. The runtime plane is deployed into your cloud or customer-controlled environment.
-4. Your FDE helps administrators complete initial gateway setup.
+3. The API Gateway and Inference Runtime are deployed into your cloud or customer-controlled environment.
+4. Your FDE helps administrators complete initial API Gateway setup.
 5. Pilot users connect their coding agents to the customer endpoint.
 6. Your platform or engineering team takes over day-to-day administration.
 
@@ -41,31 +41,31 @@ Use it to:
 
 ### Subconscious gateway dashboard
 
-The Subconscious gateway dashboard is used for runtime administration.
+The Subconscious gateway dashboard is used for API Gateway administration.
 
 Use it to:
 
 - Manage organization members.
 - Invite administrators or pilot users.
 - Create and revoke gateway API keys.
-- Configure model routes to SGL workers or external model endpoints.
+- Configure model routes to the Inference Runtime or external model endpoints.
 - Grant model access.
 - Configure organization-level or API-key-level limits.
 - Review usage.
 - Test a request through the gateway.
-- Review operational pages exposed by the runtime.
+- Review operational pages exposed by the API Gateway.
 
 {/* TODO: Add screenshots of gateway dashboard navigation and each admin page. */}
 
 ## Prerequisites
 
-Before gateway setup begins, confirm that:
+Before API Gateway setup begins, confirm that:
 
-- The customer runtime plane has been deployed.
+- The ORANGE Line has been deployed.
 - The gateway dashboard is reachable from the approved network.
 - The initial administrator account has been bootstrapped or invited.
 - Customer endpoint DNS and TLS settings are configured.
-- SGL workers or external model endpoints are reachable from the gateway.
+- The Inference Runtime or external model endpoints are reachable from the API Gateway.
 - Required provider credentials and secrets are available.
 - The customer has identified first admin users and pilot users.
 - The customer has identified initial model routes and default coding-agent configuration.
@@ -77,7 +77,7 @@ The initial setup usually follows this order:
 1. Confirm dashboard access.
 2. Invite admin members.
 3. Configure model provider credentials and secrets.
-4. Create model routes to SGL workers.
+4. Create model routes to the Inference Runtime.
 5. Grant model access to the customer organization.
 6. Create pilot API keys.
 7. Configure limits.
@@ -87,7 +87,7 @@ The initial setup usually follows this order:
 
 ## Step 1: confirm dashboard access
 
-Verify that the runtime plane is healthy and that customer administrators can reach the gateway dashboard.
+Verify that The ORANGE Line is healthy and that customer administrators can reach the gateway dashboard.
 
 Click flow:
 
@@ -132,11 +132,11 @@ Password reset flow:
 
 ## Step 3: configure secrets and provider credentials
 
-Store only the credentials needed for the gateway to reach SGL workers or external model endpoints. Keep secrets under the customer's control.
+Store only the credentials needed for the API Gateway to reach the Inference Runtime or external model endpoints. Keep secrets under the customer's control.
 
 Credential types may include:
 
-- SGL worker credentials if required.
+- Inference Runtime credentials if required.
 - External model provider API keys.
 - Internal service credentials.
 - Observability export credentials.
@@ -151,23 +151,23 @@ Configuration paths:
 
 {/* TODO: Add supported secret backends, naming conventions, rotation process, least-privilege guidance, and screenshots for Distr secrets and route credential entry. */}
 
-## Step 4: configure routes to SGL workers
+## Step 4: configure routes to the Inference Runtime
 
-Routes tell the gateway which model slug should route to which SGL worker or model endpoint.
+Routes tell the API Gateway which model slug should route to which Inference Runtime worker or model endpoint.
 
 Example:
 
 - A coding agent requests `subconscious-coder`.
-- The gateway maps `subconscious-coder` to an SGL worker endpoint.
-- The gateway applies authentication, access policy, limits, metering, and routing behavior.
-- The SGL worker serves the model response.
+- The API Gateway maps `subconscious-coder` to an Inference Runtime endpoint.
+- The API Gateway applies authentication, access policy, limits, metering, and routing behavior.
+- The Inference Runtime serves the model response on customer GPUs.
 
 Create flow:
 
 1. In the gateway dashboard, open **Routes**.
 2. In **Create route**, enter **Model slug**.
 3. Enter **Provider**.
-4. Enter **Route URL** for the SGL worker or model endpoint.
+4. Enter **Route URL** for the Inference Runtime worker or model endpoint.
 5. Choose **Kind**.
 6. Enter **Context** length.
 7. Enter **Provider API key** if the target route requires one.
@@ -179,7 +179,7 @@ Current route fields:
 
 - **Model slug**: The model name that coding agents and API clients request.
 - **Provider**: A provider label such as `local`, `sgl`, or the external provider name.
-- **Route URL**: The reachable URL for the SGL worker or model endpoint.
+- **Route URL**: The reachable URL for the Inference Runtime worker or model endpoint.
 - **Kind**: The target API compatibility mode, such as OpenAI-compatible routing.
 - **Context**: The context length advertised or enforced for the route.
 - **Provider API key**: Optional bearer token or provider credential for the target endpoint.
@@ -218,7 +218,7 @@ Click flow:
 
 ## Step 6: create pilot API keys
 
-Gateway API keys are the credentials that coding agents use to call the customer gateway endpoint.
+Gateway API keys are the credentials that coding agents use to call the customer API Gateway endpoint.
 
 Create flow:
 
@@ -274,7 +274,7 @@ Recommended starting pattern:
 
 ## Step 8: send a test request
 
-Send a test request to confirm that authentication, model access, route configuration, and worker connectivity are working end to end.
+Send a test request to confirm that authentication, model access, route configuration, and Inference Runtime connectivity are working end to end.
 
 Click flow:
 
@@ -291,7 +291,7 @@ Validation:
 - API key is accepted.
 - Model appears in the model selector.
 - Route is active.
-- Worker returns a response.
+- Inference Runtime worker returns a response.
 - Usage and token counts are recorded.
 - No secrets or sensitive prompt data are exposed in logs.
 
@@ -299,11 +299,11 @@ Validation:
 
 ## Step 9: configure coding agents
 
-Point pilot users' coding agents at the customer gateway endpoint.
+Point pilot users' coding agents at the customer API Gateway endpoint.
 
 Configuration inputs:
 
-- Gateway base URL.
+- API Gateway base URL.
 - Gateway API key.
 - Model slug.
 - Timeout settings.
@@ -311,7 +311,7 @@ Configuration inputs:
 
 Common setup guidance:
 
-- Treat the customer gateway endpoint as the OpenAI-compatible base URL where supported.
+- Treat the customer API Gateway endpoint as the OpenAI-compatible base URL where supported.
 - Use a pilot API key issued by the gateway dashboard.
 - Use the model slug configured in **Routes** and granted in **Access**.
 - Store keys in approved local or team-managed secret locations.
@@ -347,7 +347,7 @@ Operational workflows:
 
 ### Add a new model route
 
-Use this when a new SGL worker or external model endpoint is ready. Create the route, validate health, grant access, test with an admin key, and roll it out to pilot users.
+Use this when a new Inference Runtime worker or external model endpoint is ready. Create the route, validate health, grant access, test with an admin key, and roll it out to pilot users.
 
 ### Rotate a provider credential
 
@@ -378,7 +378,7 @@ Handoff checklist:
 - Customer admins can sign in.
 - Admin users and pilot users are configured.
 - Initial API keys are created and stored.
-- Initial SGL worker routes are active and healthy.
+- Initial Inference Runtime routes are active and healthy.
 - Model access is granted.
 - Limits are configured.
 - Test request succeeds.

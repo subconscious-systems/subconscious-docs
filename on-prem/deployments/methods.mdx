@@ -4,16 +4,16 @@ description: "Choose assisted self-managed or traditional self-hosted deployment
 icon: "diagram-project"
 ---
 
-Subconscious supports two primary deployment methods for customer-hosted production deployments: traditional self-hosted and assisted self-managed. Both keep the runtime plane in your environment. The difference is how installation, updates, and operational actions are performed.
+Subconscious supports two primary deployment methods for customer-hosted production deployments: traditional self-hosted and assisted self-managed. Both keep The ORANGE Line in your environment. The difference is how installation, updates, and operational actions are performed.
 
 ## Shared outcome
 
 In both methods:
 
-- The Subconscious runtime plane runs in the customer's cloud or customer-controlled environment.
+- The ORANGE Line runs in the customer's cloud or customer-controlled environment.
 - The customer controls infrastructure, networking, access, data, monitoring, and production change management.
 - Subconscious provides licensed artifacts, deployment guidance, release notes, support, and upgrade coordination.
-- Coding agents use a customer endpoint backed by the gateway and configured model routes.
+- Coding agents use a customer endpoint backed by the API Gateway and configured model routes.
 
 The deployment method should match your internal platform practices and security requirements.
 
@@ -21,14 +21,14 @@ The deployment method should match your internal platform practices and security
 
 ## Traditional self-hosted
 
-Traditional self-hosted deployment gives your platform team the most direct control over release promotion and runtime operations.
+Traditional self-hosted deployment gives your platform team the most direct control over release promotion and ORANGE Line operations.
 
 In this mode:
 
 - Subconscious distributes Helm charts, container images, checksums, release notes, and configuration guidance.
 - Your team pulls artifacts from the Distr registry or mirrors them into an internal registry.
 - Your team reviews the release and applies it with your own deployment tooling.
-- Your team owns runtime deployment, upgrades, rollback, monitoring, alerting, and vulnerability scanning.
+- Your team owns deployment, upgrades, rollback, monitoring, alerting, and vulnerability scanning.
 - Subconscious supports your team through onboarding and ongoing FDE support, but does not run a long-lived deployment agent in your cluster.
 
 This mode is best when:
@@ -47,7 +47,7 @@ This mode is best when:
 5. Your team mirrors artifacts into an internal registry if required.
 6. Your team creates a values override file for your environment.
 7. Your team deploys with Helm or your internal GitOps process.
-8. Your team validates gateway readiness, model routes, observability, and coding agent connectivity.
+8. Your team validates API Gateway readiness, model routes, observability, and coding agent connectivity.
 9. Subconscious and your team complete handoff.
 
 Example Helm shape:
@@ -64,11 +64,11 @@ helm upgrade --install subconscious-gateway oci://REGISTRY/subconscious/gateway 
 
 ## Assisted self-managed
 
-Assisted self-managed deployment keeps the runtime plane in your environment while allowing a Distr deployment agent to help manage application lifecycle operations.
+Assisted self-managed deployment keeps The ORANGE Line in your environment while allowing a Distr deployment agent to help manage application lifecycle operations.
 
 In this mode:
 
-- The Subconscious runtime plane still runs in your cloud or customer-controlled Kubernetes environment.
+- The ORANGE Line still runs in your cloud or customer-controlled Kubernetes environment.
 - Your team retains control over environment access.
 - A Distr Kubernetes agent runs in your cluster with an agreed scope.
 - The agent manages Helm deployment operations locally.
@@ -102,7 +102,7 @@ This mode is best when:
 
 Choose traditional self-hosted when your platform team wants every deployment action to run through internal tooling and approval.
 
-Choose assisted self-managed when you want Subconscious to help manage initial installation, updates, logging visibility, and ongoing maintenance while the runtime plane remains in your environment.
+Choose assisted self-managed when you want Subconscious to help manage initial installation, updates, logging visibility, and ongoing maintenance while The ORANGE Line remains in your environment.
 
 Both methods can support customer-controlled approval, vulnerability scanning, private registries, restricted egress, and strict change-management processes.
 
@@ -110,5 +110,5 @@ Both methods can support customer-controlled approval, vulnerability scanning, p
 
 - [Distribution platform](/on-prem/deployments/distribution-platform): How Distr supports artifact delivery, agents, release evidence, and secrets.
 - [Configurations](/on-prem/deployments/configurations): Cloud, GPU placement, Helm overrides, secrets, monitoring, logging, upgrades, and rollback.
-- [Gateway setup](/on-prem/deployments/gateway-setup): Runtime dashboard configuration after deployment.
+- [API Gateway setup](/on-prem/deployments/gateway-setup): API Gateway dashboard configuration after deployment.
 

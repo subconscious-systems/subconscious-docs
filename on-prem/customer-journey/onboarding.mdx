@@ -1,12 +1,12 @@
 ---
 title: "Onboarding"
-description: "From kickoff to pilot users on the customer-hosted runtime"
+description: "From kickoff to pilot users on The ORANGE Line"
 icon: "rocket"
 ---
 
-Onboarding turns the evaluation plan into a working customer-hosted deployment. A Subconscious FDE works with your technical champion to deploy the runtime plane, configure the gateway, connect pilot users, and hand off day-two operations.
+Onboarding turns the evaluation plan into a working customer-hosted deployment. A Subconscious FDE works with your technical champion to deploy The ORANGE Line, configure the API Gateway, connect pilot users, and hand off day-two operations.
 
-This page gives an overview. For implementation details, use [Methods](/on-prem/deployments/methods), [Configurations](/on-prem/deployments/configurations), and [Gateway setup](/on-prem/deployments/gateway-setup).
+This page gives an overview. For implementation details, use [Methods](/on-prem/deployments/methods), [Configurations](/on-prem/deployments/configurations), and [API Gateway setup](/on-prem/deployments/gateway-setup).
 
 ## Summary
 
@@ -24,7 +24,7 @@ Strict change management, private registries, custom networking, air-gapped requ
 - **Subconscious**: CEO and assigned FDE.
 - **Customer executive sponsor**: Owns business value, rollout priority, and commercial alignment.
 - **Customer technical champion**: Drives deployment planning, environment readiness, and technical coordination.
-- **Core admin team**: Manages gateway access, API keys, routes, limits, monitoring, and day-two operations.
+- **Core admin team**: Manages API Gateway access, API keys, routes, limits, monitoring, and day-two operations.
 
 ## 1. Kickoff
 
@@ -58,16 +58,16 @@ Deployment planning defines how The ORANGE Line will run in the customer's envir
 
 For the detailed decision points, see [Methods](/on-prem/deployments/methods) and [Distribution platform](/on-prem/deployments/distribution-platform).
 
-## 3. Runtime plane deployment
+## 3. Deploy The ORANGE Line
 
-Runtime plane deployment installs the production inference system your engineers will use.
+This step installs the API Gateway, Inference Runtime, and supporting services your engineers will use.
 
 - **Ceremony**: 30-60 min meeting plus async follow-up.
-- **Purpose**: Deploy the customer runtime plane into the customer's cloud environment.
+- **Purpose**: Deploy The ORANGE Line into the customer's cloud environment.
 - **What gets deployed**:
-  - SGL Model Gateway components.
-  - Lightweight Rust gateway services.
-  - Routing and load balancing configuration.
+  - API Gateway for agent traffic, authentication, routing, and usage controls.
+  - Inference Runtime for GPU-backed model execution.
+  - Routing, load balancing, authentication, and usage control configuration.
   - Runtime admin dashboard.
   - Baseline observability and operational dashboards.
 - **Customer responsibilities**:
@@ -75,41 +75,41 @@ Runtime plane deployment installs the production inference system your engineers
   - Approve deployment commands, agent installation, or internal GitOps changes.
 - **Subconscious responsibilities**:
   - Guide deployment and configuration.
-  - Validate runtime health.
-  - Prepare the gateway for setup.
+  - Validate API Gateway and Inference Runtime health.
+  - Prepare the API Gateway for setup.
 
 See [Configurations](/on-prem/deployments/configurations) for cloud, GPU placement, Helm overrides, secrets, monitoring, logging, and upgrade details.
 
-{/* TODO: Add screenshots for deployment status and initial runtime readiness. */}
+{/* TODO: Add screenshots for deployment status and initial API Gateway and Inference Runtime readiness. */}
 
-## 4. Gateway setup and admin training
+## 4. API Gateway setup and admin training
 
-Gateway setup turns the installed runtime plane into a usable system for pilot users.
+API Gateway setup turns the installed system into a usable service for pilot users.
 
 - **Ceremony**: 30-60 min meeting plus async follow-up.
-- **Purpose**: Configure the installed runtime plane and train the customer's project leads to operate it.
+- **Purpose**: Configure the API Gateway and train the customer's project leads to operate it.
 - **What gets configured and taught**:
   - Admin users and pilot users.
   - User roles, invites, and password reset workflows.
-  - Gateway API keys.
-  - Model routes to SGL workers or external model endpoints.
+  - API Gateway API keys.
+  - Model routes to the Inference Runtime or external model endpoints.
   - Model access grants.
   - Organization-level and API-key-level limits.
-  - Test requests through the gateway.
+  - Test requests through the API Gateway.
   - Usage, monitoring, logging, and operational workflows.
   - General debugging, troubleshooting, support cases, upgrades, and maintenance workflows.
 
-See [Gateway setup](/on-prem/deployments/gateway-setup) for the detailed setup guide.
+See [API Gateway setup](/on-prem/deployments/gateway-setup) for the detailed setup guide.
 
 ## 5. Coding agent integration and team training
 
 Coding agent integration helps pilot users connect their preferred tools to the deployed customer endpoint.
 
 - **Ceremony**: One 30 min live training session, with optional recording and written setup material.
-- **Purpose**: Help the broader engineering team point their preferred coding agents at the deployed customer endpoint.
+- **Purpose**: Help the broader engineering team point their preferred coding agents at the deployed API Gateway endpoint.
 - **Topics to cover**:
   - What the system does and how it fits into the customer environment.
-  - Gateway base URL, API keys, and model slugs.
+  - API Gateway base URL, API keys, and model slugs.
   - OpenAI-compatible configuration for coding agents and internal tools.
   - Expectations for limits, acceptable use, support, and feedback.
 
@@ -124,7 +124,7 @@ Handoff confirms the deployment is ready for pilot use and day-two ownership.
   - Confirm the deployment is ready for pilot users.
   - Confirm customer owners understand how to operate and escalate issues.
 - **Sign-off checklist**:
-  - Customer admins can sign in and operate the gateway.
+  - Customer admins can sign in and operate the API Gateway.
   - API keys, routes, access, limits, and test requests are working.
   - Pilot users can connect coding agents.
   - Monitoring and logging ownership is clear.

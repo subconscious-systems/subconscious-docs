@@ -1,56 +1,68 @@
 ---
 title: "How It Works"
-description: "The runtime and distribution planes behind The ORANGE Line"
+description: "The API Gateway, Inference Runtime, and Distribution Platform behind The ORANGE Line"
 icon: "diagram-project"
 ---
 
-The ORANGE Line has two major components:
+The ORANGE Line consists of three core components:
 
-- The **customer runtime plane**, deployed in each customer's cloud.
-- The **software distribution plane**, where Subconscious manages deployments, releases, and updates.
+- The **API Gateway**, which handles agent traffic, authentication, routing, API keys, and usage controls.
+- The **Inference Runtime**, which drives Subconscious's agent-native, compute-efficiency advantages.
+- The **Distribution Platform**, which manages software delivery, versioning, updates, and assisted self-managed deployment.
 
 {/*TODO: Consider upgrading this diagram to a hand-drawn version in Figma for a more approachable look.*/}
 ```mermaid
 flowchart LR
-  subgraph subconscious["Software distribution plane"]
+  subgraph distribution["Distribution Platform"]
     direction LR
-    build["Subconscious-managed build pipeline"]
-    portal["Customer release management portal"]
-    build -->|"builds, signs, scans, packages"| portal
+    releases["Subconscious releases"]
+    distr["Distr customer portal"]
+    releases -->|"versions, signs, scans, packages"| distr
   end
 
   codingAgents["Coding agents"]
 
-  subgraph customer["Customer runtime plane"]
+  subgraph customer["Customer Cloud"]
     direction LR
     gateway["API Gateway"]
-    gpu["GPU resources"]
-    gateway --> gpu
+    runtime["Inference Runtime"]
+    gpus["Customer GPUs"]
+    gateway --> runtime
+    runtime --> gpus
   end
 
   codingAgents --> gateway
-  portal -->|"Helm charts and deployment updates"| gateway
+  distr -->|"software delivery and updates"| gateway
+  distr -->|"runtime releases"| runtime
 ```
 
-## Customer runtime plane
+## API Gateway
 
-The **customer runtime plane** handles production inference traffic and the runtime administration workflows needed to serve coding agents.
-
-It handles things like:
+The **API Gateway** is the customer-facing entry point for coding-agent traffic. It runs in the customer-controlled environment and it handles things like:
 
 - End-user API requests from coding agents and SDK clients.
 - Load balancing.
 - OpenAI- and Anthropic-compatible gateway endpoints.
-- Model routing to SGL workers or external model endpoints.
+- Model routing to the Inference Runtime or external model endpoints.
 - User and API key management.
 - Access controls, limits, and usage tracking.
 - Runtime observability, readiness, and operational dashboards.
 
-The runtime plane is built on the [SGL Model Gateway](https://docs.sglang.io/docs/advanced_features/sgl_model_gateway) with lightweight Rust gateway services deployed on Kubernetes. It is the system your engineers use when their coding agents call the customer-hosted endpoint.
+## Inference Runtime
 
-## Software distribution plane
+The **Inference Runtime** is the GPU-backed execution layer that gives The ORANGE Line its efficiency advantage. It runs on customer-provided GPUs and is tuned for coding-agent workloads.
 
-The **software distribution plane** is powered by [Distr](https://distr.sh/), a purpose-built software distribution platform for companies shipping software into customer-controlled environments.
+It handles things like:
+
+- Model execution on customer GPU resources.
+- Cache behavior for agent workloads.
+- Batching and scheduling.
+- GPU utilization improvements.
+- Serving more coding-agent workload per GPU.
+
+## Distribution Platform
+
+The **Distribution Platform** is powered by [Distr](https://distr.sh/), a purpose-built software distribution platform for companies shipping software into customer-controlled environments.
 
 It helps deliver:
 

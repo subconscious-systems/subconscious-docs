@@ -4,29 +4,29 @@ description: "Cloud, GPU placement, Helm overrides, secrets, observability, and 
 icon: "sliders"
 ---
 
-Configuration depends on your deployment method, cloud, Kubernetes environment, GPU placement, networking model, observability stack, and security requirements. This page collects the main permutations customers usually decide during onboarding.
+Configuration depends on your deployment method, cloud, Kubernetes environment, API Gateway placement, Inference Runtime GPU placement, networking model, observability stack, and security requirements. This page collects the main permutations customers usually decide during onboarding.
 
-For the deployment method decision, start with [Methods](/on-prem/deployments/methods). For runtime dashboard setup after deployment, see [Gateway setup](/on-prem/deployments/gateway-setup).
+For the deployment method decision, start with [Methods](/on-prem/deployments/methods). For API Gateway dashboard setup after deployment, see [API Gateway setup](/on-prem/deployments/gateway-setup).
 
-## Cloud and GPU placement
+## API Gateway and Inference Runtime placement
 
-After the deployment method is selected, the next major configuration choice is where the gateway runs and where GPU capacity runs.
+After the deployment method is selected, the next major configuration choice is where the API Gateway runs and where the Inference Runtime's GPU capacity runs.
 
-The gateway usually runs close to your engineering stack, identity systems, networking controls, and observability tools. GPU capacity may be colocated in the same cloud environment or provided by a separate GPU environment such as a NeoCloud, specialized inference provider, or local GPU cluster.
+The API Gateway usually runs close to your engineering stack, identity systems, networking controls, and observability tools. The Inference Runtime may run on GPUs colocated in the same cloud environment or on GPU capacity provided by a separate environment such as a NeoCloud, specialized inference provider, or local GPU cluster.
 
-This choice drives Helm values for networking, model routes, credentials, timeouts, observability, scaling, and failure handling.
+This choice drives Helm values for networking, model routes, credentials, timeouts, observability, scaling, and failure handling. The API Gateway owns routing and load balancing; the Inference Runtime owns efficient GPU-backed model execution.
 
-{/* TODO: Add a Mermaid diagram showing gateway and GPU placement options. */}
+{/* TODO: Add a Mermaid diagram showing API Gateway and Inference Runtime/GPU placement options. */}
 
-## Placement option 1: gateway and GPUs in the same cloud
+## Placement option 1: API Gateway and Inference Runtime in the same cloud
 
-In this model, the Subconscious gateway and GPU workers run in the same customer cloud environment.
+In this model, the API Gateway and Inference Runtime run in the same customer cloud environment.
 
 Examples:
 
-- Gateway on AWS EKS with GPU nodes on AWS.
-- Gateway on GCP GKE with GPU nodes on GCP.
-- Gateway on Azure AKS with GPU nodes on Azure.
+- API Gateway on AWS EKS with Inference Runtime GPU nodes on AWS.
+- API Gateway on GCP GKE with Inference Runtime GPU nodes on GCP.
+- API Gateway on Azure AKS with Inference Runtime GPU nodes on Azure.
 
 This mode is best when:
 
@@ -35,39 +35,39 @@ This mode is best when:
 - You want inference traffic to remain inside one cloud boundary.
 - You want standard cloud observability and IAM patterns.
 
-Configuration considerations include GPU node pools, internal load balancers, private DNS, storage classes, secrets, autoscaling, resource requests, and network policies between gateway and workers.
+Configuration considerations include GPU node pools, internal load balancers, private DNS, storage classes, secrets, autoscaling, resource requests, and network policies between the API Gateway and Inference Runtime workers.
 
-## Placement option 2: gateway in your cloud, GPUs elsewhere
+## Placement option 2: API Gateway in your cloud, Inference Runtime elsewhere
 
-In this model, the Subconscious gateway runs in your cloud environment and routes model traffic to GPU capacity hosted elsewhere.
+In this model, the API Gateway runs in your cloud environment and routes model traffic to Inference Runtime GPU capacity hosted elsewhere.
 
 Examples:
 
-- Gateway on AWS with GPU capacity on a NeoCloud.
-- Gateway on GCP with GPU capacity on Baseten.
-- Gateway on Azure with GPU capacity on Together AI or another provider.
-- Gateway in customer Kubernetes with GPU workers in a separate private cluster.
+- API Gateway on AWS with Inference Runtime capacity on a NeoCloud.
+- API Gateway on GCP with Inference Runtime capacity on Baseten.
+- API Gateway on Azure with Inference Runtime capacity on Together AI or another provider.
+- API Gateway in customer Kubernetes with Inference Runtime workers in a separate private cluster.
 
 This mode is best when:
 
-- Your main cloud does not have enough GPU capacity.
+- Your main cloud does not have enough GPU capacity for the Inference Runtime.
 - You want to use a specialized GPU provider.
-- You want to colocate the gateway with the rest of your stack while routing inference to external capacity.
-- You want to compare GPU providers without moving the gateway.
+- You want to colocate the API Gateway with the rest of your stack while routing inference to external capacity.
+- You want to compare GPU providers without moving the API Gateway.
 
 Configuration considerations include model endpoint URLs, provider API credentials, private networking or allowlisted egress, TLS, retry policy, timeout settings, route-level capacity, fallback policy, and observability across cloud boundaries.
 
-## Placement option 3: gateway and GPUs in separate customer-controlled environments
+## Placement option 3: API Gateway and Inference Runtime in separate customer-controlled environments
 
-In this model, both the gateway and GPUs are customer-controlled, but they are not colocated.
+In this model, both the API Gateway and Inference Runtime GPUs are customer-controlled, but they are not colocated.
 
 Examples:
 
-- Gateway in the corporate cloud, GPUs in a private research cluster.
-- Gateway in Kubernetes, GPU workers in an on-prem environment.
-- Gateway in one region, GPU workers in another region.
+- API Gateway in the corporate cloud, Inference Runtime GPUs in a private research cluster.
+- API Gateway in Kubernetes, Inference Runtime workers in an on-prem environment.
+- API Gateway in one region, Inference Runtime workers in another region.
 
-This mode is best when GPU capacity already exists in a separate customer environment, network isolation requires a gateway boundary, or a central endpoint must route to multiple runtime backends.
+This mode is best when GPU capacity already exists in a separate customer environment, network isolation requires an API Gateway boundary, or a central endpoint must route to multiple Inference Runtime backends.
 
 Configuration considerations include private connectivity, route-level latency budgets, cross-environment observability, secret distribution, egress controls, failure isolation, and fallback routes.
 
@@ -79,11 +79,11 @@ Common override areas:
 
 - Ingress host and TLS configuration.
 - Internal or external load balancer settings.
-- API key and admin configuration.
+- API Gateway API key and admin configuration.
 - Database and cache configuration.
 - Model route configuration.
 - Provider credentials.
-- GPU worker scheduling.
+- Inference Runtime GPU worker scheduling.
 - Resource requests and limits.
 - Node selectors and tolerations.
 - Observability exporters.
@@ -141,7 +141,7 @@ Secrets are configured during onboarding based on deployment method and customer
 
 Common secrets include:
 
-- Gateway admin credentials.
+- API Gateway admin credentials.
 - User and API key management secrets.
 - Model provider credentials.
 - Database credentials.
@@ -158,7 +158,7 @@ Monitoring configuration depends on the customer's existing observability stack.
 
 Common goals include:
 
-- Gateway availability.
+- API Gateway availability.
 - Request rate.
 - Latency.
 - Error rate.
@@ -169,7 +169,7 @@ Common goals include:
 - Cost and capacity signals.
 - Agent deployment status in assisted self-managed mode.
 
-Subconscious can help map runtime metrics into the customer's monitoring stack during onboarding.
+Subconscious can help map API Gateway and Inference Runtime metrics into the customer's monitoring stack during onboarding.
 
 {/* TODO: Add Prometheus, Datadog, and Grafana examples plus dashboard screenshots. */}
 
@@ -179,7 +179,7 @@ Logging should support operations without exposing customer source code, prompts
 
 Common log streams include:
 
-- Gateway service logs.
+- API Gateway service logs.
 - Router logs.
 - Deployment logs.
 - Agent logs in assisted self-managed mode.

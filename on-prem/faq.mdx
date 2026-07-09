@@ -6,13 +6,13 @@ icon: "circle-question"
 
 ## Why use this over Claude Code or Codex?
 
-Closed hosted tools can send prompts, code, and engineering context outside your trust boundary. The ORANGE Line gives your team frontier-level coding-agent intelligence while keeping inference traffic, runtime operations, and deployment policy inside infrastructure you control.
+Closed hosted tools can send prompts, code, and engineering context outside your trust boundary. The ORANGE Line gives your team frontier-level coding-agent intelligence while keeping API Gateway traffic, Inference Runtime execution, and deployment policy inside infrastructure you control.
 
 See [Compliance](/on-prem/trust-center/compliance) for the data and IP boundary.
 
 ## Why use Subconscious instead of hosting the models and managing GPUs ourselves?
 
-You can rent GPUs and host open models yourself, but the hard part is serving coding-agent workloads efficiently and reliably. Subconscious helps manage the runtime, gateway, deployment workflow, admin surfaces, upgrades, and support.
+You can rent GPUs and host open models yourself, but the hard part is serving coding-agent workloads efficiently and reliably. Subconscious helps manage the API Gateway, Inference Runtime, Distribution Platform, admin surfaces, upgrades, and support.
 
 The ORANGE Line is designed to serve teams of engineers with roughly half the GPUs compared with off-the-shelf inference runtimes like vLLM.
 
@@ -20,25 +20,25 @@ See [How it works](/on-prem/how-it-works) and [Configurations](/on-prem/deployme
 
 ## Will this compromise our SOC 2 posture?
 
-No. The customer-hosted deployment is designed so the runtime plane runs in your cloud account or controlled environment. You retain control over deployment, access, monitoring, networking, data, and change management.
+No. The customer-hosted deployment is designed so the API Gateway and Inference Runtime run in your cloud account or controlled environment. You retain control over deployment, access, monitoring, networking, data, and change management.
 
 See [Compliance](/on-prem/trust-center/compliance).
 
-## Where does the runtime plane run?
+## Where does The ORANGE Line run?
 
-The runtime plane runs in the customer's cloud or controlled infrastructure. Depending on your configuration, GPU workers may run in the same cloud, another customer-controlled environment, or a specialized GPU provider behind the gateway.
+The API Gateway and Inference Runtime run in the customer's cloud or controlled infrastructure. Depending on your configuration, Inference Runtime GPU workers may run in the same cloud, another customer-controlled environment, or a specialized GPU provider behind the API Gateway.
 
 See [How it works](/on-prem/how-it-works) and [Configurations](/on-prem/deployments/configurations).
 
 ## What data does Subconscious access?
 
-By default, production prompts, completions, source code, API keys, runtime logs, and operational data should remain in the customer environment. Customers may choose to share selected logs, screenshots, metrics, or traces for support.
+By default, production prompts, completions, source code, API keys, API Gateway logs, Inference Runtime logs, and operational data should remain in the customer environment. Customers may choose to share selected logs, screenshots, metrics, or traces for support.
 
 See [Compliance](/on-prem/trust-center/compliance).
 
 ## How are upgrades and patches delivered?
 
-Subconscious delivers releases, patches, and release metadata through the software distribution plane. Customers can approve updates through their own change-management process or choose an assisted update workflow.
+The Distribution Platform delivers releases, patches, and release metadata. Customers can approve updates through their own change-management process or choose an assisted update workflow.
 
 See [Distribution platform](/on-prem/deployments/distribution-platform) and [Customer success](/on-prem/customer-journey/customer-success).
 
@@ -68,19 +68,19 @@ See [Configurations](/on-prem/deployments/configurations).
 
 ## If a new model comes out, can we deploy it?
 
-Yes, as long as the model architecture is supported by the runtime and enough GPU capacity is available. If existing capacity is already allocated, we may need to add GPU resources or replace an existing route before deploying the new model.
+Yes, as long as the model architecture is supported by the Inference Runtime and enough GPU capacity is available. If existing capacity is already allocated, we may need to add GPU resources or replace an existing route before deploying the new model.
 
 See [Customer success](/on-prem/customer-journey/customer-success).
 
 ## Which coding agents are supported?
 
-The gateway exposes OpenAI- and Anthropic-compatible endpoints, so teams can connect common coding agents (Claude Code, Cursor, Codex, OpenCode, Pi, etc.) and internal tools that support those API shapes.
+The API Gateway exposes OpenAI- and Anthropic-compatible endpoints, so teams can connect common coding agents (Claude Code, Cursor, Codex, OpenCode, Pi, etc.) and internal tools that support those API shapes.
 
-See [Gateway setup](/on-prem/deployments/gateway-setup).
+See [API Gateway setup](/on-prem/deployments/gateway-setup).
 
 ## What happens if the deployment has an incident?
 
-The customer owns incident response for the runtime plane in its environment. Subconscious supports investigation and remediation when requested by the customer, using customer-approved access or diagnostic sharing.
+The customer owns incident response for the API Gateway and Inference Runtime in its environment. Subconscious supports investigation and remediation when requested by the customer, using customer-approved access or diagnostic sharing.
 
 See [Customer success](/on-prem/customer-journey/customer-success) and [Compliance](/on-prem/trust-center/compliance).
 

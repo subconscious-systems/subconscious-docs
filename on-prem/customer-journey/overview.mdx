@@ -9,7 +9,7 @@ This guide explains the path from first evaluation to production use of The ORAN
 ## Typical phases
 
 - **[Evaluation](/on-prem/customer-journey/evaluation)**: Align on use cases, security posture, ROI, expected usage, and proof points.
-- **[Onboarding](/on-prem/customer-journey/onboarding)**: Plan deployment, stand up the runtime plane, configure the gateway, and connect pilot users.
+- **[Onboarding](/on-prem/customer-journey/onboarding)**: Plan deployment, stand up The ORANGE Line, configure the API Gateway, and connect pilot users.
 - **[Customer success](/on-prem/customer-journey/customer-success)**: Keep the support channel open for upgrades, patches, performance reviews, and rollout guidance.
 
 ## Rough timeline
@@ -20,7 +20,7 @@ Most assisted deployments can move from kickoff to first pilot use in **1-2 week
 - Initial configuration usually takes less than a day of focused technical time from the customer champion.
 - Strict change management, private registries, air-gapped workflows, new GPU procurement, or custom networking can extend the timeline.
 
-{/* TODO: Add a timeline diagram covering evaluation, deployment planning, runtime deployment, gateway setup, pilot rollout, and customer success. */}
+{/* TODO: Add a timeline diagram covering evaluation, deployment planning, ORANGE Line deployment, API Gateway setup, pilot rollout, and customer success. */}
 
 ## Champions and stakeholders
 
@@ -28,7 +28,7 @@ The best technical champion is usually close enough to infrastructure to unblock
 
 Common champions and stakeholders include:
 
-- **Platform engineering lead**: Owns Kubernetes, deployment standards, internal developer platforms, or runtime operations.
+- **Platform engineering lead**: Owns Kubernetes, deployment standards, internal developer platforms, or ORANGE Line operations.
 - **Infrastructure owner**: Helps with cloud account, region, networking, DNS, TLS, load balancers, GPU capacity, and observability.
 - **Security or compliance reviewer**: Reviews the data boundary, support access model, software supply-chain evidence, and SOC 2 vendor posture.
 - **Developer productivity lead**: Connects the deployment to coding agents, rollout plans, and engineering workflow improvements.
@@ -39,8 +39,8 @@ Common champions and stakeholders include:
 
 Before onboarding, it helps to identify:
 
-- Target cloud, region, Kubernetes environment, and runtime boundary.
-- GPU capacity plan, whether colocated with the gateway or provided by a specialized GPU environment.
+- Target cloud, region, Kubernetes environment, and deployment boundary.
+- GPU capacity plan for the Inference Runtime, whether colocated with the API Gateway or provided by a specialized GPU environment.
 - Preferred deployment method: [assisted self-managed or traditional self-hosted](/on-prem/deployments/methods).
 - Security review owners and required evidence.
 - Initial pilot users, coding agents, model routes, and usage expectations.
