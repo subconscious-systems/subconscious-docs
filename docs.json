@@ -77,6 +77,41 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "On-Prem",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "on-prem/overview"
+            ]
+          },
+          {
+            "group": "Customer journey",
+            "pages": [
+              "on-prem/customer-journey/overview",
+              "on-prem/customer-journey/evaluation",
+              "on-prem/customer-journey/onboarding",
+              "on-prem/customer-journey/customer-success"
+            ]
+          },
+          {
+            "group": "Deployment models",
+            "pages": [
+              "on-prem/deployment-models/methods",
+              "on-prem/deployment-models/distribution-platform",
+              "on-prem/deployment-models/configurations",
+              "on-prem/deployment-models/gateway-setup"
+            ]
+          },
+          {
+            "group": "Trust center",
+            "pages": [
+              "on-prem/trust-center/compliance"
+            ]
+          }
+        ]
       }
     ]
   },
@@ -137,7 +172,7 @@
     },
     {
       "source": "/platform/privacy",
-      "destination": "/enterprise/privacy"
+      "destination": "/ways-to-use/privacy"
     },
     {
       "source": "/platform/learn-more",
@@ -145,11 +180,15 @@
     },
     {
       "source": "/offerings/dedicated",
-      "destination": "/enterprise/dedicated"
+      "destination": "/ways-to-use/dedicated"
     },
     {
       "source": "/offerings/on-prem",
-      "destination": "/enterprise/on-prem"
+      "destination": "/ways-to-use/on-prem"
+    },
+    {
+      "source": "/enterprise/on-prem",
+      "destination": "/ways-to-use/on-prem"
     },
     {
       "source": "/offerings/usage",
