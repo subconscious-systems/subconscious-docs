@@ -90,21 +90,38 @@
             ]
           },
           {
+            "group": "Deployments",
+            "pages": [
+              "on-prem/deployments/methods",
+              "on-prem/deployments/configurations"
+            ]
+          },
+          {
+            "group": "API Gateway",
+            "pages": [
+              "on-prem/api-gateway/overview",
+              "on-prem/api-gateway/setup"
+            ]
+          },
+          {
+            "group": "Inference Runtime",
+            "pages": [
+              "on-prem/inference-runtime/overview"
+            ]
+          },
+          {
+            "group": "Distribution Platform",
+            "pages": [
+              "on-prem/distribution-platform/overview"
+            ]
+          },
+          {
             "group": "Customer journey",
             "pages": [
               "on-prem/customer-journey/overview",
               "on-prem/customer-journey/evaluation",
               "on-prem/customer-journey/onboarding",
               "on-prem/customer-journey/customer-success"
-            ]
-          },
-          {
-            "group": "Deployments",
-            "pages": [
-              "on-prem/deployments/methods",
-              "on-prem/deployments/distribution-platform",
-              "on-prem/deployments/configurations",
-              "on-prem/deployments/gateway-setup"
             ]
           },
           {
@@ -198,7 +215,7 @@
     },
     {
       "source": "/on-prem/deployment-models/distribution-platform",
-      "destination": "/on-prem/deployments/distribution-platform"
+      "destination": "/on-prem/distribution-platform/overview"
     },
     {
       "source": "/on-prem/deployment-models/configurations",
@@ -206,7 +223,39 @@
     },
     {
       "source": "/on-prem/deployment-models/gateway-setup",
-      "destination": "/on-prem/deployments/gateway-setup"
+      "destination": "/on-prem/api-gateway/setup"
+    },
+    {
+      "source": "/on-prem/deployments/distribution-platform",
+      "destination": "/on-prem/distribution-platform/overview"
+    },
+    {
+      "source": "/on-prem/deployments/gateway-setup",
+      "destination": "/on-prem/api-gateway/setup"
+    },
+    {
+      "source": "/on-prem/api-gateway/user-management",
+      "destination": "/on-prem/api-gateway/setup"
+    },
+    {
+      "source": "/on-prem/api-gateway/usage-metering",
+      "destination": "/on-prem/api-gateway/setup"
+    },
+    {
+      "source": "/on-prem/api-gateway/logging",
+      "destination": "/on-prem/api-gateway/setup"
+    },
+    {
+      "source": "/on-prem/api-gateway/monitoring",
+      "destination": "/on-prem/api-gateway/setup"
+    },
+    {
+      "source": "/on-prem/inference-runtime/setup",
+      "destination": "/on-prem/inference-runtime/overview"
+    },
+    {
+      "source": "/on-prem/distribution-platform/setup",
+      "destination": "/on-prem/distribution-platform/overview"
     },
     {
       "source": "/offerings/usage",
