@@ -6,8 +6,6 @@ icon: "sliders"
 
 Configuration depends on your deployment method, cloud, Kubernetes environment, API Gateway placement, Inference Runtime GPU placement, networking model, observability stack, and security requirements. This page collects the main permutations customers usually decide during onboarding.
 
-For the deployment method decision, start with [Methods](/on-prem/deployments/methods). For API Gateway dashboard setup after deployment, see [API Gateway setup](/on-prem/api-gateway/setup).
-
 ## API Gateway and Inference Runtime placement
 
 After the deployment method is selected, the next major configuration choice is where the API Gateway runs and where the Inference Runtime's GPU capacity runs.
@@ -22,7 +20,7 @@ This choice drives Helm values for networking, model routes, credentials, timeou
 
 In this model, the API Gateway and Inference Runtime run in the same customer cloud environment.
 
-Examples:
+Examples (coming soon):
 
 - API Gateway on AWS EKS with Inference Runtime GPU nodes on AWS.
 - API Gateway on GCP GKE with Inference Runtime GPU nodes on GCP.
@@ -35,15 +33,13 @@ This mode is best when:
 - You want inference traffic to remain inside one cloud boundary.
 - You want standard cloud observability and IAM patterns.
 
-Configuration considerations include GPU node pools, internal load balancers, private DNS, storage classes, secrets, autoscaling, resource requests, and network policies between the API Gateway and Inference Runtime workers.
-
 ## Placement option 2: API Gateway in your cloud, Inference Runtime elsewhere
 
 In this model, the API Gateway runs in your cloud environment and routes model traffic to Inference Runtime GPU capacity hosted elsewhere.
 
-Examples:
+Examples (coming soon):
 
-- API Gateway on AWS with Inference Runtime capacity on a NeoCloud.
+- API Gateway on AWS with Inference Runtime capacity on a Baseten.
 - API Gateway on GCP with Inference Runtime capacity on Baseten.
 - API Gateway on Azure with Inference Runtime capacity on Together AI or another provider.
 - API Gateway in customer Kubernetes with Inference Runtime workers in a separate private cluster.
@@ -55,21 +51,17 @@ This mode is best when:
 - You want to colocate the API Gateway with the rest of your stack while routing inference to external capacity.
 - You want to compare GPU providers without moving the API Gateway.
 
-Configuration considerations include model endpoint URLs, provider API credentials, private networking or allowlisted egress, TLS, retry policy, timeout settings, route-level capacity, fallback policy, and observability across cloud boundaries.
-
 ## Placement option 3: API Gateway and Inference Runtime in separate customer-controlled environments
 
 In this model, both the API Gateway and Inference Runtime GPUs are customer-controlled, but they are not colocated.
 
-Examples:
+Examples (coming soon):
 
 - API Gateway in the corporate cloud, Inference Runtime GPUs in a private research cluster.
 - API Gateway in Kubernetes, Inference Runtime workers in an on-prem environment.
 - API Gateway in one region, Inference Runtime workers in another region.
 
 This mode is best when GPU capacity already exists in a separate customer environment, network isolation requires an API Gateway boundary, or a central endpoint must route to multiple Inference Runtime backends.
-
-Configuration considerations include private connectivity, route-level latency budgets, cross-environment observability, secret distribution, egress controls, failure isolation, and fallback routes.
 
 ## Helm override concepts
 
@@ -175,7 +167,7 @@ Subconscious can help map API Gateway and Inference Runtime metrics into the cus
 
 ## Logging configuration
 
-Logging should support operations without exposing customer source code, prompts, completions, secrets, or other sensitive data.
+Logging should support operations without exposing customer source code, prompts, completions, secrets, or other sensitive data. We can help configure sending logs to external sources like Datadog.
 
 Common log streams include:
 
