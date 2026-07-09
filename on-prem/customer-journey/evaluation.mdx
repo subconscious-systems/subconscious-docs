@@ -1,0 +1,87 @@
+---
+title: "Evaluation"
+description: "Discovery, ROI, security review, and optional trials"
+icon: "magnifying-glass-chart"
+---
+
+Evaluation helps your team decide whether a customer-hosted Subconscious deployment is the right fit before implementation starts. The goal is to align on business value, technical constraints, model quality, deployment requirements, and the security posture needed for production use.
+
+## Discovery
+
+Discovery starts with your current engineering workflows and coding-agent usage. Subconscious uses this conversation to understand the team, the environment, and the proof points that matter for a deployment decision.
+
+Topics usually include:
+
+- Engineering team size and expected adoption.
+- Current coding-agent usage and preferred tools.
+- Target model quality, latency, and throughput expectations.
+- Workload patterns and anticipated token volume.
+- Existing cloud, Kubernetes, GPU, and networking constraints.
+- Security, compliance, data residency, and vendor review requirements.
+- Success criteria and evaluation timeline.
+
+The output should be a clear evaluation path: what must be validated, who needs to participate, and which deployment model is most likely to fit.
+
+## ROI exercise
+
+The ROI exercise frames the value of a customer-hosted Subconscious deployment across cost, performance, operational control, and IP control. It usually compares Subconscious with frontier hosted APIs, generic self-hosted GPU options, and unmanaged open-model serving.
+
+Useful inputs include:
+
+- Expected number of engineers and pilot users.
+- Agent usage patterns and expected daily or monthly token volume.
+- Target model families and quality expectations.
+- Current hosted API spend or internal GPU cost assumptions.
+- Latency and throughput targets for interactive coding workflows.
+- Required control over data, networking, infrastructure, and deployment cadence.
+
+The result should be a shared view of where Subconscious is expected to create value and what the pilot or deployment must prove.
+
+## Security review
+
+Security review usually runs alongside commercial and technical evaluation. The key question is whether the customer-hosted model supports your security, compliance, and SOC 2 posture.
+
+Subconscious can support review with:
+
+- Security architecture overview.
+- Data-flow and data-retention summary.
+- Runtime plane and software distribution boundary.
+- Access control and support access model.
+- Vulnerability management and patching process.
+- Release evidence, SBOMs, vulnerability reports, or related supply-chain materials where available.
+- Shared responsibility guidance.
+
+For the detailed security position, see [Compliance](/on-prem/trust-center/compliance). For deployment mechanics, see [Methods](/on-prem/deployment-models/methods) and [Distribution platform](/on-prem/deployment-models/distribution-platform).
+
+## Optional model comparison trial
+
+Some customers evaluate model quality before committing to a full customer-hosted deployment. This trial is usually small and focused on representative engineering workflows.
+
+A typical trial:
+
+1. Select 1-4 engineers or a small pilot group.
+2. Choose representative coding-agent workflows.
+3. Point local coding agents at open models hosted on-demand.
+4. Compare model quality, compatibility, latency, and workflow fit.
+5. Capture gaps or configuration requirements before deployment planning.
+
+Hosted trials are separate from customer-hosted production deployments and should be evaluated under their own data-handling assumptions.
+
+## Optional efficiency trial
+
+An efficiency trial validates whether Subconscious can serve the target engineering capacity with acceptable latency, throughput, and cost-performance.
+
+A typical trial:
+
+1. Agree on traffic assumptions or benchmark tasks.
+2. Provision an appropriate GPU environment.
+3. Run throughput and latency tests on representative workloads.
+4. Compare results against success criteria from discovery.
+5. Decide whether to proceed to deployment planning.
+
+Success criteria usually include target engineering capacity, acceptable latency for coding-agent workflows, and materially better cost-performance than evaluated alternatives.
+
+## Next step
+
+After evaluation, most customers move into [Onboarding](/on-prem/customer-journey/onboarding), where the deployment model, cloud configuration, gateway setup, and pilot rollout are finalized.
+

@@ -1,0 +1,114 @@
+---
+title: "Methods"
+description: "Choose assisted self-managed or traditional self-hosted deployment"
+icon: "diagram-project"
+---
+
+Subconscious supports two primary deployment methods for customer-hosted production deployments: traditional self-hosted and assisted self-managed. Both keep the runtime plane in your environment. The difference is how installation, updates, and operational actions are performed.
+
+## Shared outcome
+
+In both methods:
+
+- The Subconscious runtime plane runs in the customer's cloud or customer-controlled environment.
+- The customer controls infrastructure, networking, access, data, monitoring, and production change management.
+- Subconscious provides licensed artifacts, deployment guidance, release notes, support, and upgrade coordination.
+- Coding agents use a customer endpoint backed by the gateway and configured model routes.
+
+The deployment method should match your internal platform practices and security requirements.
+
+{/* TODO: Add a decision-tree diagram for choosing traditional self-hosted vs. assisted self-managed. */}
+
+## Traditional self-hosted
+
+Traditional self-hosted deployment gives your platform team the most direct control over release promotion and runtime operations.
+
+In this mode:
+
+- Subconscious distributes Helm charts, container images, checksums, release notes, and configuration guidance.
+- Your team pulls artifacts from the Distr registry or mirrors them into an internal registry.
+- Your team reviews the release and applies it with your own deployment tooling.
+- Your team owns runtime deployment, upgrades, rollback, monitoring, alerting, and vulnerability scanning.
+- Subconscious supports your team through onboarding and ongoing FDE support, but does not run a long-lived deployment agent in your cluster.
+
+This mode is best when:
+
+- Your platform team wants complete control over release promotion.
+- You already have an internal GitOps, Helm, or change-management process.
+- You require all changes to pass through internal CI/CD, security scanning, and approval.
+- You prefer no persistent vendor-managed deployment process in the cluster.
+
+### Traditional self-hosted walkthrough
+
+1. Your FDE provisions your Subconscious customer portal.
+2. Your team receives access to licensed Subconscious artifacts.
+3. Your team generates or receives registry access according to policy.
+4. Your team reviews available Helm chart versions, container images, release notes, and vulnerability reports.
+5. Your team mirrors artifacts into an internal registry if required.
+6. Your team creates a values override file for your environment.
+7. Your team deploys with Helm or your internal GitOps process.
+8. Your team validates gateway readiness, model routes, observability, and coding agent connectivity.
+9. Subconscious and your team complete handoff.
+
+Example Helm shape:
+
+```shell
+helm upgrade --install subconscious-gateway oci://REGISTRY/subconscious/gateway \
+  --namespace subconscious \
+  --create-namespace \
+  --version VERSION \
+  --values values.customer.yaml
+```
+
+{/* TODO: Add screenshots for artifact list, version resources, registry access, and Helm deployment. */}
+
+## Assisted self-managed
+
+Assisted self-managed deployment keeps the runtime plane in your environment while allowing a Distr deployment agent to help manage application lifecycle operations.
+
+In this mode:
+
+- The Subconscious runtime plane still runs in your cloud or customer-controlled Kubernetes environment.
+- Your team retains control over environment access.
+- A Distr Kubernetes agent runs in your cluster with an agreed scope.
+- The agent manages Helm deployment operations locally.
+- Subconscious can publish updates through Distr.
+- Updates can be customer-approved, scheduled, or automatic depending on policy.
+- The portal provides visibility into deployment status, versions, health, and logs.
+
+This mode is best when:
+
+- You want faster onboarding with fewer manual Helm steps.
+- You want Subconscious and your FDE to help operate upgrades and maintenance.
+- You want customer-controlled infrastructure with assisted deployment management.
+- You want shared visibility into deployment state, versions, and operational status.
+
+### Assisted self-managed walkthrough
+
+1. Your FDE provisions your Subconscious customer portal.
+2. Your team confirms the target Kubernetes cluster, namespace, network policy, and RBAC scope.
+3. Your team installs the Distr Kubernetes agent using a customer-approved command or manifest.
+4. The agent connects to Distr Hub and appears in the customer portal.
+5. Your FDE configures the Subconscious application deployment for your target environment.
+6. Your team enters or approves required deployment secrets.
+7. Your team reviews the initial values override configuration.
+8. The Distr agent deploys the Subconscious Helm chart into your cluster.
+9. Your team and Subconscious validate readiness, ingress, routing, model connectivity, and coding agent setup.
+10. Future updates follow the customer's selected policy.
+
+{/* TODO: Add screenshots for connected agent, deployment status, deployment logs, secrets, and update approval. */}
+
+## Choosing between methods
+
+Choose traditional self-hosted when your platform team wants every deployment action to run through internal tooling and approval.
+
+Choose assisted self-managed when you want Subconscious to help manage initial installation, updates, logging visibility, and ongoing maintenance while the runtime plane remains in your environment.
+
+Both methods can support customer-controlled approval, vulnerability scanning, private registries, restricted egress, and strict change-management processes.
+
+## Related pages
+
+- [Distribution platform](/on-prem/deployment-models/distribution-platform): How Distr supports artifact delivery, agents, release evidence, and secrets.
+- [Configurations](/on-prem/deployment-models/configurations): Cloud, GPU placement, Helm overrides, secrets, monitoring, logging, upgrades, and rollback.
+- [Gateway setup](/on-prem/deployment-models/gateway-setup): Runtime dashboard configuration after deployment.
+

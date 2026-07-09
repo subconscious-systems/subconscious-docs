@@ -1,0 +1,320 @@
+---
+title: "Compliance"
+description: "Security, SOC 2 review posture, data handling, support access, and supply-chain assurance"
+icon: "shield-check"
+---
+
+The customer-hosted Subconscious Inference System is designed for enterprises that want high-performance coding-agent inference while retaining control over cloud environment, data, networking, runtime operations, and software deployment cadence.
+
+This page explains how the deployment model supports security review, SOC 2 vendor assessment, and long-term operational trust. It is written for security, compliance, platform, and engineering teams evaluating Subconscious.
+
+## Short answer
+
+The customer-hosted Subconscious Inference System is designed so customers can operate it without compromising their SOC 2 audit posture.
+
+For production customer-hosted deployments:
+
+- The runtime plane runs in the customer's cloud account or customer-controlled environment.
+- Customer requests, prompts, completions, logs, keys, and runtime data remain in the customer environment unless the customer explicitly chooses otherwise.
+- Subconscious does not host the customer's production inference system.
+- Subconscious does not require persistent access to the customer's cloud account.
+- Subconscious does not need ingress into the customer's cloud account by default.
+- Subconscious does not control production availability.
+- The customer controls versioning, deployment cadence, networking, access, monitoring, and runtime operations.
+- Updates are customer-approved and installable through the customer's own change-management process unless the customer explicitly chooses an assisted update workflow.
+
+This model lets the customer evaluate Subconscious as a customer-hosted software vendor and software supply-chain vendor, rather than as a hosted production subservice provider operating the customer's inference environment.
+
+## Scope note
+
+For customer-hosted production deployments, Subconscious is a vendor organization, not a subservice organization. The customer does not rely on Subconscious operational controls to meet production service commitments because the runtime plane runs under the customer's deployment, access, monitoring, networking, and change-management controls.
+
+Subconscious can provide architecture documentation, data-flow evidence, release integrity materials, and shared responsibility documentation to support that review.
+
+## Deployment model
+
+The system has two major components:
+
+- **Customer runtime plane**: The production system deployed into the customer's cloud. It handles inference traffic, routing, load balancing, users, API keys, and runtime observability.
+- **Software distribution plane**: The software delivery and update workflow used to distribute new versions, patches, and release metadata to customer-controlled environments.
+
+The customer runtime plane serves the customer's engineering users. It runs inside the customer's environment and is configured according to the customer's cloud, Kubernetes, networking, IAM, and security requirements.
+
+The software distribution plane is used for delivering software. It is not required to receive customer code, prompts, completions, application logs, or production inference data.
+
+## SOC 2 review position
+
+Subconscious is designed to support the following review position for customer-hosted deployments:
+
+> The product runs in the customer's cloud account. Subconscious does not host the production system, does not have persistent access, does not receive customer data, and does not control runtime availability. Updates are optional, customer-approved, signed where available, and installable through the customer's own change-management process.
+
+This position depends on four operating principles:
+
+- **No customer data processing by default**: Production inference traffic stays in the customer environment.
+- **No required Subconscious cloud dependency for production operation**: The runtime plane should continue to operate under the customer's operational control.
+- **Customer-controlled deployment cadence**: The customer chooses when to approve and deploy new versions.
+- **Customer-controlled access**: Subconscious support access is optional, customer-approved, time-bound, and logged.
+
+## Shared responsibility model
+
+Subconscious and the customer share responsibility for a secure deployment.
+
+### Subconscious responsibilities
+
+Subconscious is responsible for:
+
+- Secure development of Subconscious software.
+- Release integrity for distributed software artifacts.
+- Release notes, version metadata, and update communication.
+- Security patch development and disclosure.
+- Documented deployment guidance.
+- Support for installation, configuration, troubleshooting, and upgrades.
+- Clear documentation of optional telemetry or support access.
+
+### Customer responsibilities
+
+The customer is responsible for:
+
+- Cloud account security.
+- Ownership and administration of the Kubernetes cluster.
+- IAM, access control, and identity integration.
+- Network configuration, ingress, egress, and firewall rules.
+- GPU provisioning and capacity planning.
+- Runtime monitoring, alerting, and incident response.
+- Backups and retention for customer-managed data stores.
+- Final ownership of vulnerability scanning and continuous monitoring in the customer environment.
+- Change management and approval of new releases.
+- Internal rollout to engineering users.
+
+### Joint responsibilities
+
+Subconscious and the customer work together on:
+
+- Deployment planning.
+- Security review.
+- Kubernetes cluster configuration for the Subconscious Helm chart.
+- Runtime configuration.
+- Initial route and endpoint setup.
+- Performance validation.
+- Vulnerability scanning setup, scan result review, and remediation planning.
+- Continuous monitoring setup and operational review.
+- Upgrade planning.
+- Automatic update pushes when the customer chooses that assisted self-managed mode.
+- Incident investigation when customer-approved support is needed.
+
+## Data handling
+
+For customer-hosted production deployments, Subconscious is designed so customer data remains inside the customer environment.
+
+The following should remain in the customer's cloud unless the customer explicitly chooses to share it:
+
+- Source code.
+- Prompts and completions.
+- Inference requests and responses.
+- API keys and user records.
+- Runtime logs.
+- Application logs.
+- Operational metrics.
+- Customer-specific route configuration.
+
+Subconscious does not need default access to:
+
+- Customer repositories.
+- Customer source code.
+- Customer prompts or completions.
+- Customer production logs.
+- Customer cloud credentials.
+- Customer databases.
+- Customer identity provider data.
+
+Customers may choose to share selected logs, metrics, screenshots, traces, or configuration details during support or troubleshooting. Any such sharing should be customer-initiated or customer-approved, limited to the issue being investigated, shared through an approved support channel, redacted where appropriate, and time-bound.
+
+## Telemetry
+
+Customer-hosted deployments should be configured with no customer data telemetry by default.
+
+If telemetry is enabled, it should be:
+
+- Explicitly opt-in.
+- Documented before activation.
+- Limited to the fields required for the stated operational purpose.
+- Configurable by the customer.
+- Disabled through the customer's own deployment controls.
+
+Telemetry should not include customer source code, prompts, completions, secrets, API keys, or other sensitive customer data.
+
+## Support access
+
+Subconscious does not require persistent access to the customer's cloud environment.
+
+Support access, when needed, should follow the customer's access policy. Common support models include:
+
+- Live screen-share sessions where the customer drives.
+- Customer-approved temporary access.
+- Break-glass access for urgent issues.
+- Time-bound cloud console access.
+- One-time credentials issued by the customer.
+- Customer-provided logs or diagnostics exported from the customer's own tools.
+
+Any support access should be approved by the customer, scoped to the support need, logged by the customer, time-bound, and revoked when the support task is complete.
+
+## Release and update controls
+
+Subconscious releases are intended to fit into the customer's change-management process.
+
+Customers should be able to:
+
+- Review release notes before deployment.
+- Review version metadata and artifacts.
+- Approve updates before they are installed.
+- Choose automatic or opt-in update policies.
+- Schedule maintenance windows.
+- Roll back when needed.
+- Maintain control over production deployment cadence.
+
+Subconscious should not force production upgrades into a customer environment without customer approval.
+
+## Software supply-chain assurance
+
+Because Subconscious software runs in the customer environment, the primary security review focus is software supply-chain assurance.
+
+During evaluation, Subconscious can provide or work toward providing a security assurance packet that includes:
+
+- Architecture overview.
+- Data-flow diagram.
+- Shared responsibility matrix.
+- Release notes.
+- Signed containers, Helm charts, binaries, or checksums where available.
+- Software bill of materials for releases where available.
+- Vulnerability scan results for images and packages.
+- Dependency management process.
+- Secure development lifecycle overview.
+- Release approval process.
+- Incident disclosure policy.
+- Support access policy.
+- Optional offline or air-gapped installation guidance.
+- Customer-controlled update process.
+
+## Vulnerability management
+
+Subconscious is responsible for addressing vulnerabilities in Subconscious-maintained software artifacts.
+
+The expected vulnerability management process includes:
+
+- Vulnerability scanning of release artifacts.
+- Dependency monitoring.
+- Prioritization based on severity, exploitability, and customer exposure.
+- Security patches for affected supported versions.
+- Customer notification for material security issues.
+- Release notes or advisories describing the remediation path.
+
+The customer remains responsible for scanning and monitoring the deployed environment according to its own security program. Subconscious can assist with interpretation, remediation planning, and patch coordination.
+
+## Offline and restricted environments
+
+Some customers may require restricted network access, private registries, or offline installation paths.
+
+Subconscious can support deployment planning for environments that require:
+
+- Private container registries.
+- Customer-managed artifact mirrors.
+- Restricted egress.
+- Customer-controlled update promotion.
+- Air-gapped or semi-air-gapped workflows.
+- Internal vulnerability scanning before deployment.
+
+The exact deployment path depends on the customer's cloud, Kubernetes environment, registry model, and security requirements.
+
+## Hosted trials and production deployments
+
+Subconscious may offer hosted trials or model comparison trials before a customer-hosted production deployment.
+
+Hosted trials are separate from customer-hosted production deployments. A hosted trial may be useful for evaluating model quality, agent compatibility, or workflow fit, but it should be assessed under its own security and data-handling terms.
+
+For production customer-hosted deployments, the runtime plane is deployed in the customer's cloud and governed by the customer-controlled model described in this document.
+
+## Security review materials
+
+During evaluation, Subconscious can provide the following materials to support customer security review:
+
+- Customer-hosted architecture memo.
+- Data-flow diagram.
+- Shared responsibility matrix.
+- Software supply-chain controls summary.
+- Release and update process.
+- Vulnerability management summary.
+- Support access policy.
+- Telemetry statement.
+- Deployment guide.
+- FAQ for SOC 2 and vendor risk review.
+
+{/* TODO: Add data-flow diagram, shared responsibility matrix, and screenshots or examples of release evidence when available. */}
+
+## FAQ
+
+### Are you SOC 2 compliant?
+
+Subconscious is designed so that the customer-hosted production deployment does not require the customer to rely on Subconscious operational controls for production availability, data processing, or runtime security.
+
+For customer-hosted deployments, the key review point is that the runtime plane runs in the customer's cloud account, under the customer's access, monitoring, networking, and change-management controls. Subconscious can provide security assurance materials to support vendor risk review and SOC 2 audit discussions.
+
+### Will deploying Subconscious compromise our SOC 2 audit?
+
+The deployment is designed not to compromise the customer's SOC 2 audit posture.
+
+The customer retains control over production deployment, runtime operation, monitoring, scanning, access, data, and version cadence. Subconscious does not require persistent production access and does not need customer data to operate the customer-hosted runtime plane.
+
+Final audit treatment is determined by the customer and its auditor.
+
+### Does Subconscious process or store our customer data?
+
+For customer-hosted production deployments, Subconscious is not intended to process or store customer data. Inference requests, prompts, completions, logs, keys, and runtime data remain in the customer's environment unless the customer explicitly chooses to share specific data for support or troubleshooting.
+
+### Does customer code leave our cloud?
+
+No customer code should leave the customer's cloud in the customer-hosted production deployment unless the customer explicitly configures or shares it.
+
+### Does Subconscious require access to our cloud account?
+
+No persistent access is required by default. If support access is needed, it should be customer-approved, scoped, logged, time-bound, and revoked after use.
+
+### Who controls updates?
+
+The customer controls update approval and deployment cadence. Subconscious provides software releases, patches, release notes, and upgrade guidance. Customers can approve updates through their own change-management process.
+
+### Can Subconscious force an update into our environment?
+
+No. Production updates should be customer-approved and deployed according to the customer's policy.
+
+### What is the main security risk we should evaluate?
+
+The main risk category is software supply-chain risk. Customers should review how Subconscious builds, signs, scans, documents, and distributes software artifacts that run in the customer environment.
+
+### Do you provide vulnerability scan results?
+
+Subconscious can provide vulnerability scan results for release artifacts as part of the security assurance packet. Customers may also scan images, packages, and deployed components inside their own environment.
+
+### Do you provide an SBOM?
+
+Subconscious can provide or work toward providing software bill of materials documentation for releases as part of the software supply-chain assurance package.
+
+### Can we scan the software ourselves?
+
+Yes. Customers can scan release artifacts and deployed components using their own tools before approving deployment.
+
+### Is telemetry enabled by default?
+
+Customer-hosted deployments should not send customer data telemetry by default. Any telemetry should be explicit, documented, configurable, and opt-in.
+
+### What happens during an incident?
+
+The customer owns incident response for the runtime plane in its environment. Subconscious supports investigation and remediation when requested by the customer. Any access or data sharing during an incident should follow the customer's approval and logging process.
+
+### Can we run in a restricted or air-gapped environment?
+
+Subconscious can support planning for restricted, private registry, semi-air-gapped, or air-gapped deployment workflows. Exact support depends on the customer's environment and release distribution requirements.
+
+### What security evidence should we request?
+
+Customers should request the architecture memo, data-flow diagram, shared responsibility matrix, release integrity materials, vulnerability scan results, SBOMs, update process, support access policy, and telemetry statement.
+

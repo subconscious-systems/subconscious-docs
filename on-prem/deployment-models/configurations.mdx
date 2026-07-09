@@ -1,0 +1,213 @@
+---
+title: "Configurations"
+description: "Cloud, GPU placement, Helm overrides, secrets, observability, and upgrade choices"
+icon: "sliders"
+---
+
+Configuration depends on your deployment method, cloud, Kubernetes environment, GPU placement, networking model, observability stack, and security requirements. This page collects the main permutations customers usually decide during onboarding.
+
+For the deployment method decision, start with [Methods](/on-prem/deployment-models/methods). For runtime dashboard setup after deployment, see [Gateway setup](/on-prem/deployment-models/gateway-setup).
+
+## Cloud and GPU placement
+
+After the deployment method is selected, the next major configuration choice is where the gateway runs and where GPU capacity runs.
+
+The gateway usually runs close to your engineering stack, identity systems, networking controls, and observability tools. GPU capacity may be colocated in the same cloud environment or provided by a separate GPU environment such as a NeoCloud, specialized inference provider, or local GPU cluster.
+
+This choice drives Helm values for networking, model routes, credentials, timeouts, observability, scaling, and failure handling.
+
+{/* TODO: Add a Mermaid diagram showing gateway and GPU placement options. */}
+
+## Placement option 1: gateway and GPUs in the same cloud
+
+In this model, the Subconscious gateway and GPU workers run in the same customer cloud environment.
+
+Examples:
+
+- Gateway on AWS EKS with GPU nodes on AWS.
+- Gateway on GCP GKE with GPU nodes on GCP.
+- Gateway on Azure AKS with GPU nodes on Azure.
+
+This mode is best when:
+
+- Your cloud already has approved GPU capacity.
+- You want simpler private networking.
+- You want inference traffic to remain inside one cloud boundary.
+- You want standard cloud observability and IAM patterns.
+
+Configuration considerations include GPU node pools, internal load balancers, private DNS, storage classes, secrets, autoscaling, resource requests, and network policies between gateway and workers.
+
+## Placement option 2: gateway in your cloud, GPUs elsewhere
+
+In this model, the Subconscious gateway runs in your cloud environment and routes model traffic to GPU capacity hosted elsewhere.
+
+Examples:
+
+- Gateway on AWS with GPU capacity on a NeoCloud.
+- Gateway on GCP with GPU capacity on Baseten.
+- Gateway on Azure with GPU capacity on Together AI or another provider.
+- Gateway in customer Kubernetes with GPU workers in a separate private cluster.
+
+This mode is best when:
+
+- Your main cloud does not have enough GPU capacity.
+- You want to use a specialized GPU provider.
+- You want to colocate the gateway with the rest of your stack while routing inference to external capacity.
+- You want to compare GPU providers without moving the gateway.
+
+Configuration considerations include model endpoint URLs, provider API credentials, private networking or allowlisted egress, TLS, retry policy, timeout settings, route-level capacity, fallback policy, and observability across cloud boundaries.
+
+## Placement option 3: gateway and GPUs in separate customer-controlled environments
+
+In this model, both the gateway and GPUs are customer-controlled, but they are not colocated.
+
+Examples:
+
+- Gateway in the corporate cloud, GPUs in a private research cluster.
+- Gateway in Kubernetes, GPU workers in an on-prem environment.
+- Gateway in one region, GPU workers in another region.
+
+This mode is best when GPU capacity already exists in a separate customer environment, network isolation requires a gateway boundary, or a central endpoint must route to multiple runtime backends.
+
+Configuration considerations include private connectivity, route-level latency budgets, cross-environment observability, secret distribution, egress controls, failure isolation, and fallback routes.
+
+## Helm override concepts
+
+The exact values file depends on the selected deployment mode, cloud, network, and GPU placement.
+
+Common override areas:
+
+- Ingress host and TLS configuration.
+- Internal or external load balancer settings.
+- API key and admin configuration.
+- Database and cache configuration.
+- Model route configuration.
+- Provider credentials.
+- GPU worker scheduling.
+- Resource requests and limits.
+- Node selectors and tolerations.
+- Observability exporters.
+- Logging sinks.
+- Network policy.
+- Update policy.
+
+Example shape:
+
+```yaml
+global:
+  cloud: aws
+  environment: production
+
+gateway:
+  ingress:
+    enabled: true
+    className: alb
+    host: subconscious-gateway.example.com
+    tls:
+      enabled: true
+  service:
+    type: LoadBalancer
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-scheme: internal
+
+modelRoutes:
+  default:
+    provider: customer-gpu
+    endpoint: https://MODEL_ENDPOINT_PLACEHOLDER
+    secretRef: model-provider-credentials
+
+observability:
+  metrics:
+    enabled: true
+  logs:
+    sink: cloudwatch
+```
+
+{/* TODO: Replace generic examples with the actual Subconscious Helm values schema and add cloud-specific values files. */}
+
+## Cloud-specific notes
+
+AWS deployments usually need EKS compatibility, ALB or NLB guidance, IAM role requirements, Secrets Manager integration, CloudWatch logging and metrics, GPU node pool configuration, and PrivateLink or VPC peering options for external GPU providers.
+
+GCP deployments usually need GKE compatibility, internal load balancer guidance, Workload Identity requirements, Secret Manager integration, Cloud Logging and Cloud Monitoring, GPU node pool configuration, and Private Service Connect or VPC connectivity for external GPU providers.
+
+Azure deployments usually need AKS compatibility, internal load balancer guidance, managed identity requirements, Key Vault integration, Azure Monitor and Log Analytics, GPU node pool configuration, and Private Link or VNet peering options for external GPU providers.
+
+NeoCloud and external GPU deployments usually need endpoint format, authentication method, network allowlisting, private connectivity options, TLS requirements, health check path, rate limits, concurrency limits, model naming, route mapping, fallback behavior, and cost or capacity assumptions.
+
+## Secrets and credentials
+
+Secrets are configured during onboarding based on deployment method and customer policy.
+
+Common secrets include:
+
+- Gateway admin credentials.
+- User and API key management secrets.
+- Model provider credentials.
+- Database credentials.
+- Cache credentials.
+- Observability export credentials.
+- Registry access tokens.
+- TLS certificate references.
+
+In assisted self-managed deployments, some deployment secrets may be managed through the customer portal when enabled. In traditional self-hosted deployments, customers may prefer to store secrets entirely in their own secret manager and reference them from Helm values.
+
+## Monitoring configuration
+
+Monitoring configuration depends on the customer's existing observability stack.
+
+Common goals include:
+
+- Gateway availability.
+- Request rate.
+- Latency.
+- Error rate.
+- Model route health.
+- GPU utilization.
+- Queue depth.
+- Token throughput.
+- Cost and capacity signals.
+- Agent deployment status in assisted self-managed mode.
+
+Subconscious can help map runtime metrics into the customer's monitoring stack during onboarding.
+
+{/* TODO: Add Prometheus, Datadog, and Grafana examples plus dashboard screenshots. */}
+
+## Logging configuration
+
+Logging should support operations without exposing customer source code, prompts, completions, secrets, or other sensitive data.
+
+Common log streams include:
+
+- Gateway service logs.
+- Router logs.
+- Deployment logs.
+- Agent logs in assisted self-managed mode.
+- Model worker logs.
+- Audit logs for admin actions.
+- Upgrade and rollback logs.
+
+Customers should define log retention, redaction, support bundle approval, and approved sharing channels before production use.
+
+## Upgrade and rollback process
+
+Upgrade flow depends on the deployment method.
+
+In traditional self-hosted deployments:
+
+1. Subconscious publishes a release.
+2. The customer reviews release evidence.
+3. The customer pulls or mirrors artifacts.
+4. The customer applies the Helm upgrade through its own process.
+5. The customer validates health and rolls back if needed.
+
+In assisted self-managed deployments:
+
+1. Subconscious publishes a release.
+2. The customer reviews release evidence and update policy.
+3. The Distr agent applies the update locally when approved or when automatic updates are enabled.
+4. The customer and Subconscious monitor deployment health.
+5. Rollback is coordinated according to the customer's policy.
+
+Upgrade planning should define maintenance windows, release notes, rollback commands, compatibility policy, migration handling, expected downtime, and emergency patch process.
+

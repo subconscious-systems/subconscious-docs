@@ -1,0 +1,82 @@
+---
+title: "The ORANGE Line"
+description: "Run the Subconscious Inference System in your cloud"
+icon: "building"
+---
+
+The Subconscious Inference System, or **The ORANGE Line** (Orchestrated Runtime for AgeNts and GPU Efficiency), is a GPU orchestration platform designed to serve coding agents with industry-leading efficiency.
+
+We work with enterprises with 50+ software engineers and deploy the system in the customer's cloud environment with an assisted self-managed or traditional self-hosted deployment model.
+
+<CardGroup cols={3}>
+  <Card title="Customer-controlled runtime" icon="lock">
+    Prompts, completions, keys, logs, and runtime data stay in your environment unless you choose to share them.
+  </Card>
+  <Card title="Coding-agent ready" icon="code">
+    Engineers use OpenAI- and Anthropic-compatible endpoints from tools such as Cursor, Claude Code, OpenCode, and internal agents.
+  </Card>
+  <Card title="Assisted deployment" icon="handshake">
+    Subconscious FDEs help plan, deploy, configure, and support the system with your platform and security teams.
+  </Card>
+</CardGroup>
+
+## Why use this over alternatives
+
+- **Protect data and IP**: Tools like Claude Code or Codex can ship prompts, code, and engineering context outside your trust boundary. The ORANGE Line keeps coding-agent inference in infrastructure you control.
+- **Own your intelligence economics**: Rent GPUs, choose the model, and serve your own coding intelligence instead of depending on closed APIs with high or unpredictable costs.
+- **Cut GPU spend for agent workloads**: The ORANGE Line is designed to serve teams of engineers with roughly half the GPUs compared with off-the-shelf inference runtimes like vLLM.
+- **Frontier-level intelligence**: Open models like GLM 5.2 now match leading closed models on coding-agent performance, making owned deployment a practical option.
+- **Reduce platform engineering burden**: Subconscious helps manage the gateway, deployments, upgrades, and support so your platform team can focus on higher-value work.
+
+## Who it is for
+
+The ORANGE Line is for enterprises that want frontier-level coding agents without giving up control over data, IP, cost, or reliability.
+
+It is usually a fit when:
+
+- You have 50+ software engineers using or evaluating coding agents.
+- Security or IP requirements make hosted tools hard to approve.
+- You want predictable costs and owned GPU capacity.
+- You do not want to build and maintain a full self-hosting stack yourself.
+
+## What the product is
+
+The ORANGE Line has two major components:
+
+- The **customer runtime plane**, deployed in each customer's cloud.
+- The **software distribution plane**, where Subconscious manages deployments, releases, and updates.
+
+The **customer runtime plane** handles things like:
+
+- End-user API requests from coding agents and SDK clients.
+- Load balancing.
+- OpenAI- and Anthropic-compatible gateway endpoints.
+- Model routing to SGL workers or external model endpoints.
+- User and API key management.
+- Access controls, limits, and usage tracking.
+- Runtime observability, readiness, and operational dashboards.
+
+The runtime plane is built on the [SGL Model Gateway](https://docs.sglang.io/docs/advanced_features/sgl_model_gateway) with lightweight Rust gateway services deployed on Kubernetes. It is the system your engineers use when their coding agents call the customer-hosted endpoint.
+
+The **software distribution plane** is powered by [Distr](https://distr.sh/), a purpose-built software distribution platform for companies shipping software into customer-controlled environments. It helps deliver licensed artifacts, deployment instructions, updates, release metadata, vulnerability reports, and customer-specific deployment workflows.
+
+{/* TODO: Add a Mermaid system architecture diagram showing coding agents, customer endpoint, gateway, routes, workers, observability, and Distr. */}
+
+## Customer journey
+
+Most customers move through three phases:
+
+<CardGroup cols={3}>
+  <Card title="Evaluation" icon="magnifying-glass" href="/on-prem/customer-journey/evaluation">
+    Discovery, ROI analysis, security review, and optional model quality or efficiency trials.
+  </Card>
+  <Card title="Onboarding" icon="rocket" href="/on-prem/customer-journey/onboarding">
+    Deployment planning, runtime installation, gateway setup, coding agent integration, and admin handoff.
+  </Card>
+  <Card title="Customer success" icon="chart-line" href="/on-prem/customer-journey/customer-success">
+    Ongoing support, upgrades, patches, operational reviews, and adoption guidance.
+  </Card>
+</CardGroup>
+
+For a more detailed walkthrough of timing, roles, and technical champions, start with the [customer journey overview](/on-prem/customer-journey/overview).
+
