@@ -99,12 +99,12 @@
             ]
           },
           {
-            "group": "Deployment models",
+            "group": "Deployments",
             "pages": [
-              "on-prem/deployment-models/methods",
-              "on-prem/deployment-models/distribution-platform",
-              "on-prem/deployment-models/configurations",
-              "on-prem/deployment-models/gateway-setup"
+              "on-prem/deployments/methods",
+              "on-prem/deployments/distribution-platform",
+              "on-prem/deployments/configurations",
+              "on-prem/deployments/gateway-setup"
             ]
           },
           {
@@ -191,6 +191,22 @@
     {
       "source": "/enterprise/on-prem",
       "destination": "/ways-to-use/on-prem"
+    },
+    {
+      "source": "/on-prem/deployment-models/methods",
+      "destination": "/on-prem/deployments/methods"
+    },
+    {
+      "source": "/on-prem/deployment-models/distribution-platform",
+      "destination": "/on-prem/deployments/distribution-platform"
+    },
+    {
+      "source": "/on-prem/deployment-models/configurations",
+      "destination": "/on-prem/deployments/configurations"
+    },
+    {
+      "source": "/on-prem/deployment-models/gateway-setup",
+      "destination": "/on-prem/deployments/gateway-setup"
     },
     {
       "source": "/offerings/usage",

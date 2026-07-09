@@ -16,7 +16,7 @@ You can rent GPUs and host open models yourself, but the hard part is serving co
 
 The ORANGE Line is designed to serve teams of engineers with roughly half the GPUs compared with off-the-shelf inference runtimes like vLLM.
 
-See [How it works](/on-prem/how-it-works) and [Configurations](/on-prem/deployment-models/configurations).
+See [How it works](/on-prem/how-it-works) and [Configurations](/on-prem/deployments/configurations).
 
 ## Will this compromise our SOC 2 posture?
 
@@ -28,7 +28,7 @@ See [Compliance](/on-prem/trust-center/compliance).
 
 The runtime plane runs in the customer's cloud or controlled infrastructure. Depending on your configuration, GPU workers may run in the same cloud, another customer-controlled environment, or a specialized GPU provider behind the gateway.
 
-See [How it works](/on-prem/how-it-works) and [Configurations](/on-prem/deployment-models/configurations).
+See [How it works](/on-prem/how-it-works) and [Configurations](/on-prem/deployments/configurations).
 
 ## What data does Subconscious access?
 
@@ -40,31 +40,31 @@ See [Compliance](/on-prem/trust-center/compliance).
 
 Subconscious delivers releases, patches, and release metadata through the software distribution plane. Customers can approve updates through their own change-management process or choose an assisted update workflow.
 
-See [Distribution platform](/on-prem/deployment-models/distribution-platform) and [Customer success](/on-prem/customer-journey/customer-success).
+See [Distribution platform](/on-prem/deployments/distribution-platform) and [Customer success](/on-prem/customer-journey/customer-success).
 
 ## Can we control when updates are deployed?
 
 Yes. Production updates are intended to be customer-approved and deployed according to your policy, maintenance windows, and change-management requirements.
 
-See [Methods](/on-prem/deployment-models/methods) and [Compliance](/on-prem/trust-center/compliance).
+See [Methods](/on-prem/deployments/methods) and [Compliance](/on-prem/trust-center/compliance).
 
 ## Do you support vulnerability scanning?
 
 Subconscious can provide or work toward providing release evidence such as vulnerability scan results, SBOMs, image digests, checksums, and release notes. Customers can also scan release artifacts and deployed components with their own tools.
 
-See [Compliance](/on-prem/trust-center/compliance) and [Distribution platform](/on-prem/deployment-models/distribution-platform).
+See [Compliance](/on-prem/trust-center/compliance) and [Distribution platform](/on-prem/deployments/distribution-platform).
 
 ## What clouds and Kubernetes environments are supported?
 
 The deployment can be planned for AWS, GCP, Azure, NeoCloud or dedicated GPU providers, and customer-controlled Kubernetes environments. Exact support depends on your cloud, networking, GPU placement, registry, and security requirements.
 
-See [Configurations](/on-prem/deployment-models/configurations).
+See [Configurations](/on-prem/deployments/configurations).
 
 ## Do we need to bring our own GPUs?
 
 Not always. Customers can provide approved GPU capacity, use cloud GPU resources, or route through specialized GPU providers depending on the deployment design. We can also help you source GPU capacity through our network of partnerships.
 
-See [Configurations](/on-prem/deployment-models/configurations).
+See [Configurations](/on-prem/deployments/configurations).
 
 ## If a new model comes out, can we deploy it?
 
@@ -76,7 +76,7 @@ See [Customer success](/on-prem/customer-journey/customer-success).
 
 The gateway exposes OpenAI- and Anthropic-compatible endpoints, so teams can connect common coding agents (Claude Code, Cursor, Codex, OpenCode, Pi, etc.) and internal tools that support those API shapes.
 
-See [Gateway setup](/on-prem/deployment-models/gateway-setup).
+See [Gateway setup](/on-prem/deployments/gateway-setup).
 
 ## What happens if the deployment has an incident?
 

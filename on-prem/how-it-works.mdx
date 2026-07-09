@@ -9,9 +9,28 @@ The ORANGE Line has two major components:
 - The **customer runtime plane**, deployed in each customer's cloud.
 - The **software distribution plane**, where Subconscious manages deployments, releases, and updates.
 
-## System diagram
+{/*TODO: Consider upgrading this diagram to a hand-drawn version in Figma for a more approachable look.*/}
+```mermaid
+flowchart LR
+  subgraph subconscious["Software distribution plane"]
+    direction LR
+    build["Subconscious-managed build pipeline"]
+    portal["Customer release management portal"]
+    build -->|"builds, signs, scans, packages"| portal
+  end
 
-{/* TODO: Add a Mermaid system architecture diagram showing coding agents, customer endpoint, gateway, routes, workers, observability, and Distr. */}
+  codingAgents["Coding agents"]
+
+  subgraph customer["Customer runtime plane"]
+    direction LR
+    gateway["API Gateway"]
+    gpu["GPU resources"]
+    gateway --> gpu
+  end
+
+  codingAgents --> gateway
+  portal -->|"Helm charts and deployment updates"| gateway
+```
 
 ## Customer runtime plane
 
@@ -42,5 +61,5 @@ It helps deliver:
 - Vulnerability reports.
 - Customer-specific deployment workflows.
 
-For more detail on deployment methods and distribution workflows, see [Methods](/on-prem/deployment-models/methods) and [Distribution platform](/on-prem/deployment-models/distribution-platform).
+For more detail on deployment methods and distribution workflows, see [Methods](/on-prem/deployments/methods) and [Distribution platform](/on-prem/deployments/distribution-platform).
 
