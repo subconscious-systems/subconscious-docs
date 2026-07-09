@@ -84,7 +84,9 @@
           {
             "group": "Get started",
             "pages": [
-              "on-prem/overview"
+              "on-prem/overview",
+              "on-prem/how-it-works",
+              "on-prem/faq"
             ]
           },
           {
