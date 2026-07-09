@@ -4,13 +4,20 @@ description: "Discovery, ROI, security review, and optional trials"
 icon: "magnifying-glass-chart"
 ---
 
-Evaluation helps your team decide whether a customer-hosted Subconscious deployment is the right fit before implementation starts. The goal is to align on business value, technical constraints, model quality, deployment requirements, and the security posture needed for production use.
+Evaluation helps your team decide whether The ORANGE Line is the right customer-hosted path before implementation starts.
+
+The goal is to align on:
+
+- **Business value**: cost, productivity, and expected adoption.
+- **Technical fit**: cloud, Kubernetes, GPU, networking, and coding-agent requirements.
+- **Security posture**: data boundary, vendor review, and SOC 2 fit.
+- **Proof points**: what must be validated before deployment.
 
 ## Discovery
 
-Discovery starts with your current engineering workflows and coding-agent usage. Subconscious uses this conversation to understand the team, the environment, and the proof points that matter for a deployment decision.
+Discovery starts with your engineering workflows and coding-agent usage.
 
-Topics usually include:
+Key topics:
 
 - Engineering team size and expected adoption.
 - Current coding-agent usage and preferred tools.
@@ -20,13 +27,13 @@ Topics usually include:
 - Security, compliance, data residency, and vendor review requirements.
 - Success criteria and evaluation timeline.
 
-The output should be a clear evaluation path: what must be validated, who needs to participate, and which deployment model is most likely to fit.
+**Output**: a clear evaluation path: what must be validated, who needs to participate, and which deployment model is most likely to fit.
 
 ## ROI exercise
 
-The ROI exercise frames the value of a customer-hosted Subconscious deployment across cost, performance, operational control, and IP control. It usually compares Subconscious with frontier hosted APIs, generic self-hosted GPU options, and unmanaged open-model serving.
+The ROI exercise compares customer-hosted Subconscious against frontier hosted APIs, generic self-hosted GPU options, and unmanaged open-model serving.
 
-Useful inputs include:
+Useful inputs:
 
 - Expected number of engineers and pilot users.
 - Agent usage patterns and expected daily or monthly token volume.
@@ -35,11 +42,13 @@ Useful inputs include:
 - Latency and throughput targets for interactive coding workflows.
 - Required control over data, networking, infrastructure, and deployment cadence.
 
-The result should be a shared view of where Subconscious is expected to create value and what the pilot or deployment must prove.
+**Output**: a shared view of expected savings, GPU needs, reliability goals, and what the pilot or deployment must prove.
 
 ## Security review
 
-Security review usually runs alongside commercial and technical evaluation. The key question is whether the customer-hosted model supports your security, compliance, and SOC 2 posture.
+Security review usually runs alongside commercial and technical evaluation.
+
+**Key question**: Does the customer-hosted model satisfy your data, IP, compliance, and SOC 2 posture?
 
 Subconscious can support review with:
 
@@ -55,23 +64,26 @@ For the detailed security position, see [Compliance](/on-prem/trust-center/compl
 
 ## Optional model comparison trial
 
-Some customers evaluate model quality before committing to a full customer-hosted deployment. This trial is usually small and focused on representative engineering workflows.
+Some customers evaluate model quality before committing to a full customer-hosted deployment.
 
-A typical trial:
+Typical shape:
 
 1. Select 1-4 engineers or a small pilot group.
 2. Choose representative coding-agent workflows.
 3. Point local coding agents at open models hosted on-demand.
+   - [OpenRouter](https://openrouter.ai/)
+   - [Subconscious Cloud API](/ways-to-use/cloud-api)
+   - NeoCloud or dedicated GPU providers such as [Baseten](https://www.baseten.co/) or [Together AI](https://www.together.ai/)
 4. Compare model quality, compatibility, latency, and workflow fit.
 5. Capture gaps or configuration requirements before deployment planning.
 
-Hosted trials are separate from customer-hosted production deployments and should be evaluated under their own data-handling assumptions.
+**Security note**: Cloud hosted trials are separate from customer-hosted production deployments and should be evaluated under their own data-handling assumptions.
 
-## Optional efficiency trial
+## Optional load-test trial
 
-An efficiency trial validates whether Subconscious can serve the target engineering capacity with acceptable latency, throughput, and cost-performance.
+A load-test trial validates whether Subconscious can serve the target engineering capacity with acceptable latency, throughput, and reliability.
 
-A typical trial:
+Typical shape:
 
 1. Agree on traffic assumptions or benchmark tasks.
 2. Provision an appropriate GPU environment.
@@ -79,9 +91,9 @@ A typical trial:
 4. Compare results against success criteria from discovery.
 5. Decide whether to proceed to deployment planning.
 
-Success criteria usually include target engineering capacity, acceptable latency for coding-agent workflows, and materially better cost-performance than evaluated alternatives.
+**Success criteria**: against target engineering capacity, there is acceptable latency for coding-agent workflows and stable throughput under expected load.
 
-## Next step
+## Contracts & onboarding planning
 
-After evaluation, most customers move into [Onboarding](/on-prem/customer-journey/onboarding), where the deployment model, cloud configuration, gateway setup, and pilot rollout are finalized.
+If we agree there is a fit, we move forward with contract negotiation and onboarding planning. After that, customers move into [Onboarding](/on-prem/customer-journey/onboarding).
 
