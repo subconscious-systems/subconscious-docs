@@ -1,16 +1,16 @@
 ---
 title: "Compliance"
-description: "Security, SOC 2 review posture, data handling, support access, and supply-chain assurance"
+description: "Security review, data handling, support access, and supply-chain assurance"
 icon: "shield-check"
 ---
 
 The customer-hosted Subconscious Inference System is designed for enterprises that want high-performance coding-agent inference while retaining control over cloud environment, data, networking, system operations, and software deployment cadence.
 
-This page explains how the deployment model supports security review, SOC 2 vendor assessment, and long-term operational trust. It is written for security, compliance, platform, and engineering teams evaluating Subconscious.
+This page explains how the deployment model supports security review, vendor assessment, and long-term operational trust. It is written for security, compliance, platform, and engineering teams evaluating Subconscious.
 
 ## Short answer
 
-The customer-hosted Subconscious Inference System is designed so customers can operate it without compromising their SOC 2 audit posture.
+The customer-hosted Subconscious Inference System is designed to support a customer's existing security and compliance review process.
 
 For production customer-hosted deployments:
 
@@ -23,11 +23,11 @@ For production customer-hosted deployments:
 - The customer controls versioning, deployment cadence, networking, access, monitoring, and Subconscious Inference System operations.
 - Updates are customer-approved and installable through the customer's own change-management process unless the customer explicitly chooses an assisted update workflow.
 
-This model lets the customer evaluate Subconscious as a customer-hosted software vendor and software supply-chain vendor, rather than as a hosted production subservice provider operating the customer's inference environment.
+This model helps customers evaluate Subconscious as customer-hosted software and software supply-chain risk, rather than as a hosted production service operating the customer's inference environment. Final vendor and audit treatment is determined by the customer and its auditor.
 
 ## Scope note
 
-For customer-hosted production deployments, Subconscious is a vendor organization, not a subservice organization. The customer does not rely on Subconscious operational controls to meet production service commitments because the API Gateway and Inference Runtime run under the customer's deployment, access, monitoring, networking, and change-management controls.
+For customer-hosted production deployments, customers commonly review Subconscious as a software vendor and software supply-chain vendor. The API Gateway and Inference Runtime run under the customer's deployment, access, monitoring, networking, and change-management controls.
 
 Subconscious can provide architecture documentation, data-flow evidence, release integrity materials, and shared responsibility documentation to support that review.
 
@@ -43,16 +43,16 @@ The API Gateway and Inference Runtime serve the customer's engineering users. Th
 
 The Distribution Platform is used for delivering software. It is not required to receive customer code, prompts, completions, application logs, API Gateway logs, Inference Runtime logs, or production inference data.
 
-## SOC 2 review position
+## Security review position
 
 Subconscious is designed to support the following review position for customer-hosted deployments:
 
-> The product runs in the customer's cloud account. Subconscious does not host the production system, does not have persistent access, does not receive customer data, and does not control production availability. Updates are optional, customer-approved, signed where available, and installable through the customer's own change-management process.
+> The product runs in the customer's cloud account. In the standard customer-hosted configuration, Subconscious does not host the production system, does not require persistent access, and is not intended to receive production prompts, completions, source code, or production inference data. Updates are optional, customer-approved, signed where available, and installable through the customer's own change-management process.
 
 This position depends on four operating principles:
 
-- **No customer data processing by default**: Production inference traffic stays in the customer environment.
-- **No required Subconscious cloud dependency for production operation**: The API Gateway and Inference Runtime should continue to operate under the customer's operational control.
+- **Customer-controlled data handling by default**: Production inference traffic stays in the customer environment.
+- **Production operation under customer control**: The API Gateway and Inference Runtime operate under the customer's operational control.
 - **Customer-controlled deployment cadence**: The customer chooses when to approve and deploy new versions.
 - **Customer-controlled access**: Subconscious support access is optional, customer-approved, time-bound, and logged.
 
@@ -247,21 +247,21 @@ During evaluation, Subconscious can provide the following materials to support c
 - Support access policy.
 - Telemetry statement.
 - Deployment guide.
-- FAQ for SOC 2 and vendor risk review.
+- Security and vendor risk FAQ.
 
 {/* TODO: Add data-flow diagram, shared responsibility matrix, and screenshots or examples of release evidence when available. */}
 
 ## FAQ
 
-### Are you SOC 2 compliant?
+### How should we think about SOC 2 and vendor risk review?
 
-Subconscious is designed so that the customer-hosted production deployment does not require the customer to rely on Subconscious operational controls for production availability, data processing, or API Gateway and Inference Runtime security.
+For customer-hosted deployments, the key review point is that the API Gateway and Inference Runtime run in the customer's cloud account, under the customer's access, monitoring, networking, and change-management controls.
 
-For customer-hosted deployments, the key review point is that the API Gateway and Inference Runtime run in the customer's cloud account, under the customer's access, monitoring, networking, and change-management controls. Subconscious can provide security assurance materials to support vendor risk review and SOC 2 audit discussions.
+Subconscious can provide security assurance materials to support vendor risk review and SOC 2 audit discussions. Final audit treatment is determined by the customer and its auditor.
 
-### Will deploying Subconscious compromise our SOC 2 audit?
+### How does this affect our SOC 2 review?
 
-The deployment is designed not to compromise the customer's SOC 2 audit posture.
+The deployment is designed to fit into the customer's existing security, compliance, and change-management process.
 
 The customer retains control over production deployment, API Gateway and Inference Runtime operation, monitoring, scanning, access, data, and version cadence. Subconscious does not require persistent production access and does not need customer data to operate the Subconscious Inference System.
 
@@ -271,9 +271,9 @@ Final audit treatment is determined by the customer and its auditor.
 
 For customer-hosted production deployments, Subconscious is not intended to process or store customer data. Inference requests, prompts, completions, logs, keys, and operational data remain in the customer's environment unless the customer explicitly chooses to share specific data for support or troubleshooting.
 
-### Does customer code leave our cloud?
+### Where do source code, prompts, and completions live?
 
-No customer code should leave the customer's cloud in the customer-hosted production deployment unless the customer explicitly configures or shares it.
+In the standard customer-hosted production deployment, source code, prompts, and completions should remain in the customer's environment unless the customer explicitly configures or shares them.
 
 ### Does Subconscious require access to our cloud account?
 
@@ -283,9 +283,9 @@ No persistent access is required by default. If support access is needed, it sho
 
 The customer controls update approval and deployment cadence. Subconscious provides software releases, patches, release notes, and upgrade guidance. Customers can approve updates through their own change-management process.
 
-### Can Subconscious force an update into our environment?
+### How are production updates approved?
 
-No. Production updates should be customer-approved and deployed according to the customer's policy.
+Production updates should be customer-approved and deployed according to the customer's policy.
 
 ### What is the main security risk we should evaluate?
 
