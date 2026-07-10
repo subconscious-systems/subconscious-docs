@@ -30,7 +30,7 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentation",
+        "tab": "Cloud API Docs",
         "groups": [
           {
             "group": "Get Started",
@@ -74,6 +74,60 @@
             "pages": [
               "api-reference/chat-completions",
               "api-reference/messages"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "On-Prem",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": [
+              "on-prem/overview",
+              "on-prem/how-it-works",
+              "on-prem/faq"
+            ]
+          },
+          {
+            "group": "Integration journey",
+            "pages": [
+              "on-prem/integration-journey/overview",
+              "on-prem/integration-journey/evaluation",
+              "on-prem/integration-journey/onboarding",
+              "on-prem/integration-journey/customer-success"
+            ]
+          },
+          {
+            "group": "Trust center",
+            "pages": [
+              "on-prem/trust-center/compliance"
+            ]
+          },
+          {
+            "group": "Deployments",
+            "pages": [
+              "on-prem/deployments/methods",
+              "on-prem/deployments/configurations"
+            ]
+          },
+          {
+            "group": "API Gateway",
+            "pages": [
+              "on-prem/api-gateway/overview",
+              "on-prem/api-gateway/setup"
+            ]
+          },
+          {
+            "group": "Inference Runtime",
+            "pages": [
+              "on-prem/inference-runtime/overview"
+            ]
+          },
+          {
+            "group": "Distribution Platform",
+            "pages": [
+              "on-prem/distribution-platform/overview"
             ]
           }
         ]
@@ -137,7 +191,7 @@
     },
     {
       "source": "/platform/privacy",
-      "destination": "/enterprise/privacy"
+      "destination": "/ways-to-use/privacy"
     },
     {
       "source": "/platform/learn-more",
@@ -145,11 +199,79 @@
     },
     {
       "source": "/offerings/dedicated",
-      "destination": "/enterprise/dedicated"
+      "destination": "/ways-to-use/dedicated"
     },
     {
       "source": "/offerings/on-prem",
-      "destination": "/enterprise/on-prem"
+      "destination": "/ways-to-use/on-prem"
+    },
+    {
+      "source": "/enterprise/on-prem",
+      "destination": "/ways-to-use/on-prem"
+    },
+    {
+      "source": "/on-prem/deployment-models/methods",
+      "destination": "/on-prem/deployments/methods"
+    },
+    {
+      "source": "/on-prem/deployment-models/distribution-platform",
+      "destination": "/on-prem/distribution-platform/overview"
+    },
+    {
+      "source": "/on-prem/deployment-models/configurations",
+      "destination": "/on-prem/deployments/configurations"
+    },
+    {
+      "source": "/on-prem/deployment-models/gateway-setup",
+      "destination": "/on-prem/api-gateway/setup"
+    },
+    {
+      "source": "/on-prem/deployments/distribution-platform",
+      "destination": "/on-prem/distribution-platform/overview"
+    },
+    {
+      "source": "/on-prem/deployments/gateway-setup",
+      "destination": "/on-prem/api-gateway/setup"
+    },
+    {
+      "source": "/on-prem/customer-journey/overview",
+      "destination": "/on-prem/integration-journey/overview"
+    },
+    {
+      "source": "/on-prem/customer-journey/evaluation",
+      "destination": "/on-prem/integration-journey/evaluation"
+    },
+    {
+      "source": "/on-prem/customer-journey/onboarding",
+      "destination": "/on-prem/integration-journey/onboarding"
+    },
+    {
+      "source": "/on-prem/customer-journey/customer-success",
+      "destination": "/on-prem/integration-journey/customer-success"
+    },
+    {
+      "source": "/on-prem/api-gateway/user-management",
+      "destination": "/on-prem/api-gateway/setup"
+    },
+    {
+      "source": "/on-prem/api-gateway/usage-metering",
+      "destination": "/on-prem/api-gateway/setup"
+    },
+    {
+      "source": "/on-prem/api-gateway/logging",
+      "destination": "/on-prem/api-gateway/setup"
+    },
+    {
+      "source": "/on-prem/api-gateway/monitoring",
+      "destination": "/on-prem/api-gateway/setup"
+    },
+    {
+      "source": "/on-prem/inference-runtime/setup",
+      "destination": "/on-prem/inference-runtime/overview"
+    },
+    {
+      "source": "/on-prem/distribution-platform/setup",
+      "destination": "/on-prem/distribution-platform/overview"
     },
     {
       "source": "/offerings/usage",

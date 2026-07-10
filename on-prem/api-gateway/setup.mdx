@@ -1,0 +1,60 @@
+---
+title: "Setup"
+description: "Admin setup for dashboard access, routes, credentials, and pilot readiness"
+icon: "gear"
+---
+
+After the Subconscious Inference System is deployed, your Subconscious FDE will walk through API Gateway admin setup with your customer admin.
+
+## Admin setup
+
+Your FDE and customer admin work through this flow together:
+
+1. **Confirm dashboard access**: sign in, verify the customer organization, and confirm the approved URL, DNS, TLS, and network path are working.
+2. **Confirm prerequisites**: make sure the Subconscious Inference System is deployed, the Inference Runtime or external model endpoints are reachable, required credentials are available, and first admins and pilot users are identified.
+3. **Configure credentials and routes**: add only the provider credentials needed for routes, then create the initial model route to the Inference Runtime or external model endpoint.
+4. **Send a test request**: use an admin test key and a small prompt to confirm authentication, model access, routing, response behavior, and usage recording.
+5. **Configure pilot users**: create or share the pilot API key pattern, confirm model slugs, and point the first coding agents at the customer API Gateway endpoint.
+6. **Confirm day-two ownership**: align on user management, usage metering, logging, monitoring, support escalation, and handoff.
+
+After the initial setup, administrators usually operate a few recurring workflows.
+
+### User management
+
+- Invite administrators and pilot users.
+- Reset passwords and manage roles.
+- Grant or revoke model access.
+- Keep user and team ownership clear during rollout.
+
+### Usage metering
+
+- Create and revoke API keys.
+- Configure organization-level and API-key-level limits.
+- Review usage by date range, model, key, or organization.
+- Adjust limits after pilot feedback or capacity changes.
+
+### Logging
+
+- Review gateway service logs, router logs, route health logs, and audit logs for admin actions.
+- Keep sensitive prompts, completions, secrets, and API keys out of shared logs.
+- Prepare customer-approved support bundles or diagnostic summaries when needed.
+
+### Monitoring
+
+- Monitor gateway availability, request rate, latency, error rate, and route health.
+- Review authentication failures, authorization failures, and rate-limit events.
+- Pair gateway metrics with Inference Runtime metrics such as GPU utilization, queue depth, and token throughput.
+
+## Admin handoff checklist
+
+- Customer admins can sign in.
+- Admin users and pilot users are configured.
+- Initial API keys are created and stored.
+- Initial Inference Runtime routes are active and healthy.
+- Model access is granted.
+- Limits are configured.
+- Test request succeeds.
+- Coding-agent setup is validated for at least one pilot user.
+- Usage is visible.
+- Monitoring and logging ownership is confirmed.
+- Support and escalation process is understood.

@@ -1,0 +1,151 @@
+---
+title: "Configurations"
+description: "Cloud, GPU placement, Helm overrides, secrets, observability, and upgrade choices"
+icon: "sliders"
+---
+
+Configuration depends on your deployment method, cloud, Kubernetes environment, API Gateway placement, Inference Runtime GPU placement, networking model, observability stack, and security requirements. This page collects the main permutations customers usually decide during onboarding.
+
+## API Gateway and Inference Runtime placement
+
+After the deployment method is selected, the next major configuration choice is where the API Gateway runs and where the Inference Runtime's GPU capacity runs.
+
+The API Gateway usually runs close to your engineering stack, identity systems, networking controls, and observability tools. The Inference Runtime may run on GPUs colocated in the same cloud environment or on GPU capacity provided by a separate environment such as a NeoCloud, specialized inference provider, or local GPU cluster.
+
+This choice drives Helm values for networking, model routes, credentials, timeouts, observability, scaling, and failure handling. The API Gateway owns routing and load balancing; the Inference Runtime owns efficient GPU-backed model execution.
+
+{/* TODO: Add a Mermaid diagram showing API Gateway and Inference Runtime/GPU placement options. */}
+
+## Placement option 1: API Gateway and Inference Runtime in the same cloud
+
+In this model, the API Gateway and Inference Runtime run in the same customer cloud environment.
+
+Examples (coming soon):
+
+- API Gateway on AWS EKS with Inference Runtime GPU nodes on AWS.
+- API Gateway on GCP GKE with Inference Runtime GPU nodes on GCP.
+- API Gateway on Azure AKS with Inference Runtime GPU nodes on Azure.
+
+This mode is best when:
+
+- Your cloud already has approved GPU capacity.
+- You want simpler private networking.
+- You want inference traffic to remain inside one cloud boundary.
+- You want standard cloud observability and IAM patterns.
+
+## Placement option 2: API Gateway in your cloud, Inference Runtime elsewhere
+
+In this model, the API Gateway runs in your cloud environment and routes model traffic to Inference Runtime GPU capacity hosted elsewhere.
+
+Examples (coming soon):
+
+- API Gateway on AWS with Inference Runtime capacity on a Baseten.
+- API Gateway on GCP with Inference Runtime capacity on Baseten.
+- API Gateway on Azure with Inference Runtime capacity on Together AI or another provider.
+- API Gateway in customer Kubernetes with Inference Runtime workers in a separate private cluster.
+
+This mode is best when:
+
+- Your main cloud does not have enough GPU capacity for the Inference Runtime.
+- You want to use a specialized GPU provider.
+- You want to colocate the API Gateway with the rest of your stack while routing inference to external capacity.
+- You want to compare GPU providers without moving the API Gateway.
+
+## Placement option 3: API Gateway and Inference Runtime in separate customer-controlled environments
+
+In this model, both the API Gateway and Inference Runtime GPUs are customer-controlled, but they are not colocated.
+
+Examples (coming soon):
+
+- API Gateway in the corporate cloud, Inference Runtime GPUs in a private research cluster.
+- API Gateway in Kubernetes, Inference Runtime workers in an on-prem environment.
+- API Gateway in one region, Inference Runtime workers in another region.
+
+This mode is best when GPU capacity already exists in a separate customer environment, network isolation requires an API Gateway boundary, or a central endpoint must route to multiple Inference Runtime backends.
+
+## Cloud-specific notes
+
+AWS deployments usually need EKS compatibility, ALB or NLB guidance, IAM role requirements, Secrets Manager integration, CloudWatch logging and metrics, GPU node pool configuration, and PrivateLink or VPC peering options for external GPU providers.
+
+GCP deployments usually need GKE compatibility, internal load balancer guidance, Workload Identity requirements, Secret Manager integration, Cloud Logging and Cloud Monitoring, GPU node pool configuration, and Private Service Connect or VPC connectivity for external GPU providers.
+
+Azure deployments usually need AKS compatibility, internal load balancer guidance, managed identity requirements, Key Vault integration, Azure Monitor and Log Analytics, GPU node pool configuration, and Private Link or VNet peering options for external GPU providers.
+
+NeoCloud and external GPU deployments usually need endpoint format, authentication method, network allowlisting, private connectivity options, TLS requirements, health check path, rate limits, concurrency limits, model naming, route mapping, fallback behavior, and cost or capacity assumptions.
+
+## Secrets and credentials
+
+Secrets are configured during onboarding based on deployment method and customer policy.
+
+Common secrets include:
+
+- API Gateway admin credentials.
+- User and API key management secrets.
+- Model provider credentials.
+- Database credentials.
+- Cache credentials.
+- Observability export credentials.
+- Registry access tokens.
+- TLS certificate references.
+
+In assisted self-managed deployments, some deployment secrets may be managed through the customer portal when enabled. In traditional self-hosted deployments, customers may prefer to store secrets entirely in their own secret manager and reference them from Helm values.
+
+## Monitoring configuration
+
+Monitoring configuration depends on the customer's existing observability stack.
+
+Common goals include:
+
+- API Gateway availability.
+- Request rate.
+- Latency.
+- Error rate.
+- Model route health.
+- GPU utilization.
+- Queue depth.
+- Token throughput.
+- Cost and capacity signals.
+- Agent deployment status in assisted self-managed mode.
+
+Subconscious can help map API Gateway and Inference Runtime metrics into the customer's monitoring stack during onboarding.
+
+{/* TODO: Add Prometheus, Datadog, and Grafana examples plus dashboard screenshots. */}
+
+## Logging configuration
+
+Logging should support operations without exposing customer source code, prompts, completions, secrets, or other sensitive data. We can help configure sending logs to external sources like Datadog.
+
+Common log streams include:
+
+- API Gateway service logs.
+- Router logs.
+- Deployment logs.
+- Agent logs in assisted self-managed mode.
+- Model worker logs.
+- Audit logs for admin actions.
+- Upgrade and rollback logs.
+
+Customers should define log retention, redaction, support bundle approval, and approved sharing channels before production use.
+
+## Upgrade and rollback process
+
+Upgrade flow depends on the deployment method.
+
+In traditional self-hosted deployments:
+
+1. Subconscious publishes a release.
+2. The customer reviews release evidence.
+3. The customer pulls or mirrors artifacts.
+4. The customer applies the Helm upgrade through its own process.
+5. The customer validates health and rolls back if needed.
+
+In assisted self-managed deployments:
+
+1. Subconscious publishes a release.
+2. The customer reviews release evidence and update policy.
+3. The Distr agent applies the update locally when approved or when automatic updates are enabled.
+4. The customer and Subconscious monitor deployment health.
+5. Rollback is coordinated according to the customer's policy.
+
+Upgrade planning should define maintenance windows, release notes, rollback commands, compatibility policy, migration handling, expected downtime, and emergency patch process.
+

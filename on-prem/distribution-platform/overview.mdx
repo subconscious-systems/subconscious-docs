@@ -1,0 +1,71 @@
+---
+title: "Overview"
+description: "Software delivery, versioning, updates, and assisted self-managed deployment"
+icon: "truck-fast"
+---
+
+The **Distribution Platform** manages software delivery, versioning, updates, release metadata, and assisted self-managed deployment for the Subconscious Inference System.
+
+It is powered by [Distr](https://distr.sh/docs/), a platform built for delivering Docker, Helm, and OCI artifacts into self-managed, assisted self-managed, bring-your-own-cloud, air-gapped, and edge environments.
+
+## What it is used for
+
+The Distribution Platform delivers the software that runs in the customer's environment. It is separate from the API Gateway and Inference Runtime that serve production inference traffic.
+
+Subconscious uses it to deliver:
+
+- Helm charts and container images.
+- Customer-specific deployment instructions.
+- Registry access and artifact metadata.
+- Deployment status for assisted self-managed deployments.
+- Release notes, version metadata, and upgrade guidance.
+- Vulnerability reports and release evidence where available.
+- Customer-managed deployment secrets when enabled for the deployment.
+
+The API Gateway and Inference Runtime are the components your engineers use during production inference. The Distribution Platform is the mechanism for delivering, updating, and supporting those components.
+
+## Key workflows
+
+During onboarding, your Subconscious FDE provisions a customer portal for your organization. The portal gives your team a place to view deployment instructions, inspect available artifacts, manage deployments, generate access tokens, and review release resources.
+
+Only the admins of your team will have access to the customer portal. We recommend exploring the [Distr customer portal docs](https://distr.sh/docs/platform/customer-portal/) for more information.
+
+### Customer portal
+
+The customer portal is the customer-facing workspace for deployment and distribution workflows. Customers use it to view deployment instructions, inspect artifacts, generate registry access tokens, manage secrets when enabled, and view deployment status in assisted self-managed mode.
+
+For deeper Distr details, see [Customer Portal](https://distr.sh/docs/platform/customer-portal/), [Customer Management](https://distr.sh/docs/platform/customer-management/), and [Role-Based Access Control (RBAC)](https://distr.sh/docs/platform/rbac/).
+
+### Artifact registry
+
+The artifact registry is where licensed Subconscious artifacts are made available to your organization. It can include Docker images, Helm charts, and other OCI artifacts.
+
+Depending on your policy, your team may pull artifacts directly from the Distr registry, mirror them into an internal registry, scan artifacts before promotion, or promote approved artifacts through an internal GitOps process.
+
+For deeper Distr details, see [Customer Portal Artifact Registry](https://distr.sh/docs/platform/customer-portal/registry/) and Distr's [fully self-managed deployment](https://distr.sh/docs/use-cases/fully-self-managed/) pattern.
+
+### Deployment agents
+
+In assisted self-managed deployments, a Distr Kubernetes agent can run in the target environment. The agent manages Helm lifecycle operations locally and reports deployment status back to the portal.
+
+The customer still defines the namespace, RBAC scope, network policy, secrets policy, and approval process for agent installation.
+
+For deeper Distr details, see [Customer Portal Deployments](https://distr.sh/docs/platform/customer-portal/deployments/) and Distr's [assisted self-managed deployment](https://distr.sh/docs/use-cases/assisted-self-managed/) pattern.
+
+### Release evidence and support
+
+Version resources are customer-visible materials attached to a release. They help the customer review, approve, and audit deployment changes.
+
+Resources may include release notes, vulnerability scan reports, SBOMs, image digests, Helm chart versions, checksums, compatibility notes, and rollback instructions.
+
+For deeper Distr details, see [Vulnerability Scanning](https://distr.sh/docs/platform/vulnerability-scanning/), [Kubernetes Compatibility Matrix](https://distr.sh/docs/platform/kubernetes-compatibility-matrix/), [Customer Portal Support Bundles](https://distr.sh/docs/platform/customer-portal/support/), and [Support Bundles](https://distr.sh/docs/platform/support-bundles/).
+
+### Secrets
+
+Secrets are configured based on the deployment method and customer policy. In assisted self-managed mode, deployment secrets may be managed through the customer portal when enabled for the organization. In traditional self-hosted mode, customers may prefer to store secrets entirely in their own secret manager and reference them from Helm values, Kubernetes Secrets, or an external secrets operator.
+
+Common secrets include registry access tokens, API Gateway admin credentials, model provider credentials, database and cache credentials, observability export credentials, and TLS certificate references.
+
+For deeper Distr details, see [Customer Portal Secrets](https://distr.sh/docs/platform/customer-portal/secrets/). API Gateway route credentials and API keys are covered in [API Gateway setup](/on-prem/api-gateway/setup).
+
+For deployment method details, see [Methods](/on-prem/deployments/methods).

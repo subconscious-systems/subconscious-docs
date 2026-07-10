@@ -1,0 +1,27 @@
+---
+title: "Overview"
+description: "The GPU-backed execution layer for coding-agent workloads"
+icon: "microchip"
+---
+
+The **Inference Runtime** is the GPU-backed execution layer that gives the Subconscious Inference System its efficiency advantage. It runs on customer-provided GPUs and is tuned for coding-agent workloads.
+
+It handles things like:
+
+- Model execution on customer GPU resources.
+- Cache behavior for agent workloads.
+- Batching and scheduling.
+- GPU utilization improvements.
+- Serving more coding-agent workload per GPU.
+
+Depending on the deployment design, the Inference Runtime may be colocated with the API Gateway in the same cloud, run in a separate customer-controlled GPU environment, or use specialized GPU capacity behind the customer endpoint.
+
+## Placement options
+
+Inference Runtime placement is planned during deployment configuration. Common patterns include:
+
+- **API Gateway and Inference Runtime in the same cloud**: simplest private networking when the customer's main cloud has approved GPU capacity.
+- **API Gateway in your cloud, Inference Runtime elsewhere**: useful when the gateway should stay near the customer's stack but GPU capacity comes from a NeoCloud or specialized GPU provider.
+- **API Gateway and Inference Runtime in separate customer-controlled environments**: useful when GPU capacity already exists in another customer-controlled cluster, region, or on-prem environment.
+
+See [Configurations](/on-prem/deployments/configurations).

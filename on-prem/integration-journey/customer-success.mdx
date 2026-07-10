@@ -1,0 +1,80 @@
+---
+title: "Customer Success"
+description: "Support, upgrades, reviews, and expansion after onboarding"
+icon: "chart-line"
+---
+
+Customer success starts after the initial deployment is working and pilot users are connected. The goal is to keep the Subconscious Inference System healthy, make upgrades predictable, improve cost-performance over time, and help adoption grow across the engineering organization.
+
+## Support model
+
+After onboarding, the customer support channel remains open and the assigned Subconscious FDE remains the primary point of contact.
+
+Support commonly includes:
+
+- Deployment and configuration questions.
+- Operational troubleshooting.
+- Upgrade and patch coordination.
+- Performance reviews.
+- New model or route configuration.
+- Guidance for expanding coding-agent adoption.
+- Help interpreting logs, metrics, deployment status, and usage patterns.
+
+Support access to the customer environment is not required by default. When access is needed, it should be customer-approved, scoped, logged, time-bound, and revoked when the support task is complete. See [Compliance](/on-prem/trust-center/compliance) for the security framing.
+
+## Upgrades and patches
+
+Subconscious delivers upgrades and patches through the software distribution process. The customer controls approval and deployment cadence unless they explicitly choose an assisted policy.
+
+Common options include:
+
+- Opt-in upgrades approved by the customer.
+- Scheduled upgrades during customer-approved maintenance windows.
+- Automatic or FDE-assisted update pushes in assisted self-managed deployments.
+- Emergency security patch coordination for critical vulnerabilities.
+
+Upgrade planning usually covers release notes, vulnerability evidence, compatibility, rollback process, maintenance windows, and customer communication. See [Distribution Platform](/on-prem/distribution-platform/overview) and [Configurations](/on-prem/deployments/configurations) for more detail.
+
+## Operational reviews
+
+Operational reviews help confirm that the deployment continues to meet customer goals as adoption grows.
+
+Review topics may include:
+
+- Usage trends by model, team, key, or time period.
+- Cost and GPU utilization.
+- Latency, throughput, and error rates.
+- Route health and model performance.
+- User adoption and pilot feedback.
+- Support history and recurring operational issues.
+- Expansion opportunities and new model needs.
+
+These reviews can be lightweight monthly digests, quarterly meetings, or customer-specific check-ins depending on the deployment size and rollout stage.
+
+## Expanding adoption
+
+Most customers start with a small pilot group before broad rollout. Expansion usually happens after the team validates model quality, API Gateway reliability, limits, observability, and support workflows.
+
+Expansion planning usually includes:
+
+- Adding more pilot teams.
+- Creating new API keys or key ownership patterns.
+- Adjusting limits based on real usage.
+- Adding or tuning model routes.
+- Scaling the Inference Runtime with more GPU resources behind the API Gateway.
+- Updating internal setup instructions for coding agents.
+- Sharing training material with additional engineering teams.
+
+## Incident support
+
+The customer owns incident response for the Subconscious Inference System in its environment. Subconscious supports investigation and remediation when requested.
+
+During an incident, support may include:
+
+- Reviewing deployment status, route health, logs, metrics, and recent changes.
+- Helping identify whether the issue is API Gateway, route, Inference Runtime, worker, network, capacity, credential, or client related.
+- Coordinating patch or rollback guidance.
+- Helping prepare a support bundle or diagnostic summary.
+
+Any logs, screenshots, traces, or access shared with Subconscious should follow the customer's approval and redaction process.
+

@@ -1,0 +1,135 @@
+---
+title: "Onboarding"
+description: "From kickoff to pilot users on the Subconscious Inference System"
+icon: "rocket"
+---
+
+Onboarding turns the evaluation plan into a working customer-hosted deployment. A Subconscious FDE works with your technical champion to deploy the Subconscious Inference System, configure the API Gateway, connect pilot users, and hand off day-two operations.
+
+This page gives an overview. For implementation details, use [Methods](/on-prem/deployments/methods), [Configurations](/on-prem/deployments/configurations), and [API Gateway setup](/on-prem/api-gateway/setup).
+
+## Summary
+
+- **Kickoff to first pilot use**: usually about **1-2 weeks**, assuming customer technical resources are available.
+- **Technical champion effort**: usually less than **8 hours** of focused configuration time when the environment is ready.
+- **Admin training**: usually less than **1 hour**.
+- **Broader team training**: usually less than **1 hour**.
+- **Communication channel**: Dedicated Slack channel.
+- **Onsite support**: available when it helps accelerate setup.
+
+Strict change management, private registries, custom networking, air-gapped requirements, or new GPU procurement can extend the timeline.
+
+## Stakeholders
+
+- **Subconscious**: CEO and assigned FDE.
+- **Customer executive sponsor**: Owns business value, rollout priority, and commercial alignment.
+- **Customer technical champion**: Drives deployment planning, environment readiness, and technical coordination.
+- **Core admin team**: Manages API Gateway access, API keys, routes, limits, monitoring, and day-two operations.
+
+## 1. Kickoff
+
+Kickoff aligns the people, communication channels, and success criteria before deployment work begins.
+
+- **Ceremony**: 30 min meeting or async.
+- **Purpose**:
+  - Establish communication channels, expectations, and executive sponsorship.
+  - Confirm implementation timeline and success criteria from evaluation.
+- **What happens**:
+  - A dedicated Slack channel or customer-approved support channel is created.
+  - A Subconscious FDE becomes the primary onboarding point of contact.
+  - The customer identifies the technical champion, admin team, security reviewers, and pilot sponsor.
+  - The team confirms success criteria, timeline, and responsibilities.
+
+## 2. Deployment planning
+
+Deployment planning defines how the Subconscious Inference System will run in the customer's environment.
+
+- **Ceremony**: 60 min meeting plus async follow-up.
+- **Purpose**:
+  - Confirm the target deployment shape.
+  - Resolve infrastructure, cloud, networking, GPU, and Distr requirements.
+- **Topics to define**:
+  - Cloud provider, region, Kubernetes environment, and namespace.
+  - GPU sourcing and placement.
+  - Endpoint strategy, DNS, TLS, ingress, and network policy.
+  - Deployment method: assisted self-managed or traditional self-hosted.
+  - Distr customer portal, artifacts, deployment agent, registry access, and secrets.
+  - Observability, logging, alerting, and support access expectations.
+
+For the detailed decision points, see [Methods](/on-prem/deployments/methods) and [Distribution Platform](/on-prem/distribution-platform/overview).
+
+## 3. Deploy the Subconscious Inference System
+
+This step installs the API Gateway, Inference Runtime, and supporting services your engineers will use.
+
+- **Ceremony**: 30-60 min meeting plus async follow-up.
+- **Purpose**: Deploy the Subconscious Inference System into the customer's cloud environment.
+- **What gets deployed**:
+  - API Gateway for agent traffic, authentication, routing, and usage controls.
+  - Inference Runtime for GPU-backed model execution.
+  - Routing, load balancing, authentication, and usage control configuration.
+  - Runtime admin dashboard.
+  - Baseline observability and operational dashboards.
+- **Customer responsibilities**:
+  - Provision or approve required infrastructure and GPU resources.
+  - Approve deployment commands, agent installation, or internal GitOps changes.
+- **Subconscious responsibilities**:
+  - Guide deployment and configuration.
+  - Validate API Gateway and Inference Runtime health.
+  - Prepare the API Gateway for setup.
+
+See [Configurations](/on-prem/deployments/configurations) for cloud, GPU placement, Helm overrides, secrets, monitoring, logging, and upgrade details.
+
+{/* TODO: Add screenshots for deployment status and initial API Gateway and Inference Runtime readiness. */}
+
+## 4. API Gateway setup and admin training
+
+API Gateway setup turns the installed system into a usable service for pilot users.
+
+- **Ceremony**: 30-60 min meeting plus async follow-up.
+- **Purpose**: Configure the API Gateway and train the customer's project leads to operate it.
+- **What gets configured and taught**:
+  - Admin users and pilot users.
+  - User roles, invites, and password reset workflows.
+  - API Gateway API keys.
+  - Model routes to the Inference Runtime or external model endpoints.
+  - Model access grants.
+  - Organization-level and API-key-level limits.
+  - Test requests through the API Gateway.
+  - Usage, monitoring, logging, and operational workflows.
+  - General debugging, troubleshooting, support cases, upgrades, and maintenance workflows.
+
+See [API Gateway setup](/on-prem/api-gateway/setup) for the detailed setup guide.
+
+## 5. Coding agent integration and team training
+
+Coding agent integration helps pilot users connect their preferred tools to the deployed customer endpoint.
+
+- **Ceremony**: One 30 min live training session, with optional recording and written setup material.
+- **Purpose**: Help the broader engineering team point their preferred coding agents at the deployed API Gateway endpoint.
+- **Topics to cover**:
+  - What the system does and how it fits into the customer environment.
+  - API Gateway base URL, API keys, and model slugs.
+  - OpenAI-compatible configuration for coding agents and internal tools.
+  - Expectations for limits, acceptable use, support, and feedback.
+
+Rollout usually starts with a small pilot group, then expands after usage, reliability, and route behavior are validated.
+
+## 6. Handoff
+
+Handoff confirms the deployment is ready for pilot use and day-two ownership.
+
+- **Ceremony**: 30 min meeting with all stakeholders for sign-off.
+- **Purpose**:
+  - Confirm the deployment is ready for pilot users.
+  - Confirm customer owners understand how to operate and escalate issues.
+- **Sign-off checklist**:
+  - Customer admins can sign in and operate the API Gateway.
+  - API keys, routes, access, limits, and test requests are working.
+  - Pilot users can connect coding agents.
+  - Monitoring and logging ownership is clear.
+  - Support and escalation paths are understood.
+  - Upgrade, rollback, and patch expectations are documented.
+
+After handoff, the relationship continues through [Customer success](/on-prem/integration-journey/customer-success).
+

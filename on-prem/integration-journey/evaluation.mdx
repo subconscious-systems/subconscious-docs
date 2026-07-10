@@ -1,0 +1,99 @@
+---
+title: "Evaluation"
+description: "Discovery, ROI, security review, and optional trials"
+icon: "magnifying-glass-chart"
+---
+
+Evaluation helps your team decide whether the Subconscious Inference System is the right customer-hosted path before implementation starts.
+
+The goal is to align on:
+
+- **Business value**: cost, productivity, and expected adoption.
+- **Technical fit**: cloud, Kubernetes, GPU, networking, and coding-agent requirements.
+- **Security posture**: data boundary, vendor review, and SOC 2 fit.
+- **Proof points**: what must be validated before deployment.
+
+## Discovery
+
+Discovery starts with your engineering workflows and coding-agent usage.
+
+Key topics:
+
+- Engineering team size and expected adoption.
+- Current coding-agent usage and preferred tools.
+- Target model quality, latency, and throughput expectations.
+- Workload patterns and anticipated token volume.
+- Existing cloud, Kubernetes, GPU, and networking constraints.
+- Security, compliance, data residency, and vendor review requirements.
+- Success criteria and evaluation timeline.
+
+**Output**: a clear evaluation path: what must be validated, who needs to participate, and which deployment model is most likely to fit.
+
+## ROI exercise
+
+The ROI exercise compares customer-hosted Subconscious against frontier hosted APIs, generic self-hosted GPU options, and unmanaged open-model serving.
+
+Useful inputs:
+
+- Expected number of engineers and pilot users.
+- Agent usage patterns and expected daily or monthly token volume.
+- Target model families and quality expectations.
+- Current hosted API spend or internal GPU cost assumptions.
+- Latency and throughput targets for interactive coding workflows.
+- Required control over data, networking, infrastructure, and deployment cadence.
+
+**Output**: a shared view of expected savings, GPU needs, reliability goals, and what the pilot or deployment must prove.
+
+## Security review
+
+Security review usually runs alongside commercial and technical evaluation.
+
+**Key question**: Does the customer-hosted model satisfy your data, IP, compliance, and SOC 2 posture?
+
+Subconscious can support review with:
+
+- Security architecture overview.
+- Data-flow and data-retention summary.
+- API Gateway, Inference Runtime, and Distribution Platform boundary.
+- Access control and support access model.
+- Vulnerability management and patching process.
+- Release evidence, SBOMs, vulnerability reports, or related supply-chain materials where available.
+- Shared responsibility guidance.
+
+For the detailed security position, see [Compliance](/on-prem/trust-center/compliance). For deployment mechanics, see [Methods](/on-prem/deployments/methods) and [Distribution Platform](/on-prem/distribution-platform/overview).
+
+## Optional model comparison trial
+
+Some customers evaluate model quality before committing to a full customer-hosted deployment.
+
+Typical shape:
+
+1. Select 1-4 engineers or a small pilot group.
+2. Choose representative coding-agent workflows.
+3. Point local coding agents at open models hosted on-demand.
+   - [OpenRouter](https://openrouter.ai/)
+   - [Subconscious Cloud API](/ways-to-use/cloud-api)
+   - NeoCloud or dedicated GPU providers such as [Baseten](https://www.baseten.co/) or [Together AI](https://www.together.ai/)
+4. Compare model quality, compatibility, latency, and workflow fit.
+5. Capture gaps or configuration requirements before deployment planning.
+
+**Security note**: Cloud hosted trials are separate from customer-hosted production deployments and should be evaluated under their own data-handling assumptions.
+
+## Optional load-test trial
+
+A load-test trial validates whether Subconscious can serve the target engineering capacity with acceptable latency, throughput, and reliability.
+
+Typical shape:
+
+1. Agree on traffic assumptions or benchmark tasks.
+2. Provision an appropriate GPU environment.
+3. Run throughput and latency tests on representative workloads.
+4. Compare results against success criteria from discovery.
+5. Decide whether to proceed to deployment planning.
+
+**Success criteria**: against target engineering capacity, there is acceptable latency for coding-agent workflows and stable throughput under expected load.
+
+## Contracts & onboarding planning
+
+If we agree there is a fit, we move forward with contract negotiation and onboarding planning. After that, customers move into [Onboarding](/on-prem/integration-journey/onboarding).
+
