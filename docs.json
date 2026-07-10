@@ -33,7 +33,7 @@
         "tab": "Cloud API Docs",
         "groups": [
           {
-            "group": "Get Started",
+            "group": "Get started",
             "pages": [
               "overview",
               "quickstart"
@@ -49,7 +49,7 @@
             ]
           },
           {
-            "group": "Ways to Use",
+            "group": "Ways to use",
             "pages": [
               "ways-to-use/cloud-api",
               "ways-to-use/dedicated",
@@ -82,7 +82,7 @@
         "tab": "On-Prem",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Get started",
             "pages": [
               "on-prem/overview",
               "on-prem/how-it-works",
