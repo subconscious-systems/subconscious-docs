@@ -4,11 +4,11 @@ description: "Choose assisted self-managed or traditional self-hosted deployment
 icon: "diagram-project"
 ---
 
-Subconscious supports two primary deployment methods for customer-hosted production deployments, powered by [Distr](https://distr.sh/docs/): [traditional self-hosted](https://distr.sh/docs/use-cases/fully-self-managed/) and [assisted self-managed](https://distr.sh/docs/use-cases/assisted-self-managed/). Both keep The ORANGE Line in your environment. The difference is how installation, updates, and operational actions are performed.
+Subconscious supports two primary deployment methods for customer-hosted production deployments, powered by [Distr](https://distr.sh/docs/): [traditional self-hosted](https://distr.sh/docs/use-cases/fully-self-managed/) and [assisted self-managed](https://distr.sh/docs/use-cases/assisted-self-managed/). Both keep the Subconscious Inference System in your environment. The difference is how installation, updates, and operational actions are performed.
 
 In both methods:
 
-- The ORANGE Line runs in the customer's cloud or customer-controlled environment.
+- The Subconscious Inference System runs in the customer's cloud or customer-controlled environment.
 - The customer controls infrastructure, networking, access, data, monitoring, and production change management.
 - Subconscious provides licensed artifacts, deployment guidance, release notes, support, and upgrade coordination.
 
@@ -18,7 +18,7 @@ The deployment method should match your internal platform practices and security
 
 ## Traditional self-hosted
 
-Traditional self-hosted deployment gives your platform team the most direct control over release promotion and ORANGE Line operations.
+Traditional self-hosted deployment gives your platform team the most direct control over release promotion and Subconscious Inference System operations.
 
 In this mode:
 
@@ -52,13 +52,13 @@ Customers use the artifact registry and their own deployment process without a l
 
 ## Assisted self-managed
 
-Assisted self-managed deployment keeps The ORANGE Line in your environment while allowing a Distr deployment agent to help manage application lifecycle operations.
+Assisted self-managed deployment keeps the Subconscious Inference System in your environment while allowing a Distr deployment agent to help manage application lifecycle operations.
 
 This maps to Distr's [assisted self-managed deployment](https://distr.sh/docs/use-cases/assisted-self-managed/) pattern: a customer-installed agent applies updates according to customer-defined policies and reports deployment status back to the portal.
 
 In this mode:
 
-- The ORANGE Line still runs in your cloud or customer-controlled Kubernetes environment.
+- The Subconscious Inference System still runs in your cloud or customer-controlled Kubernetes environment.
 - Your team retains control over environment access.
 - A Distr Kubernetes agent runs in your cluster with an agreed scope.
 - The agent manages Helm deployment operations locally.
@@ -93,7 +93,7 @@ This mode is best when:
 
 Choose traditional self-hosted when your platform team wants every deployment action to run through internal tooling and approval.
 
-Choose assisted self-managed when you want Subconscious to help manage initial installation, updates, logging visibility, and ongoing maintenance while The ORANGE Line remains in your environment.
+Choose assisted self-managed when you want Subconscious to help manage initial installation, updates, logging visibility, and ongoing maintenance while the Subconscious Inference System remains in your environment.
 
 Both methods can support customer-controlled approval, vulnerability scanning, private registries, restricted egress, and strict change-management processes.
 

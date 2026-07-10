@@ -30,7 +30,7 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentation",
+        "tab": "Cloud API Docs",
         "groups": [
           {
             "group": "Get Started",
@@ -82,11 +82,26 @@
         "tab": "On-Prem",
         "groups": [
           {
-            "group": "Get started",
+            "group": "Getting started",
             "pages": [
               "on-prem/overview",
               "on-prem/how-it-works",
               "on-prem/faq"
+            ]
+          },
+          {
+            "group": "Integration journey",
+            "pages": [
+              "on-prem/integration-journey/overview",
+              "on-prem/integration-journey/evaluation",
+              "on-prem/integration-journey/onboarding",
+              "on-prem/integration-journey/customer-success"
+            ]
+          },
+          {
+            "group": "Trust center",
+            "pages": [
+              "on-prem/trust-center/compliance"
             ]
           },
           {
@@ -113,21 +128,6 @@
             "group": "Distribution Platform",
             "pages": [
               "on-prem/distribution-platform/overview"
-            ]
-          },
-          {
-            "group": "Customer journey",
-            "pages": [
-              "on-prem/customer-journey/overview",
-              "on-prem/customer-journey/evaluation",
-              "on-prem/customer-journey/onboarding",
-              "on-prem/customer-journey/customer-success"
-            ]
-          },
-          {
-            "group": "Trust center",
-            "pages": [
-              "on-prem/trust-center/compliance"
             ]
           }
         ]
@@ -232,6 +232,22 @@
     {
       "source": "/on-prem/deployments/gateway-setup",
       "destination": "/on-prem/api-gateway/setup"
+    },
+    {
+      "source": "/on-prem/customer-journey/overview",
+      "destination": "/on-prem/integration-journey/overview"
+    },
+    {
+      "source": "/on-prem/customer-journey/evaluation",
+      "destination": "/on-prem/integration-journey/evaluation"
+    },
+    {
+      "source": "/on-prem/customer-journey/onboarding",
+      "destination": "/on-prem/integration-journey/onboarding"
+    },
+    {
+      "source": "/on-prem/customer-journey/customer-success",
+      "destination": "/on-prem/integration-journey/customer-success"
     },
     {
       "source": "/on-prem/api-gateway/user-management",

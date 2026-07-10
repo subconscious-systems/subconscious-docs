@@ -4,7 +4,7 @@ description: "Security, SOC 2 review posture, data handling, support access, and
 icon: "shield-check"
 ---
 
-The customer-hosted Subconscious Inference System is designed for enterprises that want high-performance coding-agent inference while retaining control over cloud environment, data, networking, ORANGE Line operations, and software deployment cadence.
+The customer-hosted Subconscious Inference System is designed for enterprises that want high-performance coding-agent inference while retaining control over cloud environment, data, networking, system operations, and software deployment cadence.
 
 This page explains how the deployment model supports security review, SOC 2 vendor assessment, and long-term operational trust. It is written for security, compliance, platform, and engineering teams evaluating Subconscious.
 
@@ -20,7 +20,7 @@ For production customer-hosted deployments:
 - Subconscious does not require persistent access to the customer's cloud account.
 - Subconscious does not need ingress into the customer's cloud account.
 - Subconscious does not control production availability.
-- The customer controls versioning, deployment cadence, networking, access, monitoring, and ORANGE Line operations.
+- The customer controls versioning, deployment cadence, networking, access, monitoring, and Subconscious Inference System operations.
 - Updates are customer-approved and installable through the customer's own change-management process unless the customer explicitly chooses an assisted update workflow.
 
 This model lets the customer evaluate Subconscious as a customer-hosted software vendor and software supply-chain vendor, rather than as a hosted production subservice provider operating the customer's inference environment.
@@ -33,7 +33,7 @@ Subconscious can provide architecture documentation, data-flow evidence, release
 
 ## Deployment model
 
-The ORANGE Line has three core components:
+The Subconscious Inference System has three core components:
 
 - **API Gateway**: The customer-facing entry point for agent traffic, authentication, API key management, routing, usage controls, load balancing, and customer-facing admin workflows.
 - **Inference Runtime**: The GPU-backed execution layer that runs on customer-provided GPUs and drives Subconscious's compute-efficiency advantage.
@@ -263,7 +263,7 @@ For customer-hosted deployments, the key review point is that the API Gateway an
 
 The deployment is designed not to compromise the customer's SOC 2 audit posture.
 
-The customer retains control over production deployment, API Gateway and Inference Runtime operation, monitoring, scanning, access, data, and version cadence. Subconscious does not require persistent production access and does not need customer data to operate The ORANGE Line.
+The customer retains control over production deployment, API Gateway and Inference Runtime operation, monitoring, scanning, access, data, and version cadence. Subconscious does not require persistent production access and does not need customer data to operate the Subconscious Inference System.
 
 Final audit treatment is determined by the customer and its auditor.
 
