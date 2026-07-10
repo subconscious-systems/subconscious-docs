@@ -63,60 +63,6 @@ Examples (coming soon):
 
 This mode is best when GPU capacity already exists in a separate customer environment, network isolation requires an API Gateway boundary, or a central endpoint must route to multiple Inference Runtime backends.
 
-## Helm override concepts
-
-The exact values file depends on the selected deployment mode, cloud, network, and GPU placement.
-
-Common override areas:
-
-- Ingress host and TLS configuration.
-- Internal or external load balancer settings.
-- API Gateway API key and admin configuration.
-- Database and cache configuration.
-- Model route configuration.
-- Provider credentials.
-- Inference Runtime GPU worker scheduling.
-- Resource requests and limits.
-- Node selectors and tolerations.
-- Observability exporters.
-- Logging sinks.
-- Network policy.
-- Update policy.
-
-Example shape:
-
-```yaml
-global:
-  cloud: aws
-  environment: production
-
-gateway:
-  ingress:
-    enabled: true
-    className: alb
-    host: subconscious-gateway.example.com
-    tls:
-      enabled: true
-  service:
-    type: LoadBalancer
-    annotations:
-      service.beta.kubernetes.io/aws-load-balancer-scheme: internal
-
-modelRoutes:
-  default:
-    provider: customer-gpu
-    endpoint: https://MODEL_ENDPOINT_PLACEHOLDER
-    secretRef: model-provider-credentials
-
-observability:
-  metrics:
-    enabled: true
-  logs:
-    sink: cloudwatch
-```
-
-{/* TODO: Replace generic examples with the actual Subconscious Helm values schema and add cloud-specific values files. */}
-
 ## Cloud-specific notes
 
 AWS deployments usually need EKS compatibility, ALB or NLB guidance, IAM role requirements, Secrets Manager integration, CloudWatch logging and metrics, GPU node pool configuration, and PrivateLink or VPC peering options for external GPU providers.
