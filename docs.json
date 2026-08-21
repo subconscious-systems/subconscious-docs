@@ -54,7 +54,6 @@
               "ways-to-use/cloud-api",
               "ways-to-use/dedicated",
               "ways-to-use/on-prem",
-              "ways-to-use/local-devices",
               "ways-to-use/privacy"
             ]
           },
@@ -159,6 +158,10 @@
     },
     {
       "source": "/intro",
+      "destination": "/overview"
+    },
+    {
+      "source": "/ways-to-use/local-devices",
       "destination": "/overview"
     },
     {
