@@ -141,7 +141,7 @@
     "primary": {
       "type": "button",
       "label": "Platform",
-      "href": "https://www.subconscious.dev/platform"
+      "href": "https://platform.subconscious.dev"
     }
   },
   "footer": {
