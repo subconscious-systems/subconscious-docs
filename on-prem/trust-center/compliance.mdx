@@ -1,109 +1,202 @@
 ---
 title: "Compliance"
-description: "Security review, data handling, support access, and supply-chain assurance"
+description: "Security review packet for the customer-hosted Subconscious Inference System"
 icon: "shield-check"
 ---
 
-This page is for security, compliance, platform, and engineering teams reviewing a **customer-hosted** Subconscious deployment. Final vendor and audit treatment is determined by you and your auditor.
+This page describes the deployment of the complete Subconscious Gateway product: the gateway with cache-aware router, the admin dashboard, and **OrangeLine (the inference runtime)**. Customers deploying the inference runtime alone follow a simpler procedure, noted at the end of [Deployment](#deployment).
 
-**OrangeLine-only** is a thinner review: you run our container on your GPUs. We are an image vendor, not the operator of your gateway. The rest of this page describes the **full inference system**.
+Prepared for security, compliance, platform, and engineering teams.
 
-## Short answer
+## Customer-hosted architecture
 
-- The API Gateway runs in your AWS, GCP, or Azure account. OrangeLine runs on GPUs you choose, which need not be in the same cloud.
-- Prompts, completions, logs, keys, and operational data stay in your environment unless you share them for support.
-- Subconscious does not host your production inference system and does not need inbound access to your VPC.
-- A customer-installed [Ryvn Agent](https://ryvn.ai/docs/guides/ryvn-agent) in the gateway cluster pulls desired state over outbound HTTPS. That agent is persistent in-cluster. It is not inbound vendor access, and it is not a requirement that Subconscious hold cloud-account credentials.
-- You control networking, access, monitoring, and when production updates apply, using Ryvn approvals, maintenance windows, and release channels.
-- Review Subconscious as customer-hosted software and supply-chain risk, not as a hosted production service operating your inference environment.
+Subconscious deploys into infrastructure you own. Every production component runs inside a VPC you control, on the hyperscaler you already use. Your VPC standards define the security and compliance boundary.
 
-See [How it works](/on-prem/how-it-works) and [Ryvn](/on-prem/ryvn/overview).
+The Gateway product has two components.
 
-## Deployment model
+**API Gateway.** The entry point for agent traffic. Includes the cache-aware router, the admin dashboard, authentication, API key management, and usage controls.
 
-- **API Gateway**: customer-facing entry point for agent traffic, keys, routing, usage, and context pruning visualization and intelligence.
-- **OrangeLine**: GPU inference runtime (TIMRUN) you run as a Docker container.
-- **Ryvn**: deployment platform for the gateway environment. It is not required to receive customer code, prompts, completions, or production inference data.
+**Inference runtime.** The GPU-backed execution layer, deployed as a Docker image on GPU compute you provision.
 
-## Security review position
+The gateway and admin dashboard are delivered through [Ryvn](/on-prem/ryvn/overview), a deployment platform built for customer-cloud software. A small [Ryvn Agent](https://ryvn.ai/docs/guides/ryvn-agent) runs in your cluster and pulls approved releases over outbound HTTPS. It accepts no inbound connections. The inference runtime ships as a Docker image and runs on GPU compute you provision, whether on-premises, in a hyperscaler, or in a neocloud. [Deployment](#deployment) covers both paths. See also [How Ryvn works](https://ryvn.ai/docs/how-ryvn-works).
 
-> The product runs in your cloud account. Subconscious does not host the production system, does not need inbound access, and is not intended to receive production prompts, completions, source code, or production inference data. Updates are customer-approved.
+Subconscious never accesses customer data. The only information that leaves your environment is opt-in operational telemetry ([Telemetry](#telemetry)).
 
-Four principles:
+## Data flow
 
-- Production inference traffic stays in your environment by default.
-- The API Gateway and OrangeLine operate under your operational control.
-- You choose when to approve and deploy new versions.
-- Support access is optional, customer-approved, time-bound, and logged.
+No customer data leaves your cloud environment. Prompts, completions, inference requests and responses, API keys, user records, and application logs remain inside your VPC at all times.
+
+Three flows cross the boundary, all outbound-initiated.
+
+**Releases.** The Ryvn agent pulls signed gateway releases from the Subconscious release channel, automatically or after your approval. The inference runtime image is pulled from the Subconscious container registry on your schedule.
+
+**Deployment status.** The agent reports heartbeat and task status to the Ryvn control plane so deployments can be tracked. This is operational metadata only.
+
+**Telemetry, opt-in.** Operational metrics and logs, if you enable them. Never customer or user data.
 
 ## Shared responsibility
 
-**Subconscious** is responsible for secure development, release integrity, release notes, security patches, deployment guidance, and documenting optional telemetry or support access.
+Subconscious delivers stable, scalable, rigorously tested software. You provide the infrastructure it runs on and keep that infrastructure available.
 
-**You** are responsible for cloud-account security, cluster and GPU administration, IAM, networking, monitoring and incident response, backups, scanning the running environment, change management, and internal rollout.
+Tell us which framework governs your review and we will provide a control-by-control mapping.
 
-**Together**: deployment planning, security review, gateway and OrangeLine configuration, initial routes, performance validation, scan-result review, upgrade planning, and incident investigation when you approve support.
+| Area | Subconscious | Customer |
+|---|---|---|
+| Software quality | Delivers stable, scalable, rigorously tested software for the gateway, admin dashboard, and inference runtime. | Validates releases against internal requirements before rollout. |
+| Vulnerability management | Scans every release for vulnerabilities and malware. Remediates severe vulnerabilities within customer-agreed SLA. | Scans the deployed environment under its own security program. Applies patched releases. |
+| Data | Never accesses customer data. Receives opt-in operational telemetry only. | Owns all prompts, completions, keys, user records, and application data, including storage, backup, and retention. |
+| Monitoring | Monitors system health through opt-in telemetry when enabled. | Monitors the deployed environment. Owns alerting and incident response when telemetry not opted-in. |
+| Infrastructure | Provides provisioning packaging (terraform, helm, etc.), sizing guidance, deployment support. | Provisions and operates the cloud account, cluster, and GPU compute. Keeps the account in good standing, including billing and quotas. |
 
-## Data handling
+## Software supply-chain controls
 
-The following stay in your environment unless you explicitly share them: source code, prompts and completions, inference requests and responses, API keys and user records, runtime and application logs, operational metrics, and route configuration.
+Subconscious software runs in your environment, so the relevant risk category is software supply chain.
 
-Subconscious does not need default access to your repositories, source code, prompts, production logs, cloud credentials, databases, or identity-provider data.
+- A software bill of materials accompanies every release.
+- Vulnerability and malware scans run against the SBOM on every deploy.
+- Severe vulnerabilities are remediated within customer-agreed SLA.
+- Release artifacts are signed and scanned before publication to your release channel.
+- Material security issues trigger direct customer notification and a published advisory with the remediation path.
+- You may scan release artifacts and deployed components with your own tooling before approving deployment.
 
-Sharing for support should be customer-initiated or approved, limited to the issue, sent through an approved channel, redacted where appropriate, and time-bound.
+You remain responsible for scanning and monitoring the deployed environment under your own security program. Subconscious assists with interpretation, remediation planning, and patch coordination.
 
-## Telemetry
+## Release and update process
 
-No customer-data telemetry by default. If you enable any, it should be documented, opt-in, limited to the stated purpose, configurable, and free of source code, prompts, completions, secrets, and API keys. You can keep Datadog, CloudWatch, or similar as the system of record.
+All Subconscious software is version controlled. Every release passes through a defined procedure that verifies compliance and confirms the build has no critical vulnerabilities. The full product team follows this procedure for every release.
+
+Before a release reaches any customer environment, Subconscious deploys and tests it on its own infrastructure. Only then is it published to the release channel your environment subscribes to.
+
+### Update modes
+
+For the gateway and admin dashboard, you select how releases enter your environment. The setting is enforced by Ryvn at the environment level. Inference runtime updates are new Docker images, pulled and deployed on your own schedule.
+
+**Automatic.** Your environment subscribes to the release channel and deploys new releases as they are published, within any maintenance window you set.
+
+**On approval.** Each release generates a preview showing the exact manifest diff that will be applied. A reviewer on your team approves it from the Ryvn dashboard, with an optional reason recorded in the audit trail. Nothing changes until approval.
+
+In both modes you can review release notes before deployment, schedule maintenance windows, and roll back to a prior version. When approval is required, rollbacks and force deploys generate their own previews and wait for approval too. Subconscious cannot push a change into your environment outside the policy you select.
 
 ## Support access
 
-Subconscious does not require persistent access to your cloud account. When support is needed, use a model you already trust: screen share, temporary access, break-glass, time-bound console access, one-time credentials, or exported diagnostics. Approve, scope, log, time-bound, and revoke.
+Subconscious provides 24/7 support through a dedicated member of our team.
 
-## Releases and supply chain
+Subconscious requires no persistent access to your cloud environment. When access is needed to resolve an issue, you grant it under your own policy: approved by you, scoped to the task, logged by you, time-bound, and revoked on completion.
 
-You should be able to review release notes and artifacts, approve updates, use maintenance windows, roll back, and keep production cadence. Subconscious should not force production upgrades.
+Typical access models include live screen-share sessions you drive, temporary credentials you issue, break-glass access for urgent issues, and diagnostics you export from your own tooling. When telemetry is enabled, most issues can be diagnosed from metrics and logs without any access grant.
 
-Because the software runs in your environment, supply-chain assurance is the main review focus. During evaluation we can provide or work toward an architecture overview, data-flow diagram, shared responsibility matrix, release notes, signed images or checksums, SBOMs, vulnerability scan results, SDLC and release-approval notes, incident disclosure, and support-access policy.
+Any material shared during support is initiated by you, limited to the issue under investigation, and redacted where appropriate.
 
-You remain responsible for scanning the deployed environment. We can help interpret results and plan patches.
+## Telemetry
 
-Restricted egress, private registries, and customer-managed mirrors are in scope for planning. Exact support depends on your environment. Gateway BYOC still needs outbound HTTPS from the Ryvn Agent. OrangeLine-only needs whatever your GPU host needs to pull the image.
+Telemetry is the set of operational signals Subconscious can observe about the running software. It exists so our team can confirm the system is healthy, catch degradation before you notice it, and resolve support requests without asking for access.
 
-## Hosted trials
+Telemetry is off unless you turn it on. Subconscious recommends enabling it.
 
-Hosted or Cloud API trials are separate from customer-hosted production and should be assessed under their own data-handling terms.
+### What is collected
+
+| Category | What is collected |
+|---|---|
+| Queue and load | Request queue depth, in-flight request counts, and throughput per runtime replica. |
+| Latency | Time-to-first-token and end-to-end request timing, as aggregated distributions. |
+| Health | Liveness and readiness events, restarts, GPU memory pressure, and cache hit rates from the router. |
+| Errors | Error codes, counts, and stack traces from the gateway and runtime. |
+| Version | Running version of each component, so support can match behavior to a known release. |
+
+### What is never collected
+
+Telemetry never includes prompts, completions, source code, API keys, secrets, user identities, request bodies, or any other customer or user data. Metrics are aggregated counts and timings. Logs are limited to gateway and runtime events.
+
+### How it leaves your environment
+
+Telemetry is collected inside your environment and forwarded over outbound HTTPS. No inbound connection is opened.
+
+### Your controls
+
+- Enable or disable metric collection and log collection independently.
+- Turn telemetry off at any time through your deployment settings, with no involvement from Subconscious.
+
+## Deployment
+
+Deployment has two parts. The gateway and admin dashboard are deployed into your cloud environment through Ryvn. The inference runtime ships as a Docker image and runs on GPU compute you provision, on-premises, in a hyperscaler, or in a neocloud.
+
+Ryvn is a deployment platform for running vendor software in customer clouds. It has been used to deploy into regulated environments across healthcare, finance, defense, and the Fortune 100. Its trust center is at [trust.ryvn.ai](https://trust.ryvn.ai).
+
+### How the Ryvn agent works
+
+A single Kubernetes operator, the [Ryvn Agent](https://ryvn.ai/docs/guides/ryvn-agent), runs in your cluster. It establishes outbound HTTPS connections to the Ryvn control plane and polls for pending tasks. It never accepts inbound connections, so no ingress rules, port forwarding, or public endpoints are required.
+
+The agent runs unprivileged: non-root, read-only root filesystem, all Linux capabilities dropped. It holds no persistent state. Communication uses mutual TLS with scoped, auto-refreshing tokens. Secrets are encrypted per environment before transmission and decrypted in memory only. Every task the agent runs is recorded in an audit trail visible to your team.
+
+### Prerequisites
+
+- An AWS, Google Cloud, or Azure account, or an existing Kubernetes cluster you operate, for the gateway and admin dashboard.
+- GPU compute from any provider for the inference runtime. Compute in the same cloud and region as the gateway is preferred and simplifies deployment.
+- Outbound HTTPS from the cluster to the Ryvn control plane and to the Subconscious container registry.
+- A named approver on your team if you choose the on-approval update mode.
+
+### Deployment steps
+
+**1. Kickoff and security review**
+
+Subconscious and your team walk through this packet and agree on cloud provider, region, GPU compute provider, update mode, and telemetry settings. Subconscious provides sizing recommendations based on your expected agent traffic.
+
+**2. Create the environment**
+
+Subconscious creates a dedicated environment for you in Ryvn and invites your approver. Your approver receives scoped access: they can view the environment, review deployment previews, and approve. They cannot modify services or trigger deployments.
+
+**3. Provision or connect gateway infrastructure**
+
+Choose one path.
+
+*Ryvn provisions.* You grant scoped permissions through the Ryvn dashboard. Ryvn creates a VPC with your chosen CIDR, or uses your existing VPC and private subnets, then provisions a Kubernetes cluster, networking, load balancers, and IAM roles in your account. Provisioning typically completes in 15 to 20 minutes.
+
+*Existing cluster.* You download the agent manifest from the Ryvn dashboard, apply it with kubectl, and install the agent Helm chart. Ryvn creates no network or cluster infrastructure and leaves ingress, DNS, and certificates under your control.
+
+**4. Set approval and observability policy**
+
+In the environment settings, enable or disable the approval requirement to match your chosen update mode, and enable or disable metric and log collection. These settings can be changed at any time.
+
+**5. Deploy the gateway and admin dashboard**
+
+Subconscious publishes the release to your environment's release channel. If approval is required, your approver reviews the rendered manifest diff and approves. The agent applies the release. Health checks gate traffic until every replica reports ready.
+
+**6. Provision GPU compute and deploy the inference runtime**
+
+You provision GPU compute with the provider of your choice. Subconscious provides the runtime Docker image, the launch configuration, and the recommended instance types.
+
+*Same cloud and region as the gateway.* You launch GPU instances, pull the runtime image, and start the containers with the configuration provided. The gateway reaches the runtime over your private network.
+
+*Other provider.* For on-premises hardware, a neocloud, or a managed compute platform such as Together AI or Modal, Subconscious and your team work through that provider's deployment procedure together.
+
+**7. Configure and validate**
+
+Your team registers the runtime endpoints in the admin dashboard, creates API keys and routes, and points internal agents at the gateway. Subconscious and your team run performance validation against representative traffic and confirm cache hit rates, latency, and throughput meet targets.
+
+**8. Roll out**
+
+Release the endpoint to your engineering users. Gateway updates arrive through the release channel under the update mode you selected. Runtime updates are new Docker images you pull on your own schedule.
+
+See [Methods](/on-prem/deployments/methods) for the product-mode chooser and [Ryvn](/on-prem/ryvn/overview) for how we use Ryvn for the gateway.
+
+### Inference runtime only
+
+Customers who want the inference runtime without the gateway and admin dashboard skip Ryvn entirely. Complete step 1, then step 6 on your GPU compute, and point your existing routing layer at the runtime endpoint.
 
 ## FAQ
 
-### How should we think about SOC 2 and vendor risk?
+### Does Subconscious process or store our data?
 
-The gateway and OrangeLine run under your access, monitoring, networking, and change-management controls. We can provide assurance materials. Your auditor decides treatment.
+No. Inference requests, prompts, completions, logs, keys, and operational data remain in your environment. Nothing is shared unless you choose to share specific material during support.
 
-### Does Subconscious process or store our customer data?
+### Does Subconscious or Ryvn require access to our cloud account?
 
-Not in the standard customer-hosted production deployment. Data stays in your environment unless you share specific items for support.
-
-### Does Subconscious require access to our cloud account?
-
-No persistent account access. The Ryvn Agent you install pulls over outbound HTTPS. Additional support access is approved, scoped, logged, time-bound, and revoked.
+No inbound access is required by either. The Ryvn agent connects outbound only and holds Kubernetes permissions within your cluster. Any support access from Subconscious is approved by you, scoped, logged, time-bound, and revoked after use.
 
 ### Who controls updates?
 
-You do. We publish releases; you approve them.
-
-### What is the main security risk we should evaluate?
-
-Software supply-chain risk: how we build, sign, scan, document, and deliver artifacts that run in your environment. You can scan those artifacts yourself before approving a deploy.
+You do. Subconscious publishes releases to your release channel. You either enable automatic deployment or review each release preview and approve it. Approval is enforced at the environment level and cannot be bypassed by a force deploy or rollback.
 
 ### Is telemetry enabled by default?
 
-No customer-data telemetry by default.
-
-### What happens during an incident?
-
-You own incident response. We support investigation when you ask, using access or data you approve.
-
-### Can we run in a restricted environment?
-
-We can plan for private registries, restricted egress, and semi-air-gapped workflows. Fully disconnected gateway BYOC is not the default Ryvn path because the agent needs outbound HTTPS to the hub.
+No. Telemetry is opt-in. It carries operational metrics and logs only, never customer or user data. [Telemetry](#telemetry) lists exactly what is collected and how to control it.
