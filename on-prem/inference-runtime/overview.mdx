@@ -1,27 +1,39 @@
 ---
-title: "Overview"
-description: "The GPU-backed execution layer for coding-agent workloads"
+title: "OrangeLine"
+description: "GPU inference runtime you can run anywhere a Docker container will start"
 icon: "microchip"
 ---
 
-The **Inference Runtime** is the GPU-backed execution layer that gives the Subconscious Inference System its efficiency advantage. It runs on customer-provided GPUs and is tuned for coding-agent workloads.
+**OrangeLine** is the GPU inference runtime for the Subconscious Inference System. It runs TIMRUN on GPUs you provide and is tuned for coding-agent workloads: model execution, cache behavior, batching, and GPU utilization.
 
-It handles things like:
+It is a Docker container. Run it anywhere you can pull and run a GPU image.
 
-- Model execution on customer GPU resources.
-- Cache behavior for agent workloads.
-- Batching and scheduling.
-- GPU utilization improvements.
-- Serving more coding-agent workload per GPU.
+## Where it can run
 
-Depending on the deployment design, the Inference Runtime may be colocated with the API Gateway in the same cloud, run in a separate customer-controlled GPU environment, or use specialized GPU capacity behind the customer endpoint.
+OrangeLine is not limited to a short vendor list. Run it on the GPUs you already have.
 
-## Placement options
+Examples:
 
-Inference Runtime placement is planned during deployment configuration. Common patterns include:
+- Hyperscalers: AWS, GCP, Azure.
+- NeoClouds: Nebius, Lambda, CoreWeave, and others.
+- Inference platforms: Together AI, Baseten, Modal.
+- Your own local cluster or bare metal.
 
-- **API Gateway and Inference Runtime in the same cloud**: simplest private networking when the customer's main cloud has approved GPU capacity.
-- **API Gateway in your cloud, Inference Runtime elsewhere**: useful when the gateway should stay near the customer's stack but GPU capacity comes from a NeoCloud or specialized GPU provider.
-- **API Gateway and Inference Runtime in separate customer-controlled environments**: useful when GPU capacity already exists in another customer-controlled cluster, region, or on-prem environment.
+If you have GPUs we have not named, we can work with that.
 
-See [Configurations](/on-prem/deployments/configurations).
+## Behind our gateway
+
+In the full inference system, OrangeLine attaches to the API Gateway as model routes. The gateway stays in your AWS, GCP, or Azure account via Ryvn. The GPUs can be in that same account or somewhere else. Traffic from coding agents still enters through the gateway, which is where you get API keys, routing, usage, and **context pruning visualization and intelligence**.
+
+See [Methods](/on-prem/deployments/methods) and [Configurations](/on-prem/deployments/configurations).
+
+## Standalone
+
+For trials, or if you already have a gateway, we issue registry credentials and you deploy the container yourself. No Ryvn. No Subconscious API Gateway.
+
+OrangeLine still serves models. You will not get context pruning visualization and intelligence unless you deploy our gateway.
+
+## Related pages
+
+- [How it works](/on-prem/how-it-works)
+- [API Gateway](/on-prem/api-gateway/overview)

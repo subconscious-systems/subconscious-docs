@@ -4,9 +4,9 @@ description: "From kickoff to pilot users on the Subconscious Inference System"
 icon: "rocket"
 ---
 
-Onboarding turns the evaluation plan into a working customer-hosted deployment. A Subconscious FDE works with your technical champion to deploy the Subconscious Inference System, configure the API Gateway, connect pilot users, and hand off day-two operations.
+Onboarding turns the evaluation plan into a working customer-hosted deployment. A Subconscious FDE works with your technical champion to choose a mode, stand up the stack, connect pilot users, and hand off day-two operations.
 
-This page gives an overview. For implementation details, use [Methods](/on-prem/deployments/methods), [Configurations](/on-prem/deployments/configurations), and [API Gateway setup](/on-prem/api-gateway/setup).
+Use [Methods](/on-prem/deployments/methods), [Configurations](/on-prem/deployments/configurations), and [API Gateway setup](/on-prem/api-gateway/setup) for the mechanics.
 
 ## Summary
 
@@ -17,7 +17,7 @@ This page gives an overview. For implementation details, use [Methods](/on-prem/
 - **Communication channel**: Dedicated Slack channel.
 - **Onsite support**: available when it helps accelerate setup.
 
-Strict change management, private registries, custom networking, air-gapped requirements, or new GPU procurement can extend the timeline.
+Strict change management, private registries, custom networking, or new GPU procurement can extend the timeline. OrangeLine-only trials are usually shorter.
 
 ## Stakeholders
 
@@ -42,94 +42,50 @@ Kickoff aligns the people, communication channels, and success criteria before d
 
 ## 2. Deployment planning
 
-Deployment planning defines how the Subconscious Inference System will run in the customer's environment.
-
 - **Ceremony**: 60 min meeting plus async follow-up.
-- **Purpose**:
-  - Confirm the target deployment shape.
-  - Resolve infrastructure, cloud, networking, GPU, and Distr requirements.
+- **Purpose**: Choose the mode and the GPU home.
 - **Topics to define**:
-  - Cloud provider, region, Kubernetes environment, and namespace.
-  - GPU sourcing and placement.
-  - Endpoint strategy, DNS, TLS, ingress, and network policy.
-  - Deployment method: assisted self-managed or traditional self-hosted.
-  - Distr customer portal, artifacts, deployment agent, registry access, and secrets.
+  - Full inference system vs OrangeLine only.
+  - For the full system: AWS, GCP, or Azure as the gateway account; Ryvn environment, approvals, and maintenance windows.
+  - OrangeLine GPU location: same cloud, NeoCloud, inference platform, local cluster, or bare metal.
+  - Endpoint strategy, DNS, TLS, and network path to workers.
   - Observability, logging, alerting, and support access expectations.
 
-For the detailed decision points, see [Methods](/on-prem/deployments/methods) and [Distribution Platform](/on-prem/distribution-platform/overview).
+See [Methods](/on-prem/deployments/methods) and [Ryvn](/on-prem/ryvn/overview).
 
-## 3. Deploy the Subconscious Inference System
-
-This step installs the API Gateway, Inference Runtime, and supporting services your engineers will use.
+## 3. Deploy
 
 - **Ceremony**: 30-60 min meeting plus async follow-up.
-- **Purpose**: Deploy the Subconscious Inference System into the customer's cloud environment.
-- **What gets deployed**:
-  - API Gateway for agent traffic, authentication, routing, and usage controls.
-  - Inference Runtime for GPU-backed model execution.
-  - Routing, load balancing, authentication, and usage control configuration.
-  - Runtime admin dashboard.
-  - Baseline observability and operational dashboards.
-- **Customer responsibilities**:
-  - Provision or approve required infrastructure and GPU resources.
-  - Approve deployment commands, agent installation, or internal GitOps changes.
-- **Subconscious responsibilities**:
-  - Guide deployment and configuration.
-  - Validate API Gateway and Inference Runtime health.
-  - Prepare the API Gateway for setup.
+- **Full inference system**: Ryvn deploys the API Gateway. OrangeLine is stood up on the chosen GPUs and attached as model routes.
+- **OrangeLine only**: pull the image with the credentials we issue and run it on your GPUs.
+- **Customer responsibilities**: provision or approve GPU and (for the full system) cloud-account access; approve the Ryvn Agent install when using the gateway.
+- **Subconscious responsibilities**: guide the install, validate health, and prepare admins for setup.
 
-See [Configurations](/on-prem/deployments/configurations) for cloud, GPU placement, Helm overrides, secrets, monitoring, logging, and upgrade details.
-
-{/* TODO: Add screenshots for deployment status and initial API Gateway and Inference Runtime readiness. */}
+See [Configurations](/on-prem/deployments/configurations).
 
 ## 4. API Gateway setup and admin training
 
-API Gateway setup turns the installed system into a usable service for pilot users.
+Skip this step for OrangeLine-only. For the full system, see [API Gateway setup](/on-prem/api-gateway/setup).
 
 - **Ceremony**: 30-60 min meeting plus async follow-up.
-- **Purpose**: Configure the API Gateway and train the customer's project leads to operate it.
-- **What gets configured and taught**:
-  - Admin users and pilot users.
-  - User roles, invites, and password reset workflows.
-  - API Gateway API keys.
-  - Model routes to the Inference Runtime or external model endpoints.
-  - Model access grants.
-  - Organization-level and API-key-level limits.
-  - Test requests through the API Gateway.
-  - Usage, monitoring, logging, and operational workflows.
-  - General debugging, troubleshooting, support cases, upgrades, and maintenance workflows.
-
-See [API Gateway setup](/on-prem/api-gateway/setup) for the detailed setup guide.
+- **What gets configured and taught**: admin users, API keys, model routes to OrangeLine, limits, test requests, usage, monitoring, and upgrade expectations.
 
 ## 5. Coding agent integration and team training
 
-Coding agent integration helps pilot users connect their preferred tools to the deployed customer endpoint.
-
 - **Ceremony**: One 30 min live training session, with optional recording and written setup material.
-- **Purpose**: Help the broader engineering team point their preferred coding agents at the deployed API Gateway endpoint.
-- **Topics to cover**:
-  - What the system does and how it fits into the customer environment.
-  - API Gateway base URL, API keys, and model slugs.
-  - OpenAI-compatible configuration for coding agents and internal tools.
-  - Expectations for limits, acceptable use, support, and feedback.
+- **Purpose**: Point coding agents at the customer endpoint (our gateway, or OrangeLine directly if you brought your own).
+- **Topics**: base URL, keys, model slugs, OpenAI- and Anthropic-compatible configuration, limits, and support.
 
-Rollout usually starts with a small pilot group, then expands after usage, reliability, and route behavior are validated.
+Rollout usually starts with a small pilot group.
 
 ## 6. Handoff
 
-Handoff confirms the deployment is ready for pilot use and day-two ownership.
-
-- **Ceremony**: 30 min meeting with all stakeholders for sign-off.
-- **Purpose**:
-  - Confirm the deployment is ready for pilot users.
-  - Confirm customer owners understand how to operate and escalate issues.
+- **Ceremony**: 30 min meeting with stakeholders for sign-off.
 - **Sign-off checklist**:
-  - Customer admins can sign in and operate the API Gateway.
-  - API keys, routes, access, limits, and test requests are working.
-  - Pilot users can connect coding agents.
+  - The chosen mode is running and a test request succeeds.
+  - For the full system: admins can operate the API Gateway; keys, routes, and limits work; at least one coding agent is connected.
   - Monitoring and logging ownership is clear.
   - Support and escalation paths are understood.
-  - Upgrade, rollback, and patch expectations are documented.
+  - Upgrade and rollback expectations are documented, including the pruning-visualization caveat for OrangeLine-only.
 
 After handoff, the relationship continues through [Customer success](/on-prem/integration-journey/customer-success).
-

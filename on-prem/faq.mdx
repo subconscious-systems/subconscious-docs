@@ -6,81 +6,82 @@ icon: "circle-question"
 
 ## Why use this over Claude Code or Codex?
 
-Closed hosted tools can send prompts, code, and engineering context outside your trust boundary. The Subconscious Inference System gives your team frontier-level coding-agent intelligence while keeping API Gateway traffic, Inference Runtime execution, and deployment policy inside infrastructure you control.
-
-See [Compliance](/on-prem/trust-center/compliance) for the data and IP boundary.
-
-## Why use Subconscious instead of hosting the models and managing GPUs ourselves?
-
-You can rent GPUs and host open models yourself, but the hard part is serving coding-agent workloads efficiently and reliably. Subconscious helps manage the API Gateway, Inference Runtime, Distribution Platform, admin surfaces, upgrades, and support.
-
-The Subconscious Inference System is designed to serve teams of engineers with roughly half the GPUs compared with off-the-shelf inference runtimes like vLLM.
-
-See [How it works](/on-prem/how-it-works) and [Configurations](/on-prem/deployments/configurations).
-
-## How does this fit into our security and compliance review?
-
-The customer-hosted deployment is designed to fit into customer-controlled security, compliance, and change-management processes. The API Gateway and Inference Runtime run in your cloud account or controlled environment, and you retain control over deployment, access, monitoring, networking, data, and change management.
+Closed hosted tools can send prompts, code, and engineering context outside your trust boundary. The Subconscious Inference System gives your team frontier-level coding-agent intelligence while keeping API Gateway traffic, OrangeLine execution, and deployment policy inside infrastructure you control.
 
 See [Compliance](/on-prem/trust-center/compliance).
 
-## Where does the Subconscious Inference System run?
+## Why use Subconscious instead of hosting the models ourselves?
 
-The API Gateway and Inference Runtime run in the customer's cloud or controlled infrastructure. Depending on your configuration, Inference Runtime GPU workers may run in the same cloud, another customer-controlled environment, or a specialized GPU provider behind the API Gateway.
+You can rent GPUs and host open models yourself, but serving coding-agent workloads efficiently is the hard part. Subconscious provides the API Gateway, OrangeLine, upgrades, and support. OrangeLine is designed to serve teams of engineers with roughly half the GPUs compared with off-the-shelf runtimes like vLLM.
 
-See [How it works](/on-prem/how-it-works) and [Configurations](/on-prem/deployments/configurations).
+See [How it works](/on-prem/how-it-works).
+
+## What are the two ways to run it?
+
+**Full inference system:** Ryvn deploys the API Gateway into your AWS, GCP, or Azure account. OrangeLine runs on GPUs anywhere you can run a Docker container and attaches to the gateway. This path includes context pruning visualization and intelligence.
+
+**OrangeLine only:** we issue registry credentials and you run the container on your GPUs. Use this for trials or if you already have a gateway. You will not get context pruning visualization and intelligence without our gateway.
+
+See [Methods](/on-prem/deployments/methods).
+
+## How does this fit into our security review?
+
+For the full system, the API Gateway runs in your AWS, GCP, or Azure account. A customer-installed Ryvn Agent pulls updates over outbound HTTPS. Subconscious does not need inbound access. You approve production changes through Ryvn approvals and your change-management process.
+
+OrangeLine-only is a thinner review: you run our container on your GPUs; we are an image vendor, not the operator of your gateway.
+
+See [Compliance](/on-prem/trust-center/compliance).
+
+## Where does it run?
+
+The API Gateway runs in your AWS, GCP, or Azure account. OrangeLine GPUs can be in that same account, on a NeoCloud or inference platform, on your own local cluster, or on bare metal. They do not have to match the gateway's cloud.
+
+See [Configurations](/on-prem/deployments/configurations).
 
 ## What data does Subconscious access?
 
-By default, production prompts, completions, source code, API keys, API Gateway logs, Inference Runtime logs, and operational data should remain in the customer environment. Customers may choose to share selected logs, screenshots, metrics, or traces for support.
+By default, production prompts, completions, source code, API keys, gateway logs, OrangeLine logs, and operational data stay in your environment. You may choose to share selected diagnostics for support.
 
 See [Compliance](/on-prem/trust-center/compliance).
 
-## How are upgrades and patches delivered?
+## How are upgrades delivered?
 
-The Distribution Platform delivers releases, patches, and release metadata. Customers can approve updates through their own change-management process or choose an assisted update workflow.
+Gateway updates go through Ryvn: you review the release, then approvals, maintenance windows, and release channels decide when the agent applies it. OrangeLine on other GPU hosts is a new image tag.
 
-See [Distribution Platform](/on-prem/distribution-platform/overview) and [Customer success](/on-prem/integration-journey/customer-success).
+See [Ryvn](/on-prem/ryvn/overview) and [Configurations](/on-prem/deployments/configurations).
 
 ## Can we control when updates are deployed?
 
-Yes. Production updates are intended to be customer-approved and deployed according to your policy, maintenance windows, and change-management requirements.
+Yes. Production gateway updates are customer-approved. Use Ryvn deployment approvals and maintenance windows.
 
 See [Methods](/on-prem/deployments/methods) and [Compliance](/on-prem/trust-center/compliance).
 
 ## Do you support vulnerability scanning?
 
-Subconscious can provide or work toward providing release evidence such as vulnerability scan results, SBOMs, image digests, checksums, and release notes. Customers can also scan release artifacts and deployed components with their own tools.
+Subconscious can provide release evidence such as scan results, SBOMs, image digests, checksums, and release notes. You can also scan artifacts and running components with your own tools.
 
-See [Compliance](/on-prem/trust-center/compliance) and [Distribution Platform](/on-prem/distribution-platform/overview).
-
-## What clouds and Kubernetes environments are supported?
-
-The deployment can be planned for AWS, GCP, Azure, NeoCloud or dedicated GPU providers, and customer-controlled Kubernetes environments. Exact support depends on your cloud, networking, GPU placement, registry, and security requirements.
-
-See [Configurations](/on-prem/deployments/configurations).
+See [Compliance](/on-prem/trust-center/compliance).
 
 ## Do we need to bring our own GPUs?
 
-Not always. Customers can provide approved GPU capacity, use cloud GPU resources, or route through specialized GPU providers depending on the deployment design. We can also help you source GPU capacity through our network of partnerships.
+Usually yes, or you use a GPU cloud or platform. We can help you source capacity. OrangeLine runs anywhere you can run a GPU Docker container.
 
-See [Configurations](/on-prem/deployments/configurations).
+See [OrangeLine](/on-prem/inference-runtime/overview).
 
 ## If a new model comes out, can we deploy it?
 
-Yes, as long as the model architecture is supported by the Inference Runtime and enough GPU capacity is available. If existing capacity is already allocated, we may need to add GPU resources or replace an existing route before deploying the new model.
+Yes, if OrangeLine supports the architecture and you have GPU capacity. You may need more GPUs or to replace an existing route.
 
 See [Customer success](/on-prem/integration-journey/customer-success).
 
 ## Which coding agents are supported?
 
-The API Gateway exposes OpenAI- and Anthropic-compatible endpoints, so teams can connect common coding agents (Claude Code, Cursor, Codex, OpenCode, Pi, etc.) and internal tools that support those API shapes.
+The API Gateway exposes OpenAI- and Anthropic-compatible endpoints, so teams can connect Claude Code, Cursor, Codex, OpenCode, Pi, and internal tools that speak those APIs.
 
 See [API Gateway setup](/on-prem/api-gateway/setup).
 
 ## What happens if the deployment has an incident?
 
-The customer owns incident response for the API Gateway and Inference Runtime in its environment. Subconscious supports investigation and remediation when requested by the customer, using customer-approved access or diagnostic sharing.
+You own incident response for the gateway and OrangeLine in your environment. Subconscious supports investigation when you ask, using access or diagnostics you approve.
 
-See [Customer success](/on-prem/integration-journey/customer-success) and [Compliance](/on-prem/trust-center/compliance).
-
+See [Customer success](/on-prem/integration-journey/customer-success).

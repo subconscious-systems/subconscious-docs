@@ -1,316 +1,202 @@
 ---
 title: "Compliance"
-description: "Security review, data handling, support access, and supply-chain assurance"
+description: "Security review packet for the customer-hosted Subconscious Inference System"
 icon: "shield-check"
 ---
 
-The customer-hosted Subconscious Inference System is designed for enterprises that want high-performance coding-agent inference while retaining control over cloud environment, data, networking, system operations, and software deployment cadence.
+This page describes the deployment of the complete Subconscious Gateway product: the gateway with cache-aware router, the admin dashboard, and **OrangeLine (the inference runtime)**. Customers deploying the inference runtime alone follow a simpler procedure, noted at the end of [Deployment](#deployment).
 
-This page explains how the deployment model supports security review, vendor assessment, and long-term operational trust. It is written for security, compliance, platform, and engineering teams evaluating Subconscious.
+Prepared for security, compliance, platform, and engineering teams.
 
-## Short answer
+## Customer-hosted architecture
 
-The customer-hosted Subconscious Inference System is designed to support a customer's existing security and compliance review process.
+Subconscious deploys into infrastructure you own. Every production component runs inside a VPC you control, on the hyperscaler you already use. Your VPC standards define the security and compliance boundary.
 
-For production customer-hosted deployments:
+The Gateway product has two components.
 
-- The API Gateway and Inference Runtime run in the customer's cloud account or customer-controlled environment.
-- Customer requests, prompts, completions, logs, keys, and operational data remain in the customer environment unless the customer explicitly chooses otherwise.
-- Subconscious does not host the customer's production inference system.
-- Subconscious does not require persistent access to the customer's cloud account.
-- Subconscious does not need ingress into the customer's cloud account.
-- Subconscious does not control production availability.
-- The customer controls versioning, deployment cadence, networking, access, monitoring, and Subconscious Inference System operations.
-- Updates are customer-approved and installable through the customer's own change-management process unless the customer explicitly chooses an assisted update workflow.
+**API Gateway.** The entry point for agent traffic. Includes the cache-aware router, the admin dashboard, authentication, API key management, and usage controls.
 
-This model helps customers evaluate Subconscious as customer-hosted software and software supply-chain risk, rather than as a hosted production service operating the customer's inference environment. Final vendor and audit treatment is determined by the customer and its auditor.
+**Inference runtime.** The GPU-backed execution layer, deployed as a Docker image on GPU compute you provision.
 
-## Scope note
+The gateway and admin dashboard are delivered through [Ryvn](/on-prem/ryvn/overview), a deployment platform built for customer-cloud software. A small [Ryvn Agent](https://ryvn.ai/docs/guides/ryvn-agent) runs in your cluster and pulls approved releases over outbound HTTPS. It accepts no inbound connections. The inference runtime ships as a Docker image and runs on GPU compute you provision, whether on-premises, in a hyperscaler, or in a neocloud. [Deployment](#deployment) covers both paths. See also [How Ryvn works](https://ryvn.ai/docs/how-ryvn-works).
 
-For customer-hosted production deployments, customers commonly review Subconscious as a software vendor and software supply-chain vendor. The API Gateway and Inference Runtime run under the customer's deployment, access, monitoring, networking, and change-management controls.
+Subconscious never accesses customer data. The only information that leaves your environment is opt-in operational telemetry ([Telemetry](#telemetry)).
 
-Subconscious can provide architecture documentation, data-flow evidence, release integrity materials, and shared responsibility documentation to support that review.
+## Data flow
 
-## Deployment model
+No customer data leaves your cloud environment. Prompts, completions, inference requests and responses, API keys, user records, and application logs remain inside your VPC at all times.
 
-The Subconscious Inference System has three core components:
+Three flows cross the boundary, all outbound-initiated.
 
-- **API Gateway**: The customer-facing entry point for agent traffic, authentication, API key management, routing, usage controls, load balancing, and customer-facing admin workflows.
-- **Inference Runtime**: The GPU-backed execution layer that runs on customer-provided GPUs and drives Subconscious's compute-efficiency advantage.
-- **Distribution Platform**: The software delivery and update workflow used to distribute new versions, patches, and release metadata to customer-controlled environments.
+**Releases.** The Ryvn agent pulls signed gateway releases from the Subconscious release channel, automatically or after your approval. The inference runtime image is pulled from the Subconscious container registry on your schedule.
 
-The API Gateway and Inference Runtime serve the customer's engineering users. They run inside the customer's environment and are configured according to the customer's cloud, Kubernetes, networking, IAM, and security requirements.
+**Deployment status.** The agent reports heartbeat and task status to the Ryvn control plane so deployments can be tracked. This is operational metadata only.
 
-The Distribution Platform is used for delivering software. It is not required to receive customer code, prompts, completions, application logs, API Gateway logs, Inference Runtime logs, or production inference data.
+**Telemetry, opt-in.** Operational metrics and logs, if you enable them. Never customer or user data.
 
-## Security review position
+## Shared responsibility
 
-Subconscious is designed to support the following review position for customer-hosted deployments:
+Subconscious delivers stable, scalable, rigorously tested software. You provide the infrastructure it runs on and keep that infrastructure available.
 
-> The product runs in the customer's cloud account. In the standard customer-hosted configuration, Subconscious does not host the production system, does not require persistent access, and is not intended to receive production prompts, completions, source code, or production inference data. Updates are optional, customer-approved, signed where available, and installable through the customer's own change-management process.
+Tell us which framework governs your review and we will provide a control-by-control mapping.
 
-This position depends on four operating principles:
+| Area | Subconscious | Customer |
+|---|---|---|
+| Software quality | Delivers stable, scalable, rigorously tested software for the gateway, admin dashboard, and inference runtime. | Validates releases against internal requirements before rollout. |
+| Vulnerability management | Scans every release for vulnerabilities and malware. Remediates severe vulnerabilities within customer-agreed SLA. | Scans the deployed environment under its own security program. Applies patched releases. |
+| Data | Never accesses customer data. Receives opt-in operational telemetry only. | Owns all prompts, completions, keys, user records, and application data, including storage, backup, and retention. |
+| Monitoring | Monitors system health through opt-in telemetry when enabled. | Monitors the deployed environment. Owns alerting and incident response when telemetry not opted-in. |
+| Infrastructure | Provides provisioning packaging (terraform, helm, etc.), sizing guidance, deployment support. | Provisions and operates the cloud account, cluster, and GPU compute. Keeps the account in good standing, including billing and quotas. |
 
-- **Customer-controlled data handling by default**: Production inference traffic stays in the customer environment.
-- **Production operation under customer control**: The API Gateway and Inference Runtime operate under the customer's operational control.
-- **Customer-controlled deployment cadence**: The customer chooses when to approve and deploy new versions.
-- **Customer-controlled access**: Subconscious support access is optional, customer-approved, time-bound, and logged.
+## Software supply-chain controls
 
-## Shared responsibility model
+Subconscious software runs in your environment, so the relevant risk category is software supply chain.
 
-Subconscious and the customer share responsibility for a secure deployment.
+- A software bill of materials accompanies every release.
+- Vulnerability and malware scans run against the SBOM on every deploy.
+- Severe vulnerabilities are remediated within customer-agreed SLA.
+- Release artifacts are signed and scanned before publication to your release channel.
+- Material security issues trigger direct customer notification and a published advisory with the remediation path.
+- You may scan release artifacts and deployed components with your own tooling before approving deployment.
 
-### Subconscious responsibilities
+You remain responsible for scanning and monitoring the deployed environment under your own security program. Subconscious assists with interpretation, remediation planning, and patch coordination.
 
-Subconscious is responsible for:
+## Release and update process
 
-- Secure development of Subconscious software.
-- Release integrity for distributed software artifacts.
-- Release notes, version metadata, and update communication.
-- Security patch development and disclosure.
-- Documented deployment guidance.
-- Support for installation, configuration, troubleshooting, and upgrades.
-- Clear documentation of optional telemetry or support access.
+All Subconscious software is version controlled. Every release passes through a defined procedure that verifies compliance and confirms the build has no critical vulnerabilities. The full product team follows this procedure for every release.
 
-### Customer responsibilities
+Before a release reaches any customer environment, Subconscious deploys and tests it on its own infrastructure. Only then is it published to the release channel your environment subscribes to.
 
-The customer is responsible for:
+### Update modes
 
-- Cloud account security.
-- Ownership and administration of the Kubernetes cluster.
-- IAM, access control, and identity integration.
-- Network configuration, ingress, egress, and firewall rules.
-- GPU provisioning and capacity planning.
-- API Gateway and Inference Runtime monitoring, alerting, and incident response.
-- Backups and retention for customer-managed data stores.
-- Final ownership of vulnerability scanning and continuous monitoring in the customer environment.
-- Change management and approval of new releases.
-- Internal rollout to engineering users.
+For the gateway and admin dashboard, you select how releases enter your environment. The setting is enforced by Ryvn at the environment level. Inference runtime updates are new Docker images, pulled and deployed on your own schedule.
 
-### Joint responsibilities
+**Automatic.** Your environment subscribes to the release channel and deploys new releases as they are published, within any maintenance window you set.
 
-Subconscious and the customer work together on:
+**On approval.** Each release generates a preview showing the exact manifest diff that will be applied. A reviewer on your team approves it from the Ryvn dashboard, with an optional reason recorded in the audit trail. Nothing changes until approval.
 
-- Deployment planning.
-- Security review.
-- Kubernetes cluster configuration for the Subconscious Helm chart.
-- API Gateway and Inference Runtime configuration.
-- Initial route and endpoint setup.
-- Performance validation.
-- Vulnerability scanning setup, scan result review, and remediation planning.
-- Continuous monitoring setup and operational review.
-- Upgrade planning.
-- Automatic update pushes when the customer chooses that assisted self-managed mode.
-- Incident investigation when customer-approved support is needed.
-
-## Data handling
-
-For customer-hosted production deployments, Subconscious is designed so customer data remains inside the customer environment.
-
-The following should remain in the customer's cloud unless the customer explicitly chooses to share it:
-
-- Source code.
-- Prompts and completions.
-- Inference requests and responses.
-- API keys and user records.
-- Runtime logs.
-- Application logs.
-- Operational metrics.
-- Customer-specific route configuration.
-
-Subconscious does not need default access to:
-
-- Customer repositories.
-- Customer source code.
-- Customer prompts or completions.
-- Customer production logs.
-- Customer cloud credentials.
-- Customer databases.
-- Customer identity provider data.
-
-Customers may choose to share selected logs, metrics, screenshots, traces, or configuration details during support or troubleshooting. Any such sharing should be customer-initiated or customer-approved, limited to the issue being investigated, shared through an approved support channel, redacted where appropriate, and time-bound.
-
-## Telemetry
-
-Customer-hosted deployments should be configured with no customer data telemetry by default.
-
-If telemetry is enabled, it should be:
-
-- Explicitly opt-in.
-- Documented before activation.
-- Limited to the fields required for the stated operational purpose.
-- Configurable by the customer.
-- Disabled through the customer's own deployment controls.
-
-Telemetry should not include customer source code, prompts, completions, secrets, API keys, or other sensitive customer data.
+In both modes you can review release notes before deployment, schedule maintenance windows, and roll back to a prior version. When approval is required, rollbacks and force deploys generate their own previews and wait for approval too. Subconscious cannot push a change into your environment outside the policy you select.
 
 ## Support access
 
-Subconscious does not require persistent access to the customer's cloud environment.
+Subconscious provides 24/7 support through a dedicated member of our team.
 
-Support access, when needed, should follow the customer's access policy. Common support models include:
+Subconscious requires no persistent access to your cloud environment. When access is needed to resolve an issue, you grant it under your own policy: approved by you, scoped to the task, logged by you, time-bound, and revoked on completion.
 
-- Live screen-share sessions where the customer drives.
-- Customer-approved temporary access.
-- Break-glass access for urgent issues.
-- Time-bound cloud console access.
-- One-time credentials issued by the customer.
-- Customer-provided logs or diagnostics exported from the customer's own tools.
+Typical access models include live screen-share sessions you drive, temporary credentials you issue, break-glass access for urgent issues, and diagnostics you export from your own tooling. When telemetry is enabled, most issues can be diagnosed from metrics and logs without any access grant.
 
-Any support access should be approved by the customer, scoped to the support need, logged by the customer, time-bound, and revoked when the support task is complete.
+Any material shared during support is initiated by you, limited to the issue under investigation, and redacted where appropriate.
 
-## Release and update controls
+## Telemetry
 
-Subconscious releases are intended to fit into the customer's change-management process.
+Telemetry is the set of operational signals Subconscious can observe about the running software. It exists so our team can confirm the system is healthy, catch degradation before you notice it, and resolve support requests without asking for access.
 
-Customers should be able to:
+Telemetry is off unless you turn it on. Subconscious recommends enabling it.
 
-- Review release notes before deployment.
-- Review version metadata and artifacts.
-- Approve updates before they are installed.
-- Choose automatic or opt-in update policies.
-- Schedule maintenance windows.
-- Roll back when needed.
-- Maintain control over production deployment cadence.
+### What is collected
 
-Subconscious should not force production upgrades into a customer environment without customer approval.
+| Category | What is collected |
+|---|---|
+| Queue and load | Request queue depth, in-flight request counts, and throughput per runtime replica. |
+| Latency | Time-to-first-token and end-to-end request timing, as aggregated distributions. |
+| Health | Liveness and readiness events, restarts, GPU memory pressure, and cache hit rates from the router. |
+| Errors | Error codes, counts, and stack traces from the gateway and runtime. |
+| Version | Running version of each component, so support can match behavior to a known release. |
 
-## Software supply-chain assurance
+### What is never collected
 
-Because Subconscious software runs in the customer environment, the primary security review focus is software supply-chain assurance.
+Telemetry never includes prompts, completions, source code, API keys, secrets, user identities, request bodies, or any other customer or user data. Metrics are aggregated counts and timings. Logs are limited to gateway and runtime events.
 
-During evaluation, Subconscious can provide or work toward providing a security assurance packet that includes:
+### How it leaves your environment
 
-- Architecture overview.
-- Data-flow diagram.
-- Shared responsibility matrix.
-- Release notes.
-- Signed containers, Helm charts, binaries, or checksums where available.
-- Software bill of materials for releases where available.
-- Vulnerability scan results for images and packages.
-- Dependency management process.
-- Secure development lifecycle overview.
-- Release approval process.
-- Incident disclosure policy.
-- Support access policy.
-- Optional offline or air-gapped installation guidance.
-- Customer-controlled update process.
+Telemetry is collected inside your environment and forwarded over outbound HTTPS. No inbound connection is opened.
 
-## Vulnerability management
+### Your controls
 
-Subconscious is responsible for addressing vulnerabilities in Subconscious-maintained software artifacts.
+- Enable or disable metric collection and log collection independently.
+- Turn telemetry off at any time through your deployment settings, with no involvement from Subconscious.
 
-The expected vulnerability management process includes:
+## Deployment
 
-- Vulnerability scanning of release artifacts.
-- Dependency monitoring.
-- Prioritization based on severity, exploitability, and customer exposure.
-- Security patches for affected supported versions.
-- Customer notification for material security issues.
-- Release notes or advisories describing the remediation path.
+Deployment has two parts. The gateway and admin dashboard are deployed into your cloud environment through Ryvn. The inference runtime ships as a Docker image and runs on GPU compute you provision, on-premises, in a hyperscaler, or in a neocloud.
 
-The customer remains responsible for scanning and monitoring the deployed environment according to its own security program. Subconscious can assist with interpretation, remediation planning, and patch coordination.
+Ryvn is a deployment platform for running vendor software in customer clouds. It has been used to deploy into regulated environments across healthcare, finance, defense, and the Fortune 100. Its trust center is at [trust.ryvn.ai](https://trust.ryvn.ai).
 
-## Offline and restricted environments
+### How the Ryvn agent works
 
-Some customers may require restricted network access, private registries, or offline installation paths.
+A single Kubernetes operator, the [Ryvn Agent](https://ryvn.ai/docs/guides/ryvn-agent), runs in your cluster. It establishes outbound HTTPS connections to the Ryvn control plane and polls for pending tasks. It never accepts inbound connections, so no ingress rules, port forwarding, or public endpoints are required.
 
-Subconscious can support deployment planning for environments that require:
+The agent runs unprivileged: non-root, read-only root filesystem, all Linux capabilities dropped. It holds no persistent state. Communication uses mutual TLS with scoped, auto-refreshing tokens. Secrets are encrypted per environment before transmission and decrypted in memory only. Every task the agent runs is recorded in an audit trail visible to your team.
 
-- Private container registries.
-- Customer-managed artifact mirrors.
-- Restricted egress.
-- Customer-controlled update promotion.
-- Air-gapped or semi-air-gapped workflows.
-- Internal vulnerability scanning before deployment.
+### Prerequisites
 
-The exact deployment path depends on the customer's cloud, Kubernetes environment, registry model, and security requirements.
+- An AWS, Google Cloud, or Azure account, or an existing Kubernetes cluster you operate, for the gateway and admin dashboard.
+- GPU compute from any provider for the inference runtime. Compute in the same cloud and region as the gateway is preferred and simplifies deployment.
+- Outbound HTTPS from the cluster to the Ryvn control plane and to the Subconscious container registry.
+- A named approver on your team if you choose the on-approval update mode.
 
-## Hosted trials and production deployments
+### Deployment steps
 
-Subconscious may offer hosted trials or model comparison trials before a customer-hosted production deployment.
+**1. Kickoff and security review**
 
-Hosted trials are separate from customer-hosted production deployments. A hosted trial may be useful for evaluating model quality, agent compatibility, or workflow fit, but it should be assessed under its own security and data-handling terms.
+Subconscious and your team walk through this packet and agree on cloud provider, region, GPU compute provider, update mode, and telemetry settings. Subconscious provides sizing recommendations based on your expected agent traffic.
 
-For production customer-hosted deployments, the API Gateway and Inference Runtime are deployed in the customer's cloud and governed by the customer-controlled model described in this document.
+**2. Create the environment**
 
-## Security review materials
+Subconscious creates a dedicated environment for you in Ryvn and invites your approver. Your approver receives scoped access: they can view the environment, review deployment previews, and approve. They cannot modify services or trigger deployments.
 
-During evaluation, Subconscious can provide the following materials to support customer security review:
+**3. Provision or connect gateway infrastructure**
 
-- Customer-hosted architecture memo.
-- Data-flow diagram.
-- Shared responsibility matrix.
-- Software supply-chain controls summary.
-- Release and update process.
-- Vulnerability management summary.
-- Support access policy.
-- Telemetry statement.
-- Deployment guide.
-- Security and vendor risk FAQ.
+Choose one path.
 
-{/* TODO: Add data-flow diagram, shared responsibility matrix, and screenshots or examples of release evidence when available. */}
+*Ryvn provisions.* You grant scoped permissions through the Ryvn dashboard. Ryvn creates a VPC with your chosen CIDR, or uses your existing VPC and private subnets, then provisions a Kubernetes cluster, networking, load balancers, and IAM roles in your account. Provisioning typically completes in 15 to 20 minutes.
+
+*Existing cluster.* You download the agent manifest from the Ryvn dashboard, apply it with kubectl, and install the agent Helm chart. Ryvn creates no network or cluster infrastructure and leaves ingress, DNS, and certificates under your control.
+
+**4. Set approval and observability policy**
+
+In the environment settings, enable or disable the approval requirement to match your chosen update mode, and enable or disable metric and log collection. These settings can be changed at any time.
+
+**5. Deploy the gateway and admin dashboard**
+
+Subconscious publishes the release to your environment's release channel. If approval is required, your approver reviews the rendered manifest diff and approves. The agent applies the release. Health checks gate traffic until every replica reports ready.
+
+**6. Provision GPU compute and deploy the inference runtime**
+
+You provision GPU compute with the provider of your choice. Subconscious provides the runtime Docker image, the launch configuration, and the recommended instance types.
+
+*Same cloud and region as the gateway.* You launch GPU instances, pull the runtime image, and start the containers with the configuration provided. The gateway reaches the runtime over your private network.
+
+*Other provider.* For on-premises hardware, a neocloud, or a managed compute platform such as Together AI or Modal, Subconscious and your team work through that provider's deployment procedure together.
+
+**7. Configure and validate**
+
+Your team registers the runtime endpoints in the admin dashboard, creates API keys and routes, and points internal agents at the gateway. Subconscious and your team run performance validation against representative traffic and confirm cache hit rates, latency, and throughput meet targets.
+
+**8. Roll out**
+
+Release the endpoint to your engineering users. Gateway updates arrive through the release channel under the update mode you selected. Runtime updates are new Docker images you pull on your own schedule.
+
+See [Methods](/on-prem/deployments/methods) for the product-mode chooser and [Ryvn](/on-prem/ryvn/overview) for how we use Ryvn for the gateway.
+
+### Inference runtime only
+
+Customers who want the inference runtime without the gateway and admin dashboard skip Ryvn entirely. Complete step 1, then step 6 on your GPU compute, and point your existing routing layer at the runtime endpoint.
 
 ## FAQ
 
-### How should we think about SOC 2 and vendor risk review?
+### Does Subconscious process or store our data?
 
-For customer-hosted deployments, the key review point is that the API Gateway and Inference Runtime run in the customer's cloud account, under the customer's access, monitoring, networking, and change-management controls.
+No. Inference requests, prompts, completions, logs, keys, and operational data remain in your environment. Nothing is shared unless you choose to share specific material during support.
 
-Subconscious can provide security assurance materials to support vendor risk review and SOC 2 audit discussions. Final audit treatment is determined by the customer and its auditor.
+### Does Subconscious or Ryvn require access to our cloud account?
 
-### How does this affect our SOC 2 review?
-
-The deployment is designed to fit into the customer's existing security, compliance, and change-management process.
-
-The customer retains control over production deployment, API Gateway and Inference Runtime operation, monitoring, scanning, access, data, and version cadence. Subconscious does not require persistent production access and does not need customer data to operate the Subconscious Inference System.
-
-Final audit treatment is determined by the customer and its auditor.
-
-### Does Subconscious process or store our customer data?
-
-For customer-hosted production deployments, Subconscious is not intended to process or store customer data. Inference requests, prompts, completions, logs, keys, and operational data remain in the customer's environment unless the customer explicitly chooses to share specific data for support or troubleshooting.
-
-### Where do source code, prompts, and completions live?
-
-In the standard customer-hosted production deployment, source code, prompts, and completions should remain in the customer's environment unless the customer explicitly configures or shares them.
-
-### Does Subconscious require access to our cloud account?
-
-No persistent access is required by default. If support access is needed, it should be customer-approved, scoped, logged, time-bound, and revoked after use.
+No inbound access is required by either. The Ryvn agent connects outbound only and holds Kubernetes permissions within your cluster. Any support access from Subconscious is approved by you, scoped, logged, time-bound, and revoked after use.
 
 ### Who controls updates?
 
-The customer controls update approval and deployment cadence. Subconscious provides software releases, patches, release notes, and upgrade guidance. Customers can approve updates through their own change-management process.
-
-### How are production updates approved?
-
-Production updates should be customer-approved and deployed according to the customer's policy.
-
-### What is the main security risk we should evaluate?
-
-The main risk category is software supply-chain risk. Customers should review how Subconscious builds, signs, scans, documents, and distributes software artifacts that run in the customer environment.
-
-### Do you provide vulnerability scan results?
-
-Subconscious can provide vulnerability scan results for release artifacts as part of the security assurance packet. Customers may also scan images, packages, and deployed components inside their own environment.
-
-### Do you provide an SBOM?
-
-Subconscious can provide or work toward providing software bill of materials documentation for releases as part of the software supply-chain assurance package.
-
-### Can we scan the software ourselves?
-
-Yes. Customers can scan release artifacts and deployed components using their own tools before approving deployment.
+You do. Subconscious publishes releases to your release channel. You either enable automatic deployment or review each release preview and approve it. Approval is enforced at the environment level and cannot be bypassed by a force deploy or rollback.
 
 ### Is telemetry enabled by default?
 
-Customer-hosted deployments should not send customer data telemetry by default. Any telemetry should be explicit, documented, configurable, and opt-in. Subconscious helps the customer to configure monitoring and logging into their systems of record for complete ability to support their deployments.
-
-### What happens during an incident?
-
-The customer owns incident response for the API Gateway and Inference Runtime in its environment. Subconscious supports investigation and remediation when requested by the customer. Any access or data sharing during an incident should follow the customer's approval and logging process.
-
-### Can we run in a restricted or air-gapped environment?
-
-Subconscious can support planning for restricted, private registry, semi-air-gapped, or air-gapped deployment workflows. Exact support depends on the customer's environment and release distribution requirements.
+No. Telemetry is opt-in. It carries operational metrics and logs only, never customer or user data. [Telemetry](#telemetry) lists exactly what is collected and how to control it.
