@@ -1,0 +1,48 @@
+---
+title: "Overview"
+description: "Ryvn deploys and updates the API Gateway in your AWS, GCP, or Azure account"
+icon: "cloud-arrow-up"
+---
+
+**Ryvn** is the deployment platform for the full Subconscious Inference System. It deploys the API Gateway into your AWS, GCP, or Azure account so inference traffic, keys, and logs stay in infrastructure you control, while Subconscious keeps a consistent way to ship and update the gateway.
+
+Ryvn is not used for OrangeLine-only trials. GPU workers on a NeoCloud, local cluster, or bare metal are containers the gateway calls; they are not a second Ryvn environment.
+
+For Ryvn's own product model, start with [How Ryvn works](https://ryvn.ai/docs/how-ryvn-works).
+
+## What Ryvn deploys
+
+A Ryvn **environment** is the isolated plane in your cloud account (VPC, Kubernetes, networking, TLS). A **service** is the deployable unit. A **service installation** is that service running in an environment, with its own config, scaling, and rollout.
+
+For Subconscious, that means:
+
+- The API Gateway installation in your AWS, GCP, or Azure environment.
+- OrangeLine in that same environment only when you choose to run GPUs next to the gateway.
+
+See [Environments](https://ryvn.ai/docs/guides/environments) and [Installations](https://ryvn.ai/docs/guides/installations).
+
+## Ryvn Agent
+
+Each environment runs a [Ryvn Agent](https://ryvn.ai/docs/guides/ryvn-agent): a Kubernetes operator that pulls desired state from Ryvn over outbound HTTPS. There is no inbound path into your VPC. The agent reconciles deployments, health checks, and rollbacks in-cluster.
+
+You keep cloud-account ownership, IAM, networking, and production change management. Subconscious publishes releases; the agent applies them according to the policy on that environment.
+
+## Approvals, windows, and channels
+
+Customer control of production cadence uses Ryvn's built-in controls, not a separate Helm process:
+
+- [Deployment approvals](https://ryvn.ai/docs/guides/deployment-approvals) so a change waits for review before it applies.
+- [Maintenance windows](https://ryvn.ai/docs/configure/maintenance-windows) to bound when updates may run.
+- [Release channels](https://ryvn.ai/docs/configure/release-channels) to pin or promote gateway versions.
+
+Failed rollouts keep existing replicas. Rollback is a first-class operation.
+
+## Observability
+
+Ryvn shows installation status, logs, and basic metrics in its dashboard. You can keep Datadog, CloudWatch, Grafana, or whatever you already run. Subconscious does not require you to send prompts, completions, or production logs to Ryvn.
+
+## Related pages
+
+- [Methods](/on-prem/deployments/methods): full system vs OrangeLine only.
+- [Configurations](/on-prem/deployments/configurations): where OrangeLine GPUs run relative to the gateway.
+- [Compliance](/on-prem/trust-center/compliance): data boundary and support access.

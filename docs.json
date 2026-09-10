@@ -118,15 +118,15 @@
             ]
           },
           {
-            "group": "Inference Runtime",
+            "group": "OrangeLine",
             "pages": [
               "on-prem/inference-runtime/overview"
             ]
           },
           {
-            "group": "Distribution Platform",
+            "group": "Ryvn",
             "pages": [
-              "on-prem/distribution-platform/overview"
+              "on-prem/ryvn/overview"
             ]
           }
         ]
@@ -218,7 +218,11 @@
     },
     {
       "source": "/on-prem/deployment-models/distribution-platform",
-      "destination": "/on-prem/distribution-platform/overview"
+      "destination": "/on-prem/ryvn/overview"
+    },
+    {
+      "source": "/on-prem/distribution-platform/overview",
+      "destination": "/on-prem/ryvn/overview"
     },
     {
       "source": "/on-prem/deployment-models/configurations",
@@ -230,7 +234,7 @@
     },
     {
       "source": "/on-prem/deployments/distribution-platform",
-      "destination": "/on-prem/distribution-platform/overview"
+      "destination": "/on-prem/ryvn/overview"
     },
     {
       "source": "/on-prem/deployments/gateway-setup",
@@ -274,7 +278,7 @@
     },
     {
       "source": "/on-prem/distribution-platform/setup",
-      "destination": "/on-prem/distribution-platform/overview"
+      "destination": "/on-prem/ryvn/overview"
     },
     {
       "source": "/offerings/usage",

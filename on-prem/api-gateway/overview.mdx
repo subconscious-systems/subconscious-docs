@@ -4,16 +4,17 @@ description: "The customer-facing control point for coding-agent traffic"
 icon: "route"
 ---
 
-The **API Gateway** is the customer-facing entry point for coding-agent traffic. Coding agents call the API Gateway as their customer-hosted endpoint. The gateway authenticates requests, applies access policy and limits, records usage, and routes the request to a GPU. It runs in the customer-controlled environment and gives administrators a single place to manage access, routing, usage, and day-two operations.
+The **API Gateway** is the customer-facing entry point for coding-agent traffic. Coding agents call the API Gateway as their customer-hosted endpoint. The gateway authenticates requests, applies access policy and limits, records usage, and routes the request to OrangeLine. It runs in your AWS, GCP, or Azure account and gives administrators a single place to manage access, routing, usage, context pruning visualization, and day-two operations.
 
 It handles things like:
 
 - End-user API requests from coding agents and SDK clients.
 - Load balancing.
 - OpenAI- and Anthropic-compatible gateway endpoints.
-- Model routing to the Inference Runtime or external model endpoints.
+- Model routing to OrangeLine.
 - User and API key management.
 - Access controls, limits, and usage tracking.
+- Context pruning visualization and intelligence.
 - Runtime observability, readiness, and operational dashboards.
 
 ```mermaid
@@ -23,8 +24,8 @@ flowchart LR
   subgraph customer["Customer Cloud"]
     direction LR
     gateway["API Gateway<br/>(auth, limits, model routing)"]
-    gpus["Customer GPUs"]
-    gateway --> gpus
+    orangeline["OrangeLine GPUs"]
+    gateway --> orangeline
   end
 
   agents --> gateway

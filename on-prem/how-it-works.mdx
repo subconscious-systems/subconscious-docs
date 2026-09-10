@@ -1,84 +1,80 @@
 ---
-title: "How It Works"
-description: "The API Gateway, Inference Runtime, and Distribution Platform behind the Subconscious Inference System"
+title: "How it works"
+description: "The API Gateway, OrangeLine, and Ryvn behind the Subconscious Inference System"
 icon: "diagram-project"
 ---
 
-The Subconscious Inference System consists of three core components:
+The Subconscious Inference System has three pieces:
 
-- The **API Gateway**, which handles agent traffic, authentication, routing, API keys, and usage controls.
-- The **Inference Runtime**, which drives Subconscious's agent-native, compute-efficiency advantages.
-- The **Distribution Platform**, which manages software delivery, versioning, updates, and assisted self-managed deployment.
+- The **API Gateway**, which handles agent traffic, authentication, routing, API keys, usage, and context pruning visualization and intelligence.
+- **OrangeLine**, the GPU inference runtime that runs TIMRUN.
+- **Ryvn**, the deployment platform that installs and updates the gateway in your AWS, GCP, or Azure account.
 
-{/*TODO: Consider upgrading this diagram to a hand-drawn version in Figma for a more approachable look.*/}
+See [Methods](/on-prem/deployments/methods) for the two ways to run it: the full inference system, or OrangeLine only.
+
 ```mermaid
 flowchart TD
-  subgraph distribution["Distribution Platform"]
-    direction TB
-    releases["Subconscious releases"]
-    distr["Customer deployment portal"]
-    releases -->|"versions, signs, scans, packages"| distr
-  end
-
   codingAgents["Coding agents"]
 
-  subgraph customer["Customer Cloud"]
-    direction TB
-    gateway["API Gateway"]
-    runtime["Inference Runtime"]
-    gpus["Customer GPUs"]
-    gateway --> runtime
-    runtime --> gpus
+  subgraph ryvn["Ryvn"]
+    hub["Dashboard and control plane"]
   end
 
-  codingAgents --> gateway
-  distr -->|"opt-in or auto-deploy"| gateway
-  distr -->|"opt-in or auto-deploy"| runtime
+  subgraph customerCloud["Customer AWS, GCP, or Azure"]
+    agent["Ryvn Agent, egress-only"]
+    gateway["API Gateway"]
+    agent --> gateway
+  end
 
-  style distribution fill:#fff3e8,stroke:#ff5c28,stroke-width:1px,color:#5f2411
-  style customer fill:#eef7ff,stroke:#4ea3ff,stroke-width:1px,color:#17324d
+  orangelineSame["OrangeLine on same-cloud GPUs"]
+  orangelineOther["OrangeLine on any GPU cloud, local cluster, or bare metal"]
+
+  hub -->|"desired state"| agent
+  codingAgents --> gateway
+  gateway --> orangelineSame
+  gateway --> orangelineOther
+
+  style ryvn fill:#fff3e8,stroke:#ff5c28,stroke-width:1px,color:#5f2411
+  style customerCloud fill:#eef7ff,stroke:#4ea3ff,stroke-width:1px,color:#17324d
 ```
+
+## Full inference system
+
+Ryvn deploys the API Gateway into your AWS, GCP, or Azure account. OrangeLine runs on GPUs anywhere you can run a Docker container, including the same cloud, a NeoCloud, an inference platform, your own local cluster, or bare metal. Those workers attach to the gateway as model routes. GPUs do not have to be in the same hyperscaler as the gateway.
+
+This is the path that includes gateway features such as API keys, routing, usage, and **context pruning visualization and intelligence**.
+
+## OrangeLine only
+
+For trials, or if you already have a gateway, we issue registry credentials for the OrangeLine image. You run that container on any GPU host. There is no Ryvn install and no Subconscious API Gateway. OrangeLine still serves models. You will not get context pruning visualization and intelligence without our gateway.
 
 ## API Gateway
 
-The **API Gateway** is the customer-facing entry point for coding-agent traffic. It runs in the customer-controlled environment and it handles things like:
+The **API Gateway** is the customer-facing entry point for coding-agent traffic. It runs in your AWS, GCP, or Azure account and handles:
 
 - End-user API requests from coding agents and SDK clients.
 - Load balancing.
-- OpenAI- and Anthropic-compatible gateway endpoints.
-- Model routing to the Inference Runtime or external model endpoints.
+- OpenAI- and Anthropic-compatible endpoints.
+- Model routing to OrangeLine.
 - User and API key management.
 - Access controls, limits, and usage tracking.
-- Runtime observability, readiness, and operational dashboards.
+- Context pruning visualization and intelligence.
+- Operational dashboards.
 
 See [API Gateway](/on-prem/api-gateway/overview).
 
-## Inference Runtime
+## OrangeLine
 
-The **Inference Runtime** is the GPU-backed execution layer that gives the Subconscious Inference System its efficiency advantage. It runs on customer-provided GPUs and is tuned for coding-agent workloads.
+**OrangeLine** is the GPU inference runtime. It runs TIMRUN on GPUs you provide and is tuned for coding-agent workloads: model execution, cache behavior, batching, and GPU utilization.
 
-It handles things like:
+It is a Docker container. Run it anywhere you can pull and run a GPU image. Examples include AWS, GCP, Azure, Nebius, Lambda, CoreWeave, Together AI, Baseten, Modal, other NeoClouds, your own local cluster, and bare metal. If you have GPUs we have not named, we can work with that.
 
-- Model execution on customer GPU resources.
-- Cache behavior for agent workloads.
-- Batching and scheduling.
-- GPU utilization improvements.
-- Serving more coding-agent workload per GPU.
+See [OrangeLine](/on-prem/inference-runtime/overview).
 
-See [Inference Runtime](/on-prem/inference-runtime/overview).
+## Ryvn
 
-## Distribution Platform
+**Ryvn** is the deployment platform for the full inference system. It provisions or connects the gateway environment in your AWS, GCP, or Azure account, deploys the gateway as an installation, and keeps it updated. A [Ryvn Agent](https://ryvn.ai/docs/guides/ryvn-agent) in that cluster pulls desired state over outbound HTTPS. Subconscious does not need inbound access to your VPC.
 
-The **Distribution Platform** is powered by [Distr](https://distr.sh/), a purpose-built software distribution platform for companies shipping software into customer-controlled environments.
+Ryvn is not required on every GPU host. An OrangeLine worker on a NeoCloud, local cluster, or other provider is a worker the gateway calls, not a second Ryvn environment.
 
-It helps deliver:
-
-- Licensed artifacts.
-- Deployment instructions.
-- Updates and patches.
-- Release metadata.
-- Vulnerability reports.
-- Customer-specific deployment workflows.
-
-See [Distribution Platform](/on-prem/distribution-platform/overview).
-
+See [Ryvn](/on-prem/ryvn/overview) and [How Ryvn works](https://ryvn.ai/docs/how-ryvn-works).

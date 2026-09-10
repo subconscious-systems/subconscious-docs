@@ -1,105 +1,62 @@
 ---
 title: "Methods"
-description: "Choose assisted self-managed or traditional self-hosted deployment"
+description: "Full inference system via Ryvn, or OrangeLine only as a Docker container"
 icon: "diagram-project"
 ---
 
-Subconscious supports two primary deployment methods for customer-hosted production deployments, powered by [Distr](https://distr.sh/docs/): [traditional self-hosted](https://distr.sh/docs/use-cases/fully-self-managed/) and [assisted self-managed](https://distr.sh/docs/use-cases/assisted-self-managed/). Both keep the Subconscious Inference System in your environment. The difference is how installation, updates, and operational actions are performed.
+There are two ways to run Subconscious in your infrastructure.
 
-In both methods:
+## Full inference system
 
-- The Subconscious Inference System runs in the customer's cloud or customer-controlled environment.
-- The customer controls infrastructure, networking, access, data, monitoring, and production change management.
-- Subconscious provides licensed artifacts, deployment guidance, release notes, support, and upgrade coordination.
+The API Gateway plus OrangeLine, operated as one system. This is the recommended production path.
 
-The deployment method should match your internal platform practices and security requirements.
+- Ryvn deploys the **API Gateway** into your **AWS, GCP, or Azure** account. That is the only supported way to run our gateway.
+- **OrangeLine** runs on GPUs anywhere you can run a Docker container. Those GPUs do not have to be in the same hyperscaler as the gateway.
+- Attach that compute to the gateway as model routes, whether the GPUs are in the same cloud account, on a NeoCloud or inference platform, or on your own local cluster or bare metal.
 
-{/* TODO: Add a decision-tree diagram for choosing traditional self-hosted vs. assisted self-managed. */}
+This path includes API keys, routing, usage, and **context pruning visualization and intelligence**.
 
-## Traditional self-hosted
+Examples of OrangeLine GPU homes: AWS, GCP, Azure, Nebius, Lambda, CoreWeave, Together AI, Baseten, Modal, other NeoClouds, a local cluster, or bare metal. If you have GPUs we have not named, we can work with that.
 
-Traditional self-hosted deployment gives your platform team the most direct control over release promotion and Subconscious Inference System operations.
+See [Ryvn](/on-prem/ryvn/overview) and [Configurations](/on-prem/deployments/configurations).
 
-In this mode:
+### Walkthrough
 
-- Subconscious distributes Helm charts, container images, checksums, release notes, and configuration guidance.
-- Your team pulls artifacts from the Distr registry or mirrors them into an internal registry.
-- Your team reviews the release and applies it with your own deployment tooling.
-- Your team owns deployment, upgrades, rollback, monitoring, alerting, and vulnerability scanning.
-- Subconscious supports your team through onboarding and ongoing FDE support, but does not run a long-lived deployment agent in your cluster.
+1. Your FDE confirms AWS, GCP, or Azure as the gateway account, plus where OrangeLine GPUs will run.
+2. Ryvn stands up the gateway environment in that account. A Ryvn Agent in the cluster pulls desired state over outbound HTTPS.
+3. The API Gateway installation comes up. You set approval, maintenance-window, and release-channel policy.
+4. OrangeLine is deployed on the chosen GPUs (same cloud, another provider, local cluster, or bare metal).
+5. You add model routes on the gateway that point at those workers.
+6. You validate dashboard access, a test request, and at least one coding agent.
+7. Handoff covers day-two ownership, monitoring, and how updates are approved.
 
-This mode is best when:
+## OrangeLine only
 
-- Your platform team wants complete control over release promotion.
-- You require all changes to pass through internal CI/CD, security scanning, and approval.
-- You prefer no persistent vendor-managed deployment process in the cluster.
+The simpler path: we issue **registry credentials** for the OrangeLine image, and you run that container on any GPU cloud, local cluster, or bare-metal host.
 
-Customers use the artifact registry and their own deployment process without a long-lived deployment agent. Follow Distr's [fully self-managed deployment](https://distr.sh/docs/use-cases/fully-self-managed/) docs for more info.
+Use this for trials, or if you already have a gateway. There is no Ryvn install and no Subconscious API Gateway.
 
-### Traditional self-hosted walkthrough
+OrangeLine still serves models. **You will not get context pruning visualization and intelligence** without our gateway.
 
-1. Your FDE provisions your Subconscious customer portal.
-2. Your team receives access to licensed Subconscious artifacts.
-3. Your team generates or receives registry access according to policy.
-4. Your team reviews available Helm chart versions, container images, release notes, and vulnerability reports.
-5. Your team mirrors artifacts into an internal registry if required.
-6. Your team creates a values override file for your environment.
-7. Your team deploys with Helm or your internal GitOps process.
-8. Your team validates API Gateway readiness, model routes, observability, and coding agent connectivity.
-9. Subconscious and your team complete handoff.
+See [OrangeLine](/on-prem/inference-runtime/overview).
 
-{/* TODO: Add screenshots for artifact list, version resources, registry access, and Helm deployment. */}
+### Walkthrough
 
-## Assisted self-managed
+1. Your FDE entitles your org and issues registry credentials for the OrangeLine image.
+2. You pull the image and run it on your GPUs, wherever they live.
+3. You point your own gateway or clients at the OrangeLine endpoint.
+4. When you want keys, routing, usage, and pruning visualization, move to the full inference system.
 
-Assisted self-managed deployment keeps the Subconscious Inference System in your environment while allowing a Distr deployment agent to help manage application lifecycle operations.
+## Choosing
 
-This maps to Distr's [assisted self-managed deployment](https://distr.sh/docs/use-cases/assisted-self-managed/) pattern: a customer-installed agent applies updates according to customer-defined policies and reports deployment status back to the portal.
+Choose the **full inference system** when engineers will call a Subconscious-hosted endpoint and you want gateway features in your cloud.
 
-In this mode:
+Choose **OrangeLine only** when you are trialing the runtime, or you already operate a gateway and only need the GPU container.
 
-- The Subconscious Inference System still runs in your cloud or customer-controlled Kubernetes environment.
-- Your team retains control over environment access.
-- A Distr Kubernetes agent runs in your cluster with an agreed scope.
-- The agent manages Helm deployment operations locally.
-- Subconscious can publish updates through Distr.
-- Updates can be customer-approved, scheduled, or automatic depending on policy.
-- The portal provides visibility into deployment status, versions, health, and logs.
-
-This mode is best when:
-
-- You want faster onboarding with fewer manual Helm steps.
-- You want Subconscious and your FDE to help operate upgrades and maintenance.
-- You want a more SaaS-like experience.
-- You want shared visibility into deployment state, versions, and operational status.
-
-### Assisted self-managed walkthrough
-
-1. Your FDE provisions your Subconscious customer portal.
-2. Your team confirms the target Kubernetes cluster, namespace, network policy, and RBAC scope.
-3. Your team configures environment variables and secrets in your customer portal (Subconscious never sees them).
-4. Your team installs the Distr Kubernetes agent using a customer-approved command or manifest.
-5. The agent connects to Distr Hub and appears in the customer portal.
-6. Your FDE configures the Subconscious application deployment for your target environment.
-7. Your team enters or approves required deployment secrets.
-8. Your team reviews the initial values override configuration.
-9. The Distr agent deploys the Subconscious Helm chart into your cluster.
-10. Your team and Subconscious validate readiness, ingress, routing, model connectivity, and coding agent setup.
-11. Future updates follow the customer's selected policy and are managed in the customer portal.
-
-{/* TODO: Add screenshots for connected agent, deployment status, deployment logs, secrets, and update approval. */}
-
-## Choosing between methods
-
-Choose traditional self-hosted when your platform team wants every deployment action to run through internal tooling and approval.
-
-Choose assisted self-managed when you want Subconscious to help manage initial installation, updates, logging visibility, and ongoing maintenance while the Subconscious Inference System remains in your environment.
-
-Both methods can support customer-controlled approval, vulnerability scanning, private registries, restricted egress, and strict change-management processes.
+Do not apply the gateway Helm chart yourself. The supported gateway path is Ryvn BYOC in AWS, GCP, or Azure.
 
 ## Related pages
 
-- [Distribution Platform](/on-prem/distribution-platform/overview): How Distr supports artifact delivery, agents, release evidence, and secrets.
-- [Configurations](/on-prem/deployments/configurations): Cloud, GPU placement, Helm overrides, secrets, monitoring, logging, upgrades, and rollback.
-- [API Gateway setup](/on-prem/api-gateway/setup): API Gateway dashboard configuration after deployment.
-
+- [How it works](/on-prem/how-it-works)
+- [OrangeLine](/on-prem/inference-runtime/overview)
+- [API Gateway setup](/on-prem/api-gateway/setup)

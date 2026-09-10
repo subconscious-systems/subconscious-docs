@@ -1,151 +1,56 @@
 ---
 title: "Configurations"
-description: "Cloud, GPU placement, Helm overrides, secrets, observability, and upgrade choices"
+description: "Where OrangeLine GPUs run relative to a BYOC API Gateway"
 icon: "sliders"
 ---
 
-Configuration depends on your deployment method, cloud, Kubernetes environment, API Gateway placement, Inference Runtime GPU placement, networking model, observability stack, and security requirements. This page collects the main permutations customers usually decide during onboarding.
+This page is for the **full inference system**. The API Gateway always runs in your AWS, GCP, or Azure account via Ryvn. The remaining choice is where OrangeLine GPUs run, and how you watch and update the stack.
 
-## API Gateway and Inference Runtime placement
+For OrangeLine-only, there is no gateway placement to configure: pull a new image tag when you want an update. See [Methods](/on-prem/deployments/methods).
 
-After the deployment method is selected, the next major configuration choice is where the API Gateway runs and where the Inference Runtime's GPU capacity runs.
+## Gateway and GPU placement
 
-The API Gateway usually runs close to your engineering stack, identity systems, networking controls, and observability tools. The Inference Runtime may run on GPUs colocated in the same cloud environment or on GPU capacity provided by a separate environment such as a NeoCloud, specialized inference provider, or local GPU cluster.
+The gateway sits close to your identity, networking, and observability stack. OrangeLine can run next to it or on any other GPU host that can run the Docker image. GPUs do not have to be in the same hyperscaler as the gateway.
 
-This choice drives Helm values for networking, model routes, credentials, timeouts, observability, scaling, and failure handling. The API Gateway owns routing and load balancing; the Inference Runtime owns efficient GPU-backed model execution.
+### Same cloud as the gateway
 
-{/* TODO: Add a Mermaid diagram showing API Gateway and Inference Runtime/GPU placement options. */}
+OrangeLine GPUs in the same AWS, GCP, or Azure account as the gateway.
 
-## Placement option 1: API Gateway and Inference Runtime in the same cloud
+Best when you already have approved GPU capacity, want simpler private networking, and want inference traffic to stay inside one cloud boundary.
 
-In this model, the API Gateway and Inference Runtime run in the same customer cloud environment.
+### Somewhere else
 
-Examples (coming soon):
+OrangeLine on another hyperscaler, a NeoCloud (Nebius, Lambda, CoreWeave, and others), an inference platform (Together AI, Baseten, Modal), your own local cluster, or bare metal. The gateway calls those workers as model routes.
 
-- API Gateway on AWS EKS with Inference Runtime GPU nodes on AWS.
-- API Gateway on GCP GKE with Inference Runtime GPU nodes on GCP.
-- API Gateway on Azure AKS with Inference Runtime GPU nodes on Azure.
+Best when the gateway cloud does not have the GPUs you want, you already operate GPUs elsewhere, or you want to compare GPU homes without moving the gateway.
 
-This mode is best when:
+If you have GPUs we have not named, we can work with that.
 
-- Your cloud already has approved GPU capacity.
-- You want simpler private networking.
-- You want inference traffic to remain inside one cloud boundary.
-- You want standard cloud observability and IAM patterns.
+## Secrets
 
-## Placement option 2: API Gateway in your cloud, Inference Runtime elsewhere
+Secrets follow customer policy. Common ones include gateway admin credentials, API key material, model-provider credentials, database and cache credentials, observability export credentials, registry access for OrangeLine, and TLS references.
 
-In this model, the API Gateway runs in your cloud environment and routes model traffic to Inference Runtime GPU capacity hosted elsewhere.
+On the gateway environment, secrets stay in your cloud (for example a cloud secret manager synced into the cluster). OrangeLine hosts that are not in that account keep their own registry and runtime credentials.
 
-Examples (coming soon):
+## Monitoring and logging
 
-- API Gateway on AWS with Inference Runtime capacity on a Baseten.
-- API Gateway on GCP with Inference Runtime capacity on Baseten.
-- API Gateway on Azure with Inference Runtime capacity on Together AI or another provider.
-- API Gateway in customer Kubernetes with Inference Runtime workers in a separate private cluster.
+Map gateway availability, request rate, latency, error rate, and route health into the stack you already run (Datadog, CloudWatch, Grafana, and similar). Pair that with OrangeLine GPU utilization, queue depth, and token throughput.
 
-This mode is best when:
+Keep prompts, completions, secrets, and API keys out of shared logs. Define retention, redaction, and what you are willing to share for support before production.
 
-- Your main cloud does not have enough GPU capacity for the Inference Runtime.
-- You want to use a specialized GPU provider.
-- You want to colocate the API Gateway with the rest of your stack while routing inference to external capacity.
-- You want to compare GPU providers without moving the API Gateway.
+Ryvn shows installation status and logs for the gateway environment. You do not have to send production inference data to Ryvn. See [Ryvn](/on-prem/ryvn/overview).
 
-## Placement option 3: API Gateway and Inference Runtime in separate customer-controlled environments
+## Upgrades
 
-In this model, both the API Gateway and Inference Runtime GPUs are customer-controlled, but they are not colocated.
+### Gateway (Ryvn)
 
-Examples (coming soon):
+1. Subconscious publishes a gateway release.
+2. You review release notes and evidence.
+3. Ryvn applies the update according to approvals, maintenance windows, and release channels.
+4. Health checks gate the rollout. Rollback is a first-class operation.
 
-- API Gateway in the corporate cloud, Inference Runtime GPUs in a private research cluster.
-- API Gateway in Kubernetes, Inference Runtime workers in an on-prem environment.
-- API Gateway in one region, Inference Runtime workers in another region.
+Do not maintain a parallel Helm process for the gateway.
 
-This mode is best when GPU capacity already exists in a separate customer environment, network isolation requires an API Gateway boundary, or a central endpoint must route to multiple Inference Runtime backends.
+### OrangeLine
 
-## Cloud-specific notes
-
-AWS deployments usually need EKS compatibility, ALB or NLB guidance, IAM role requirements, Secrets Manager integration, CloudWatch logging and metrics, GPU node pool configuration, and PrivateLink or VPC peering options for external GPU providers.
-
-GCP deployments usually need GKE compatibility, internal load balancer guidance, Workload Identity requirements, Secret Manager integration, Cloud Logging and Cloud Monitoring, GPU node pool configuration, and Private Service Connect or VPC connectivity for external GPU providers.
-
-Azure deployments usually need AKS compatibility, internal load balancer guidance, managed identity requirements, Key Vault integration, Azure Monitor and Log Analytics, GPU node pool configuration, and Private Link or VNet peering options for external GPU providers.
-
-NeoCloud and external GPU deployments usually need endpoint format, authentication method, network allowlisting, private connectivity options, TLS requirements, health check path, rate limits, concurrency limits, model naming, route mapping, fallback behavior, and cost or capacity assumptions.
-
-## Secrets and credentials
-
-Secrets are configured during onboarding based on deployment method and customer policy.
-
-Common secrets include:
-
-- API Gateway admin credentials.
-- User and API key management secrets.
-- Model provider credentials.
-- Database credentials.
-- Cache credentials.
-- Observability export credentials.
-- Registry access tokens.
-- TLS certificate references.
-
-In assisted self-managed deployments, some deployment secrets may be managed through the customer portal when enabled. In traditional self-hosted deployments, customers may prefer to store secrets entirely in their own secret manager and reference them from Helm values.
-
-## Monitoring configuration
-
-Monitoring configuration depends on the customer's existing observability stack.
-
-Common goals include:
-
-- API Gateway availability.
-- Request rate.
-- Latency.
-- Error rate.
-- Model route health.
-- GPU utilization.
-- Queue depth.
-- Token throughput.
-- Cost and capacity signals.
-- Agent deployment status in assisted self-managed mode.
-
-Subconscious can help map API Gateway and Inference Runtime metrics into the customer's monitoring stack during onboarding.
-
-{/* TODO: Add Prometheus, Datadog, and Grafana examples plus dashboard screenshots. */}
-
-## Logging configuration
-
-Logging should support operations without exposing customer source code, prompts, completions, secrets, or other sensitive data. We can help configure sending logs to external sources like Datadog.
-
-Common log streams include:
-
-- API Gateway service logs.
-- Router logs.
-- Deployment logs.
-- Agent logs in assisted self-managed mode.
-- Model worker logs.
-- Audit logs for admin actions.
-- Upgrade and rollback logs.
-
-Customers should define log retention, redaction, support bundle approval, and approved sharing channels before production use.
-
-## Upgrade and rollback process
-
-Upgrade flow depends on the deployment method.
-
-In traditional self-hosted deployments:
-
-1. Subconscious publishes a release.
-2. The customer reviews release evidence.
-3. The customer pulls or mirrors artifacts.
-4. The customer applies the Helm upgrade through its own process.
-5. The customer validates health and rolls back if needed.
-
-In assisted self-managed deployments:
-
-1. Subconscious publishes a release.
-2. The customer reviews release evidence and update policy.
-3. The Distr agent applies the update locally when approved or when automatic updates are enabled.
-4. The customer and Subconscious monitor deployment health.
-5. Rollback is coordinated according to the customer's policy.
-
-Upgrade planning should define maintenance windows, release notes, rollback commands, compatibility policy, migration handling, expected downtime, and emergency patch process.
-
+On same-cloud GPUs that Ryvn also deploys, follow the same approval flow. On other GPU hosts, pull a new OrangeLine image tag and roll the workers, then confirm gateway routes still succeed.
