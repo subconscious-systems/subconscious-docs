@@ -21,7 +21,7 @@ client = OpenAI(
 )
 
 stream = client.chat.completions.create(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/glm-5.3-marathon",
     messages=[{"role": "user", "content": "Explain how neural networks learn."}],
     stream=True,
 )
@@ -42,7 +42,7 @@ const client = new OpenAI({
 });
 
 const stream = await client.chat.completions.create({
-  model: "subconscious/tim-qwen3.6-27b",
+  model: "subconscious/glm-5.3-marathon",
   messages: [{ role: "user", content: "Explain how neural networks learn." }],
   stream: true,
 });
@@ -63,7 +63,7 @@ client = Anthropic(
 )
 
 with client.messages.stream(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/glm-5.3-marathon",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Explain how neural networks learn."}],
 ) as stream:
@@ -81,7 +81,7 @@ const client = new Anthropic({
 });
 
 const stream = client.messages.stream({
-  model: "subconscious/tim-qwen3.6-27b",
+  model: "subconscious/glm-5.3-marathon",
   max_tokens: 1024,
   messages: [{ role: "user", content: "Explain how neural networks learn." }],
 });
@@ -99,7 +99,7 @@ curl https://api.subconscious.dev/v1/chat/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "subconscious/tim-qwen3.6-27b",
+    "model": "subconscious/glm-5.3-marathon",
     "messages": [{"role": "user", "content": "Explain how neural networks learn."}],
     "stream": true
   }'
@@ -111,7 +111,7 @@ curl https://api.subconscious.dev/v1/messages \
   -H "anthropic-version: 2023-06-01" \
   -H "content-type: application/json" \
   -d '{
-    "model": "subconscious/tim-qwen3.6-27b",
+    "model": "subconscious/glm-5.3-marathon",
     "max_tokens": 1024,
     "messages": [{"role": "user", "content": "Explain how neural networks learn."}],
     "stream": true
@@ -127,11 +127,11 @@ curl https://api.subconscious.dev/v1/messages \
 Each event in the stream is a `data:` line containing a JSON `ChatCompletionChunk` object:
 
 ```
-data: {"id":"chatcmpl-abc123","object":"chat.completion.chunk","model":"subconscious/tim-qwen3.6-27b","choices":[{"index":0,"delta":{"content":"Hello"},"finish_reason":null}]}
+data: {"id":"chatcmpl-abc123","object":"chat.completion.chunk","model":"subconscious/glm-5.3-marathon","choices":[{"index":0,"delta":{"content":"Hello"},"finish_reason":null}]}
 
-data: {"id":"chatcmpl-abc123","object":"chat.completion.chunk","model":"subconscious/tim-qwen3.6-27b","choices":[{"index":0,"delta":{"content":" world"},"finish_reason":null}]}
+data: {"id":"chatcmpl-abc123","object":"chat.completion.chunk","model":"subconscious/glm-5.3-marathon","choices":[{"index":0,"delta":{"content":" world"},"finish_reason":null}]}
 
-data: {"id":"chatcmpl-abc123","object":"chat.completion.chunk","model":"subconscious/tim-qwen3.6-27b","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}
+data: {"id":"chatcmpl-abc123","object":"chat.completion.chunk","model":"subconscious/glm-5.3-marathon","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}
 
 data: [DONE]
 ```
@@ -144,7 +144,7 @@ The Messages endpoint emits the Anthropic event protocol. Each SSE message has a
 
 ```
 event: message_start
-data: {"type":"message_start","message":{"id":"msg_abc123","type":"message","role":"assistant","content":[],"model":"subconscious/tim-qwen3.6-27b","stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":12,"output_tokens":0,"cache_read_input_tokens":0}}}
+data: {"type":"message_start","message":{"id":"msg_abc123","type":"message","role":"assistant","content":[],"model":"subconscious/glm-5.3-marathon","stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":12,"output_tokens":0,"cache_read_input_tokens":0}}}
 
 event: content_block_start
 data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}}
@@ -178,7 +178,7 @@ from openai import APIError
 
 try:
     stream = client.chat.completions.create(
-        model="subconscious/tim-qwen3.6-27b",
+        model="subconscious/glm-5.3-marathon",
         messages=[{"role": "user", "content": "Hello"}],
         stream=True,
     )
@@ -195,7 +195,7 @@ import OpenAI from "openai";
 
 try {
   const stream = await client.chat.completions.create({
-    model: "subconscious/tim-qwen3.6-27b",
+    model: "subconscious/glm-5.3-marathon",
     messages: [{ role: "user", content: "Hello" }],
     stream: true,
   });
@@ -215,7 +215,7 @@ from anthropic import APIError
 
 try:
     with client.messages.stream(
-        model="subconscious/tim-qwen3.6-27b",
+        model="subconscious/glm-5.3-marathon",
         max_tokens=1024,
         messages=[{"role": "user", "content": "Hello"}],
     ) as stream:
@@ -230,7 +230,7 @@ import Anthropic from "@anthropic-ai/sdk";
 
 try {
   const stream = client.messages.stream({
-    model: "subconscious/tim-qwen3.6-27b",
+    model: "subconscious/glm-5.3-marathon",
     max_tokens: 1024,
     messages: [{ role: "user", content: "Hello" }],
   });
@@ -256,7 +256,7 @@ For the Chat Completions format, include `stream_options` to receive token usage
 
 ```python Python (OpenAI)
 stream = client.chat.completions.create(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/glm-5.3-marathon",
     messages=[{"role": "user", "content": "Hello"}],
     stream=True,
     stream_options={"include_usage": True},
@@ -271,7 +271,7 @@ for chunk in stream:
 
 ```python Python (Anthropic)
 with client.messages.stream(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/glm-5.3-marathon",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Hello"}],
 ) as stream:

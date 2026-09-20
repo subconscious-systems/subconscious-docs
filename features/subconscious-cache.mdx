@@ -35,7 +35,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/glm-5.3-marathon",
     messages=[{"role": "user", "content": "What is 127 * 849 + 3621?"}],
     extra_body={
         "chat_template_kwargs": {"enable_auto_compaction": False},
@@ -54,7 +54,7 @@ const client = new OpenAI({
 });
 
 const response = await client.chat.completions.create({
-  model: "subconscious/tim-qwen3.6-27b",
+  model: "subconscious/glm-5.3-marathon",
   messages: [{ role: "user", content: "What is 127 * 849 + 3621?" }],
   // @ts-expect-error Subconscious extension
   chat_template_kwargs: { enable_auto_compaction: false },
@@ -72,7 +72,7 @@ client = Anthropic(
 )
 
 message = client.messages.create(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/glm-5.3-marathon",
     max_tokens=1024,
     messages=[{"role": "user", "content": "What is 127 * 849 + 3621?"}],
     extra_body={
@@ -92,7 +92,7 @@ const client = new Anthropic({
 });
 
 const message = await client.messages.create({
-  model: "subconscious/tim-qwen3.6-27b",
+  model: "subconscious/glm-5.3-marathon",
   max_tokens: 1024,
   messages: [{ role: "user", content: "What is 127 * 849 + 3621?" }],
   // @ts-expect-error Subconscious extension
@@ -107,7 +107,7 @@ curl https://api.subconscious.dev/v1/chat/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "subconscious/tim-qwen3.6-27b",
+    "model": "subconscious/glm-5.3-marathon",
     "messages": [{"role": "user", "content": "What is 127 * 849 + 3621?"}],
     "chat_template_kwargs": {"enable_auto_compaction": false}
   }'
@@ -119,7 +119,7 @@ curl https://api.subconscious.dev/v1/messages \
   -H "anthropic-version: 2023-06-01" \
   -H "content-type: application/json" \
   -d '{
-    "model": "subconscious/tim-qwen3.6-27b",
+    "model": "subconscious/glm-5.3-marathon",
     "max_tokens": 1024,
     "messages": [{"role": "user", "content": "What is 127 * 849 + 3621?"}],
     "chat_template_kwargs": {"enable_auto_compaction": false}

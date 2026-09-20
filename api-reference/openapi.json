@@ -25,17 +25,17 @@
           {
             "lang": "python",
             "label": "Python (OpenAI SDK)",
-            "source": "from openai import OpenAI\n\nclient = OpenAI(\n    api_key=\"your-api-key\",\n    base_url=\"https://api.subconscious.dev/v1\",\n)\n\nresponse = client.chat.completions.create(\n    model=\"subconscious/tim-qwen3.6-27b\",\n    messages=[{\"role\": \"user\", \"content\": \"What is the capital of France?\"}],\n)\n\nprint(response.choices[0].message.content)"
+            "source": "from openai import OpenAI\n\nclient = OpenAI(\n    api_key=\"your-api-key\",\n    base_url=\"https://api.subconscious.dev/v1\",\n)\n\nresponse = client.chat.completions.create(\n    model=\"subconscious/glm-5.3-marathon\",\n    messages=[{\"role\": \"user\", \"content\": \"What is the capital of France?\"}],\n)\n\nprint(response.choices[0].message.content)"
           },
           {
             "lang": "javascript",
             "label": "Node.js (OpenAI SDK)",
-            "source": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({\n  apiKey: \"your-api-key\",\n  baseURL: \"https://api.subconscious.dev/v1\",\n});\n\nconst response = await client.chat.completions.create({\n  model: \"subconscious/tim-qwen3.6-27b\",\n  messages: [{ role: \"user\", content: \"What is the capital of France?\" }],\n});\n\nconsole.log(response.choices[0].message.content);"
+            "source": "import OpenAI from \"openai\";\n\nconst client = new OpenAI({\n  apiKey: \"your-api-key\",\n  baseURL: \"https://api.subconscious.dev/v1\",\n});\n\nconst response = await client.chat.completions.create({\n  model: \"subconscious/glm-5.3-marathon\",\n  messages: [{ role: \"user\", content: \"What is the capital of France?\" }],\n});\n\nconsole.log(response.choices[0].message.content);"
           },
           {
             "lang": "bash",
             "label": "cURL",
-            "source": "curl https://api.subconscious.dev/v1/chat/completions \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"model\": \"subconscious/tim-qwen3.6-27b\",\n    \"messages\": [{\"role\": \"user\", \"content\": \"What is the capital of France?\"}]\n  }'"
+            "source": "curl https://api.subconscious.dev/v1/chat/completions \\\n  -H \"Authorization: Bearer YOUR_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"model\": \"subconscious/glm-5.3-marathon\",\n    \"messages\": [{\"role\": \"user\", \"content\": \"What is the capital of France?\"}]\n  }'"
           }
         ],
         "requestBody": {
@@ -49,8 +49,8 @@
                   "model": {
                     "type": "string",
                     "description": "The model to use for completion.",
-                    "enum": ["subconscious/tim-qwen3.6-27b"],
-                    "example": "subconscious/tim-qwen3.6-27b"
+                    "enum": ["subconscious/glm-5.3-marathon"],
+                    "example": "subconscious/glm-5.3-marathon"
                   },
                   "messages": {
                     "type": "array",
@@ -120,7 +120,7 @@
                   },
                   "response_format": {
                     "type": "object",
-                    "description": "Constrains the response format. Use `{\"type\": \"json_object\"}` for valid JSON or `{\"type\": \"json_schema\", \"json_schema\": {...}}` for schema-constrained output.",
+                    "description": "Currently unsupported. The request may accept this field, but it is ignored and does not constrain the model output to JSON or a schema.",
                     "properties": {
                       "type": {
                         "type": "string",
@@ -193,7 +193,7 @@
                     "model": {
                       "type": "string",
                       "description": "The model used for the completion.",
-                      "example": "subconscious/tim-qwen3.6-27b"
+                      "example": "subconscious/glm-5.3-marathon"
                     },
                     "choices": {
                       "type": "array",
@@ -274,17 +274,17 @@
           {
             "lang": "python",
             "label": "Python (Anthropic SDK)",
-            "source": "from anthropic import Anthropic\n\nclient = Anthropic(\n    auth_token=\"your-api-key\",\n    base_url=\"https://api.subconscious.dev\",\n)\n\nmessage = client.messages.create(\n    model=\"subconscious/tim-qwen3.6-27b\",\n    max_tokens=1024,\n    messages=[{\"role\": \"user\", \"content\": \"What is the capital of France?\"}],\n)\n\nprint(message.content[0].text)"
+            "source": "from anthropic import Anthropic\n\nclient = Anthropic(\n    auth_token=\"your-api-key\",\n    base_url=\"https://api.subconscious.dev\",\n)\n\nmessage = client.messages.create(\n    model=\"subconscious/glm-5.3-marathon\",\n    max_tokens=1024,\n    messages=[{\"role\": \"user\", \"content\": \"What is the capital of France?\"}],\n)\n\nprint(message.content[0].text)"
           },
           {
             "lang": "javascript",
             "label": "Node.js (Anthropic SDK)",
-            "source": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({\n  authToken: \"your-api-key\",\n  baseURL: \"https://api.subconscious.dev\",\n});\n\nconst message = await client.messages.create({\n  model: \"subconscious/tim-qwen3.6-27b\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"What is the capital of France?\" }],\n});\n\nconsole.log(message.content[0].text);"
+            "source": "import Anthropic from \"@anthropic-ai/sdk\";\n\nconst client = new Anthropic({\n  authToken: \"your-api-key\",\n  baseURL: \"https://api.subconscious.dev\",\n});\n\nconst message = await client.messages.create({\n  model: \"subconscious/glm-5.3-marathon\",\n  max_tokens: 1024,\n  messages: [{ role: \"user\", content: \"What is the capital of France?\" }],\n});\n\nconsole.log(message.content[0].text);"
           },
           {
             "lang": "bash",
             "label": "cURL",
-            "source": "curl https://api.subconscious.dev/v1/messages \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\" \\\n  -H \"content-type: application/json\" \\\n  -d '{\n    \"model\": \"subconscious/tim-qwen3.6-27b\",\n    \"max_tokens\": 1024,\n    \"messages\": [{\"role\": \"user\", \"content\": \"What is the capital of France?\"}]\n  }'"
+            "source": "curl https://api.subconscious.dev/v1/messages \\\n  -H \"x-api-key: YOUR_API_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\" \\\n  -H \"content-type: application/json\" \\\n  -d '{\n    \"model\": \"subconscious/glm-5.3-marathon\",\n    \"max_tokens\": 1024,\n    \"messages\": [{\"role\": \"user\", \"content\": \"What is the capital of France?\"}]\n  }'"
           }
         ],
         "requestBody": {
@@ -298,8 +298,8 @@
                   "model": {
                     "type": "string",
                     "description": "The model to use for completion.",
-                    "enum": ["subconscious/tim-qwen3.6-27b"],
-                    "example": "subconscious/tim-qwen3.6-27b"
+                    "enum": ["subconscious/glm-5.3-marathon"],
+                    "example": "subconscious/glm-5.3-marathon"
                   },
                   "messages": {
                     "type": "array",
@@ -484,7 +484,7 @@
                     },
                     "model": {
                       "type": "string",
-                      "example": "subconscious/tim-qwen3.6-27b"
+                      "example": "subconscious/glm-5.3-marathon"
                     },
                     "stop_reason": {
                       "type": "string",

@@ -52,7 +52,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/glm-5.3-marathon",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "Explain quantum computing in three sentences."},
@@ -71,7 +71,7 @@ const client = new OpenAI({
 });
 
 const response = await client.chat.completions.create({
-  model: "subconscious/tim-qwen3.6-27b",
+  model: "subconscious/glm-5.3-marathon",
   messages: [
     { role: "system", content: "You are a helpful assistant." },
     { role: "user", content: "Explain quantum computing in three sentences." },
@@ -90,7 +90,7 @@ client = Anthropic(
 )
 
 message = client.messages.create(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/glm-5.3-marathon",
     max_tokens=1024,
     system="You are a helpful assistant.",
     messages=[
@@ -110,7 +110,7 @@ const client = new Anthropic({
 });
 
 const message = await client.messages.create({
-  model: "subconscious/tim-qwen3.6-27b",
+  model: "subconscious/glm-5.3-marathon",
   max_tokens: 1024,
   system: "You are a helpful assistant.",
   messages: [
@@ -126,7 +126,7 @@ curl https://api.subconscious.dev/v1/chat/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "subconscious/tim-qwen3.6-27b",
+    "model": "subconscious/glm-5.3-marathon",
     "messages": [
       {"role": "system", "content": "You are a helpful assistant."},
       {"role": "user", "content": "Explain quantum computing in three sentences."}
@@ -140,7 +140,7 @@ curl https://api.subconscious.dev/v1/messages \
   -H "anthropic-version: 2023-06-01" \
   -H "content-type: application/json" \
   -d '{
-    "model": "subconscious/tim-qwen3.6-27b",
+    "model": "subconscious/glm-5.3-marathon",
     "max_tokens": 1024,
     "system": "You are a helpful assistant.",
     "messages": [
@@ -167,7 +167,7 @@ from agents import (
 )
 
 API_KEY = "your-api-key"
-MODEL = "subconscious/tim-qwen3.6-27b"
+MODEL = "subconscious/glm-5.3-marathon"
 
 
 def run_openai_agent():
@@ -207,7 +207,7 @@ API_KEY = "your-api-key"
 
 os.environ["ANTHROPIC_BASE_URL"] = "https://api.subconscious.dev"
 os.environ["ANTHROPIC_AUTH_TOKEN"] = API_KEY
-MODEL = "subconscious/tim-qwen3.6-27b"
+MODEL = "subconscious/glm-5.3-marathon"
 
 
 async def run_claude_agent():
@@ -231,7 +231,7 @@ from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 
 API_KEY = "your-api-key"
-MODEL = "subconscious/tim-qwen3.6-27b"
+MODEL = "subconscious/glm-5.3-marathon"
 PROMPT = {"messages": [{"role": "user", "content": "What is the capital of France?"}]}
 
 # ---------------------------------------------------------------------------
@@ -267,7 +267,7 @@ import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { generateText } from "ai";
 
 const API_KEY = "your-api-key";
-const MODEL = "subconscious/tim-qwen3.6-27b";
+const MODEL = "subconscious/glm-5.3-marathon";
 
 const subconscious = createOpenAICompatible({
   name: "subconscious",
@@ -294,7 +294,7 @@ You can stream responses token by token for real-time output:
 
 ```python Python (OpenAI)
 stream = client.chat.completions.create(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/glm-5.3-marathon",
     messages=[{"role": "user", "content": "Write a haiku about programming."}],
     stream=True,
 )
@@ -307,7 +307,7 @@ for chunk in stream:
 
 ```typescript Node.js (OpenAI)
 const stream = await client.chat.completions.create({
-  model: "subconscious/tim-qwen3.6-27b",
+  model: "subconscious/glm-5.3-marathon",
   messages: [{ role: "user", content: "Write a haiku about programming." }],
   stream: true,
 });
@@ -320,7 +320,7 @@ for await (const chunk of stream) {
 
 ```python Python (Anthropic)
 with client.messages.stream(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/glm-5.3-marathon",
     max_tokens=1024,
     messages=[{"role": "user", "content": "Write a haiku about programming."}],
 ) as stream:
@@ -330,7 +330,7 @@ with client.messages.stream(
 
 ```typescript Node.js (Anthropic)
 const stream = client.messages.stream({
-  model: "subconscious/tim-qwen3.6-27b",
+  model: "subconscious/glm-5.3-marathon",
   max_tokens: 1024,
   messages: [{ role: "user", content: "Write a haiku about programming." }],
 });
@@ -349,129 +349,11 @@ for await (const event of stream) {
 
 See [Streaming](/features/streaming) for more details.
 
-## 6. Try Structured Output
-
-You can also get typed JSON responses by providing a schema:
-
-<CodeGroup>
-
-```python Python (OpenAI)
-response = client.chat.completions.create(
-    model="subconscious/tim-qwen3.6-27b",
-    messages=[{"role": "user", "content": "Analyze the sentiment of: 'I love this product!'"}],
-    response_format={
-        "type": "json_schema",
-        "json_schema": {
-            "name": "sentiment_analysis",
-            "schema": {
-                "type": "object",
-                "properties": {
-                    "sentiment": {"type": "string", "enum": ["positive", "negative", "neutral"]},
-                    "confidence": {"type": "number"},
-                },
-                "required": ["sentiment", "confidence"],
-            },
-        },
-    },
-)
-
-import json
-result = json.loads(response.choices[0].message.content)
-print(result)  # {"sentiment": "positive", "confidence": 0.95}
-```
-
-```typescript Node.js (OpenAI)
-const response = await client.chat.completions.create({
-  model: "subconscious/tim-qwen3.6-27b",
-  messages: [{ role: "user", content: "Analyze the sentiment of: 'I love this product!'" }],
-  response_format: {
-    type: "json_schema",
-    json_schema: {
-      name: "sentiment_analysis",
-      schema: {
-        type: "object",
-        properties: {
-          sentiment: { type: "string", enum: ["positive", "negative", "neutral"] },
-          confidence: { type: "number" },
-        },
-        required: ["sentiment", "confidence"],
-      },
-    },
-  },
-});
-
-const result = JSON.parse(response.choices[0].message.content!);
-console.log(result); // { sentiment: "positive", confidence: 0.95 }
-```
-
-```python Python (Anthropic)
-# The Messages API has no response_format; force a tool call whose
-# input_schema is your target schema, then read the tool_use input.
-tool = {
-    "name": "sentiment_analysis",
-    "description": "Record the sentiment analysis result.",
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "sentiment": {"type": "string", "enum": ["positive", "negative", "neutral"]},
-            "confidence": {"type": "number"},
-        },
-        "required": ["sentiment", "confidence"],
-    },
-}
-
-message = client.messages.create(
-    model="subconscious/tim-qwen3.6-27b",
-    max_tokens=1024,
-    tools=[tool],
-    tool_choice={"type": "tool", "name": "sentiment_analysis"},
-    messages=[{"role": "user", "content": "Analyze the sentiment of: 'I love this product!'"}],
-)
-
-result = next(b.input for b in message.content if b.type == "tool_use")
-print(result)  # {"sentiment": "positive", "confidence": 0.95}
-```
-
-```typescript Node.js (Anthropic)
-// The Messages API has no response_format; force a tool call whose
-// input_schema is your target schema, then read the tool_use input.
-const message = await client.messages.create({
-  model: "subconscious/tim-qwen3.6-27b",
-  max_tokens: 1024,
-  tools: [
-    {
-      name: "sentiment_analysis",
-      description: "Record the sentiment analysis result.",
-      input_schema: {
-        type: "object",
-        properties: {
-          sentiment: { type: "string", enum: ["positive", "negative", "neutral"] },
-          confidence: { type: "number" },
-        },
-        required: ["sentiment", "confidence"],
-      },
-    },
-  ],
-  tool_choice: { type: "tool", name: "sentiment_analysis" },
-  messages: [{ role: "user", content: "Analyze the sentiment of: 'I love this product!'" }],
-});
-
-const block = message.content.find((b) => b.type === "tool_use");
-console.log(block?.input); // { sentiment: "positive", confidence: 0.95 }
-```
-
-</CodeGroup>
-
-See [Structured Output](/features/structured-output) for more details.
-
 ## Next Steps
 
 <CardGroup cols={2}>
   <Card title="Streaming" icon="wave-pulse" href="/features/streaming">
     Real-time token-by-token output
-  </Card>
-  <Card title="Structured Output" icon="code" href="/features/structured-output">
-    Typed JSON responses with schemas
   </Card>
   <Card title="Thinking Mode" icon="brain" href="/features/thinking">
     Enable step-by-step reasoning

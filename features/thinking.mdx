@@ -36,7 +36,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/glm-5.3-marathon",
     messages=[{"role": "user", "content": "What is 127 * 849 + 3621?"}],
     extra_body={
         "chat_template_kwargs": {"enable_thinking": True},
@@ -55,7 +55,7 @@ const client = new OpenAI({
 });
 
 const response = await client.chat.completions.create({
-  model: "subconscious/tim-qwen3.6-27b",
+  model: "subconscious/glm-5.3-marathon",
   messages: [{ role: "user", content: "What is 127 * 849 + 3621?" }],
   // @ts-expect-error Subconscious extension
   chat_template_kwargs: { enable_thinking: true },
@@ -73,7 +73,7 @@ client = Anthropic(
 )
 
 message = client.messages.create(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/glm-5.3-marathon",
     max_tokens=2048,
     thinking={"type": "enabled", "budget_tokens": 2000},
     messages=[{"role": "user", "content": "What is 127 * 849 + 3621?"}],
@@ -95,7 +95,7 @@ const client = new Anthropic({
 });
 
 const message = await client.messages.create({
-  model: "subconscious/tim-qwen3.6-27b",
+  model: "subconscious/glm-5.3-marathon",
   max_tokens: 2048,
   thinking: { type: "enabled", budget_tokens: 2000 },
   messages: [{ role: "user", content: "What is 127 * 849 + 3621?" }],
@@ -112,7 +112,7 @@ curl https://api.subconscious.dev/v1/chat/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "subconscious/tim-qwen3.6-27b",
+    "model": "subconscious/glm-5.3-marathon",
     "messages": [{"role": "user", "content": "What is 127 * 849 + 3621?"}],
     "chat_template_kwargs": {"enable_thinking": true}
   }'
@@ -124,7 +124,7 @@ curl https://api.subconscious.dev/v1/messages \
   -H "anthropic-version: 2023-06-01" \
   -H "content-type: application/json" \
   -d '{
-    "model": "subconscious/tim-qwen3.6-27b",
+    "model": "subconscious/glm-5.3-marathon",
     "max_tokens": 2048,
     "thinking": {"type": "enabled", "budget_tokens": 2000},
     "messages": [{"role": "user", "content": "What is 127 * 849 + 3621?"}]
@@ -177,7 +177,7 @@ Thinking mode works with streaming. The reasoning tokens stream first, followed 
 
 ```python Python (OpenAI)
 stream = client.chat.completions.create(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/glm-5.3-marathon",
     messages=[{"role": "user", "content": "Solve: If 3x + 7 = 22, what is x?"}],
     stream=True,
     extra_body={
@@ -193,7 +193,7 @@ for chunk in stream:
 
 ```python Python (Anthropic)
 with client.messages.stream(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/glm-5.3-marathon",
     max_tokens=2048,
     thinking={"type": "enabled", "budget_tokens": 2000},
     messages=[{"role": "user", "content": "Solve: If 3x + 7 = 22, what is x?"}],

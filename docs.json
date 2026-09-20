@@ -43,7 +43,6 @@
             "group": "Features",
             "pages": [
               "features/streaming",
-              "features/structured-output",
               "features/thinking",
               "features/subconscious-cache"
             ]
@@ -306,7 +305,11 @@
     },
     {
       "source": "/core-concepts/structured-output",
-      "destination": "/features/structured-output"
+      "destination": "/quickstart"
+    },
+    {
+      "source": "/features/structured-output",
+      "destination": "/quickstart"
     },
     {
       "source": "/engines",

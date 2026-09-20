@@ -19,7 +19,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="subconscious/tim-qwen3.6-27b", # Step 3: set the model. You're all set!
+    model="subconscious/glm-5.3-marathon", # Step 3: set the model. You're all set!
     messages=[{"role": "user", "content": "What is the capital of France?"}],
 )
 
@@ -35,7 +35,7 @@ const client = new OpenAI({
 });
 
 const response = await client.chat.completions.create({
-  model: "subconscious/tim-qwen3.6-27b",
+  model: "subconscious/glm-5.3-marathon",
   messages: [{ role: "user", content: "What is the capital of France?" }],
 });
 
@@ -51,7 +51,7 @@ client = Anthropic(
 )
 
 message = client.messages.create(
-    model="subconscious/tim-qwen3.6-27b",
+    model="subconscious/glm-5.3-marathon",
     max_tokens=1024,
     messages=[{"role": "user", "content": "What is the capital of France?"}],
 )
@@ -68,7 +68,7 @@ const client = new Anthropic({
 });
 
 const message = await client.messages.create({
-  model: "subconscious/tim-qwen3.6-27b",
+  model: "subconscious/glm-5.3-marathon",
   max_tokens: 1024,
   messages: [{ role: "user", content: "What is the capital of France?" }],
 });
@@ -81,7 +81,7 @@ curl https://api.subconscious.dev/v1/chat/completions \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "subconscious/tim-qwen3.6-27b",
+    "model": "subconscious/glm-5.3-marathon",
     "messages": [{"role": "user", "content": "What is the capital of France?"}]
   }'
 ```
@@ -92,7 +92,7 @@ curl https://api.subconscious.dev/v1/messages \
   -H "anthropic-version: 2023-06-01" \
   -H "content-type: application/json" \
   -d '{
-    "model": "subconscious/tim-qwen3.6-27b",
+    "model": "subconscious/glm-5.3-marathon",
     "max_tokens": 1024,
     "messages": [{"role": "user", "content": "What is the capital of France?"}]
   }'
