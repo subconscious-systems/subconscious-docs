@@ -40,13 +40,13 @@
             ]
           },
           {
-                        "group": "Features",
-                        "pages": [
-                            "features/streaming",
-                            "features/thinking",
-                            "features/subconscious-cache",
-                            "features/management-api-keys"
-                        ]
+            "group": "Features",
+            "pages": [
+              "features/streaming",
+              "features/thinking",
+              "features/subconscious-cache",
+              "features/management-api-keys"
+            ]
           },
           {
             "group": "Ways to use",
