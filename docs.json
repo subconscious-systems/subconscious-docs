@@ -74,6 +74,21 @@
               "api-reference/chat-completions",
               "api-reference/messages"
             ]
+          },
+          {
+            "group": "Management",
+            "pages": [
+              "api-reference/create-inference-key",
+              "api-reference/list-inference-keys",
+              "api-reference/delete-inference-key",
+              "api-reference/key-usage"
+            ]
+          },
+          {
+            "group": "Usage",
+            "pages": [
+              "api-reference/usage"
+            ]
           }
         ]
       },
