@@ -12,7 +12,7 @@ A management key cannot run inference. It only authorizes the management endpoin
 
 Organization admins can create management keys on the [API keys](https://platform.subconscious.dev/api-keys) page. Management keys are visible to organization admins only and are excluded from your inference-key limit.
 
-The full secret is shown once at creation time. Store it in your secret manager; we cannot recover it.
+The full secret is shown once at creation time. Store it in your secret manager; we cannot recover it. A management secret has the form `sk-mgmt-{prefix}.{token}`. `{prefix}` is 8 hex characters, and delete calls use that prefix.
 
 ## Authentication
 
