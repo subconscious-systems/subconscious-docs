@@ -1,0 +1,70 @@
+---
+title: "Management API keys"
+description: "Provision and manage inference keys programmatically"
+icon: "key"
+---
+
+Management API keys let you automate API-key lifecycle for your organization: mint inference keys from your own provisioning flow and delete them by prefix.
+
+A management key cannot run inference. It only authorizes the management endpoints below. Request and response schemas are in the API reference: [create an inference key](/api-reference/create-inference-key), [list inference keys](/api-reference/list-inference-keys), and [delete an inference key](/api-reference/delete-inference-key).
+
+## Create a management key
+
+Organization admins can create management keys on the [API keys](https://platform.subconscious.dev/api-keys) page. Management keys are visible to organization admins only and are excluded from your inference-key limit.
+
+The full secret is shown once at creation time. Store it in your secret manager; we cannot recover it. A management secret has the form `sk-mgmt-{prefix}.{token}`. `{prefix}` is 8 hex characters, and delete calls use that prefix.
+
+## Authentication
+
+Management endpoints accept the key via `X-API-Key` or `Authorization: Bearer`:
+
+```bash
+curl https://platform.subconscious.dev/api/v1/management/api-keys \
+  -H "Authorization: Bearer sk-mgmt-..."
+```
+
+All endpoints are scoped to the organization the management key belongs to.
+
+## Create an inference key
+
+`POST /api/v1/management/api-keys`
+
+```bash
+curl https://platform.subconscious.dev/api/v1/management/api-keys \
+  -H "Authorization: Bearer sk-mgmt-..." \
+  -H "Content-Type: application/json" \
+  -d '{"name": "tenant-42"}'
+```
+
+Response:
+
+```json
+{
+  "apiKey": {
+    "id": "5f0c...",
+    "name": "tenant-42",
+    "key": "sk-gw-...",
+    "keyPrefix": "a1b2c3d4",
+    "createdAt": "2026-09-30T21:40:00.000Z"
+  }
+}
+```
+
+`key` is the inference secret. Return it to your tenant or feed it straight into your runtime. It is shown once; the delete endpoint uses `keyPrefix` so you never need the full secret again.
+
+## List inference keys
+
+`GET /api/v1/management/api-keys`
+
+Returns the organization's inference keys, newest first: id, name, prefix, whether the key is active, created time, and last-used time. Inactive keys are included. Hidden keys and management keys are omitted. Secrets are not included.
+
+## Delete an inference key
+
+`DELETE /api/v1/management/api-keys/{keyPrefix}`
+
+```bash
+curl -X DELETE https://platform.subconscious.dev/api/v1/management/api-keys/a1b2c3d4 \
+  -H "Authorization: Bearer sk-mgmt-..."
+```
+
+Revokes the key at the gateway and deactivates it. Requests presented with a deleted key fail immediately. Returns 404 when no active key matches the prefix.

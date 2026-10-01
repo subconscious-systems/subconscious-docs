@@ -44,7 +44,8 @@
             "pages": [
               "features/streaming",
               "features/thinking",
-              "features/subconscious-cache"
+              "features/subconscious-cache",
+              "features/management-api-keys"
             ]
           },
           {
@@ -72,6 +73,20 @@
             "pages": [
               "api-reference/chat-completions",
               "api-reference/messages"
+            ]
+          },
+          {
+            "group": "Management",
+            "pages": [
+              "api-reference/create-inference-key",
+              "api-reference/list-inference-keys",
+              "api-reference/delete-inference-key"
+            ]
+          },
+          {
+            "group": "Usage",
+            "pages": [
+              "api-reference/usage"
             ]
           }
         ]
