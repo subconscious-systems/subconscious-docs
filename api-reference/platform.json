@@ -15,7 +15,7 @@
       "post": {
         "operationId": "createInferenceKey",
         "summary": "Create an inference key",
-        "description": "Mints an inference key for the organization that owns the management key. The `key` secret is returned once. Later usage and delete calls use `keyPrefix`. A management key cannot run inference. Inference keys presented here are rejected.",
+        "description": "Mints an inference key for the organization that owns the management key. The `key` secret is returned once. Later delete calls use `keyPrefix`. A management key cannot run inference. Inference keys presented here are rejected.",
         "security": [
           { "bearerAuth": [] },
           { "apiKeyAuth": [] }
@@ -68,7 +68,7 @@
                         },
                         "keyPrefix": {
                           "type": "string",
-                          "description": "Prefix used by the delete and per-key usage endpoints."
+                          "description": "Prefix used by the delete endpoint."
                         },
                         "createdAt": { "type": "string", "format": "date-time" }
                       }
@@ -287,154 +287,6 @@
         }
       }
     },
-    "/api/v1/management/api-keys/{keyPrefix}/usage": {
-      "get": {
-        "operationId": "getInferenceKeyUsage",
-        "summary": "Get key usage",
-        "description": "Daily token and request counts for one inference key, from the durable UTC-day rollup. Dollar amounts are omitted because rates depend on the purchase. Each response is a snapshot of the requested window. Take deltas between fetches, or read a closed UTC day once, to build a ledger. `from` and `to` default to the last 30 days, inclusive of today. The span cannot exceed 90 days. A value that is not `YYYY-MM-DD` is ignored and the default is used.",
-        "security": [
-          { "bearerAuth": [] },
-          { "apiKeyAuth": [] }
-        ],
-        "x-codeSamples": [
-          {
-            "lang": "bash",
-            "label": "cURL",
-            "source": "curl \"https://platform.subconscious.dev/api/v1/management/api-keys/a1b2c3d4/usage?from=2026-09-01&to=2026-09-30\" \\\n  -H \"Authorization: Bearer sk-mgmt-...\""
-          }
-        ],
-        "parameters": [
-          { "$ref": "#/components/parameters/keyPrefix" },
-          {
-            "name": "from",
-            "in": "query",
-            "required": false,
-            "schema": { "type": "string", "format": "date", "example": "2026-09-01" },
-            "description": "First UTC day in the window (`YYYY-MM-DD`). Defaults to 30 days before today, inclusive."
-          },
-          {
-            "name": "to",
-            "in": "query",
-            "required": false,
-            "schema": { "type": "string", "format": "date", "example": "2026-09-30" },
-            "description": "Last UTC day in the window (`YYYY-MM-DD`). Defaults to today."
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Token and request counts for the key over the window.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": ["apiKeyId", "from", "to", "totals", "daily", "byModel"],
-                  "properties": {
-                    "apiKeyId": { "type": "string" },
-                    "from": { "type": "string", "format": "date" },
-                    "to": { "type": "string", "format": "date" },
-                    "totals": { "$ref": "#/components/schemas/UsageTotals" },
-                    "daily": {
-                      "type": "array",
-                      "description": "One row per UTC day that has usage, oldest first. Days with no usage are omitted.",
-                      "items": {
-                        "allOf": [
-                          { "$ref": "#/components/schemas/UsageTotals" },
-                          {
-                            "type": "object",
-                            "required": ["day"],
-                            "properties": {
-                              "day": { "type": "string", "format": "date" }
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    "byModel": {
-                      "type": "array",
-                      "description": "Totals for the window, split by model slug.",
-                      "items": {
-                        "allOf": [
-                          { "$ref": "#/components/schemas/UsageTotals" },
-                          {
-                            "type": "object",
-                            "required": ["modelSlug"],
-                            "properties": {
-                              "modelSlug": { "type": "string" }
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "apiKeyId": "5f0c8a1e-2b4d-4c7e-9a10-6d3f2e1b0c9a",
-                  "from": "2026-09-01",
-                  "to": "2026-09-30",
-                  "totals": {
-                    "requestCount": 120,
-                    "inputTokens": 900000,
-                    "outputTokens": 45000,
-                    "cachedInputTokens": 120000
-                  },
-                  "daily": [
-                    {
-                      "day": "2026-09-29",
-                      "requestCount": 40,
-                      "inputTokens": 300000,
-                      "outputTokens": 15000,
-                      "cachedInputTokens": 40000
-                    }
-                  ],
-                  "byModel": [
-                    {
-                      "modelSlug": "subconscious/glm-5.3-marathon",
-                      "requestCount": 120,
-                      "inputTokens": 900000,
-                      "outputTokens": 45000,
-                      "cachedInputTokens": 120000
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "The window from `from` to `to` is longer than 90 days.",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" },
-                "example": { "error": "Usage window must not exceed 90 days" }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or inactive management key.",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          },
-          "403": {
-            "description": "The key is not a management key.",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          },
-          "404": {
-            "description": "No active inference key in this organization matches the prefix.",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          },
-          "500": {
-            "description": "Usage could not be read.",
-            "content": {
-              "application/json": { "schema": { "$ref": "#/components/schemas/Error" } }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/usage": {
       "get": {
         "operationId": "getUsage",
@@ -537,16 +389,6 @@
         "required": ["error"],
         "properties": {
           "error": { "type": "string" }
-        }
-      },
-      "UsageTotals": {
-        "type": "object",
-        "required": ["requestCount", "inputTokens", "outputTokens", "cachedInputTokens"],
-        "properties": {
-          "requestCount": { "type": "integer", "description": "Number of requests." },
-          "inputTokens": { "type": "integer", "description": "Input tokens metered for the key." },
-          "outputTokens": { "type": "integer", "description": "Output tokens metered for the key." },
-          "cachedInputTokens": { "type": "integer", "description": "Input tokens served from cache." }
         }
       },
       "Usage": {

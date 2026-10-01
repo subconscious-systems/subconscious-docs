@@ -4,9 +4,9 @@ description: "Provision and manage inference keys programmatically"
 icon: "key"
 ---
 
-Management API keys let you automate API-key lifecycle for your organization: mint inference keys from your own provisioning flow, delete them by prefix, and read per-key token usage for your own metering and billing.
+Management API keys let you automate API-key lifecycle for your organization: mint inference keys from your own provisioning flow and delete them by prefix.
 
-A management key cannot run inference. It only authorizes the management endpoints below. Request and response schemas are in the API reference: [create an inference key](/api-reference/create-inference-key), [list inference keys](/api-reference/list-inference-keys), [delete an inference key](/api-reference/delete-inference-key), and [per-key usage](/api-reference/key-usage).
+A management key cannot run inference. It only authorizes the management endpoints below. Request and response schemas are in the API reference: [create an inference key](/api-reference/create-inference-key), [list inference keys](/api-reference/list-inference-keys), and [delete an inference key](/api-reference/delete-inference-key).
 
 ## Create a management key
 
@@ -50,7 +50,7 @@ Response:
 }
 ```
 
-`key` is the inference secret. Return it to your tenant or feed it straight into your runtime. It is shown once; the usage and delete endpoints use `keyPrefix` so you never need the full secret again.
+`key` is the inference secret. Return it to your tenant or feed it straight into your runtime. It is shown once; the delete endpoint uses `keyPrefix` so you never need the full secret again.
 
 ## List inference keys
 
@@ -68,33 +68,3 @@ curl -X DELETE https://platform.subconscious.dev/api/v1/management/api-keys/a1b2
 ```
 
 Revokes the key at the gateway and deactivates it. Requests presented with a deleted key fail immediately. Returns 404 when no active key matches the prefix.
-
-## Per-key usage
-
-`GET /api/v1/management/api-keys/{keyPrefix}/usage`
-
-Returns daily token usage attributed to that single key. `from` and `to` are UTC calendar days (`YYYY-MM-DD`); omitted, they default to the last 30 days, capped at a 90-day window.
-
-```bash
-curl "https://platform.subconscious.dev/api/v1/management/api-keys/a1b2c3d4/usage?from=2026-09-01&to=2026-09-30" \
-  -H "Authorization: Bearer sk-mgmt-..."
-```
-
-Response:
-
-```json
-{
-  "apiKeyId": "5f0c...",
-  "from": "2026-09-01",
-  "to": "2026-09-30",
-  "totals": { "requestCount": 120, "inputTokens": 900000, "outputTokens": 45000, "cachedInputTokens": 120000 },
-  "daily": [
-    { "day": "2026-09-29", "requestCount": 40, "inputTokens": 300000, "outputTokens": 15000, "cachedInputTokens": 40000 }
-  ],
-  "byModel": [
-    { "modelSlug": "subconscious/glm-5.3-marathon", "requestCount": 120, "inputTokens": 900000, "outputTokens": 45000, "cachedInputTokens": 120000 }
-  ]
-}
-```
-
-Token counts are what we meter; dollar amounts are not included because rates depend on your purchase. Each response is a snapshot over the requested window. Calculate deltas between fetches, or fetch a closed day once per UTC day for an exact ledger.

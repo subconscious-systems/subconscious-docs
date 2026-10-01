@@ -80,8 +80,7 @@
             "pages": [
               "api-reference/create-inference-key",
               "api-reference/list-inference-keys",
-              "api-reference/delete-inference-key",
-              "api-reference/key-usage"
+              "api-reference/delete-inference-key"
             ]
           },
           {
