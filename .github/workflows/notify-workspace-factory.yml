@@ -1,6 +1,6 @@
 name: Notify workspace pin
 
-# A push to main moves this repo's submodule pin on subconscious-workspace.
+# A push to main moves this repo's submodule pin on workspace.
 
 on:
   push:
@@ -11,12 +11,12 @@ permissions: {}
 
 jobs:
   dispatch:
-    name: Tell subconscious-workspace that main moved
+    name: Tell workspace that main moved
     runs-on: ubuntu-latest
     steps:
       - name: Send repository_dispatch
         env:
-          # Fine-grained PAT with Contents: write on subconscious-workspace.
+          # Fine-grained PAT with Contents: write on workspace.
           # GITHUB_TOKEN cannot dispatch to another repository.
           GH_TOKEN: ${{ secrets.WORKSPACE_E2E_DISPATCH_TOKEN }}
         run: |
@@ -24,7 +24,7 @@ jobs:
             echo "WORKSPACE_E2E_DISPATCH_TOKEN is not set. The pin still moves on workflow_dispatch."
             exit 0
           fi
-          gh api repos/subconscious-systems/subconscious-workspace/dispatches \
+          gh api repos/subconscious-systems/workspace/dispatches \
             -f event_type=docs-main \
             -f "client_payload[sha]=$GITHUB_SHA" \
-            -f "client_payload[repo]=subconscious-docs"
+            -f "client_payload[repo]=docs"
