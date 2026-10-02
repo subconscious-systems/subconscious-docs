@@ -37,7 +37,37 @@ npm install @anthropic-ai/sdk
 
 </CodeGroup>
 
-## 4. Make Your First Request
+## 4. Install the Subconscious CLI (optional)
+
+The `subc` CLI launches coding agents (Claude Code, Codex, OpenCode, and more)
+against your Subconscious models. Install it with npm:
+
+```bash
+npm install -g subconscious-cli
+```
+
+Or with curl, if npm is blocked on your machine — the installer downloads the
+CLI package directly from the npm registry, no npm required (Node.js 18 or
+later is still needed to run the CLI):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/subconscious-systems/subconscious/main/scripts/install.sh | bash
+```
+
+Then sign in and launch an agent:
+
+```bash
+subc login
+subc marathon
+subc claude
+```
+
+If a coding agent like Claude Code is not installed, `subc` prints the npm
+command and the official install instructions for it instead of installing it
+for you. Only Subconscious's own agent (`subc marathon install`) is installed
+by the CLI itself.
+
+## 5. Make Your First Request
 
 Set your API key and base URL, then create a chat completion:
 
@@ -286,7 +316,7 @@ console.log(text);
 
 </CodeGroup>
 
-## 5. Try Streaming
+## 6. Try Streaming
 
 You can stream responses token by token for real-time output:
 
